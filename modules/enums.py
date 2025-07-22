@@ -41,7 +41,8 @@ class Subject(Enum):
     AFFIRMATIONS = "affirmations"
     GOALS = "goals"
     FEEDBACK = "feedback"
-
+    ATTRACTION = "attraction"
+    
 class Format(Enum):
     """Format types for response generation."""
     BACKGROUND = "background"

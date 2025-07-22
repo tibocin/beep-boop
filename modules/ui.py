@@ -51,8 +51,8 @@ class GradioInterface:
                 with gr.Column(scale=1):
                     gr.Markdown("### Settings")
                     model_dropdown = gr.Dropdown(
-                        choices=["gpt-4o", "gpt-4o-mini"],
-                        value="gpt-4o",
+                        choices=["gpt-4.1-nano", "gpt-4.1-mini"],
+                        value="gpt-4.1-nano",
                         label="Model"
                     )
                     

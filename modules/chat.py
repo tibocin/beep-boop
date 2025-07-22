@@ -59,7 +59,7 @@ Provide a helpful, engaging response that matches these specifications and sound
         
         try:
             response = openai.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4.1-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": message}
