@@ -55,7 +55,14 @@ def test_llm_parser():
         
         # Creative queries
         "Tell me a story about innovation",
-        "What would you do if you had unlimited resources?"
+        "What would you do if you had unlimited resources?",
+        
+        # Multi-prompt test cases (should generate multiple diverse prompts)
+        "Tell me about your projects and how they reflect your values",
+        "What's your approach to problem-solving and how does it connect to your spiritual beliefs?",
+        "I'm curious about your technical skills and what drives your passion for innovation",
+        "Share a story about your work experience and what wisdom you've gained from it",
+        "What are your dreams for the future and how do they relate to your current lifestyle?"
     ]
     
     print(f"\n📝 Testing {len(test_messages)} messages...")
@@ -65,8 +72,16 @@ def test_llm_parser():
         try:
             parsed_request = parser.parse_request(msg)
             print(f"✅ Response Objective: {parsed_request.response_objective}")
-            for j, prompt in enumerate(parsed_request.prompts, 1):
-                print(f"  📋 Prompt {j}: {prompt}")
+            
+            if len(parsed_request.prompts) > 1:
+                print(f"🎯 Multi-prompt response ({len(parsed_request.prompts)} prompts):")
+                for j, prompt in enumerate(parsed_request.prompts, 1):
+                    print(f"  📋 Prompt {j}: {prompt}")
+                print(f"  🔄 These prompts will be blended together in synthesis")
+            else:
+                for j, prompt in enumerate(parsed_request.prompts, 1):
+                    print(f"  📋 Prompt {j}: {prompt}")
+                    
         except Exception as e:
             print(f"❌ Error parsing message: {str(e)}")
     

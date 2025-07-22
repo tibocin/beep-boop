@@ -42,7 +42,7 @@ class Subject(Enum):
     GOALS = "goals"
     FEEDBACK = "feedback"
     ATTRACTION = "attraction"
-    
+
 class Format(Enum):
     """Format types for response generation."""
     BACKGROUND = "background"
@@ -74,6 +74,7 @@ class Tone(Enum):
     HUMOROUS = "humorous"
     WITTY = "witty"
     CONTEMPLATIVE = "contemplative"
+    CONVERSATIONAL = "conversational"
 
 class OutputStyle(Enum):
     """Output style types for response generation."""
