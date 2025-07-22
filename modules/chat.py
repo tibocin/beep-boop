@@ -6,8 +6,13 @@ request processing, context retrieval, and response generation.
 """
 
 import openai
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from .enums import ReqPrompt
+from .synthesizer import SynthesizerAgent
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 class ChatEngine:
     """Main chat engine that coordinates all components."""
@@ -23,6 +28,7 @@ class ChatEngine:
         self.rag_engine = rag_engine
         self.parser = parser
         self.name = name
+        self.synthesizer = SynthesizerAgent()
     
     def process_prompt(self, prompt: ReqPrompt, message: str, context: str = "") -> str:
         """
@@ -89,8 +95,11 @@ Provide a helpful, engaging response that matches these specifications and sound
             history = []
         
         try:
+            logger.info(f"Processing message: {message[:50]}...")
+            
             # Step 1: Parse the request
             parsed_request = self.parser.parse_request(message)
+            logger.info(f"Parsed into {len(parsed_request.prompts)} prompts")
             
             # Step 2: Get relevant context from RAG
             if hasattr(self.rag_engine, 'get_context_for_prompts'):
@@ -100,25 +109,57 @@ Provide a helpful, engaging response that matches these specifications and sound
                 # Use basic RAG
                 context = self.rag_engine.get_relevant_context(message)
             else:
-                # No context available
                 context = ""
             
-            # Step 3: Process with the most confident prompt
+            logger.info(f"Retrieved context: {len(context)} characters")
+            
+            # Step 3: Process each prompt and collect responses
+            responses = []
+            for i, prompt in enumerate(parsed_request.prompts):
+                logger.info(f"Processing prompt {i+1}/{len(parsed_request.prompts)}: {prompt.subject.value}")
+                response = self.process_prompt(prompt, message, context)
+                responses.append((prompt, response))
+            
+            # Step 4: Check if we need to handle low confidence
             if parsed_request.prompts:
                 best_prompt = max(parsed_request.prompts, key=lambda p: p.score)
-                
-                # Handle low-confidence responses specially
                 if best_prompt.score < 0.5:
-                    response = self._handle_low_confidence_response(message, best_prompt, context)
-                else:
-                    response = self.process_prompt(best_prompt, message, context)
+                    logger.warning(f"Low confidence response (score: {best_prompt.score})")
+                    return self._handle_low_confidence_response(message, best_prompt, context)
             else:
-                response = self._handle_low_confidence_response(message, None, context)
+                return self._handle_low_confidence_response(message, None, context)
             
-            return response
-        
+            # Step 5: Synthesize responses using the synthesizer agent
+            if len(responses) > 1:
+                logger.info("Synthesizing multiple responses")
+                synthesis_result = self.synthesizer.process_responses(
+                    responses, message, context, parsed_request.response_objective
+                )
+                
+                # Log synthesis metadata
+                logger.info(f"Synthesis complete: {synthesis_result['response_count']} responses, "
+                          f"final score: {synthesis_result['final_evaluation']['overall_score']:.2f}")
+                
+                return synthesis_result["final_response"]
+            else:
+                # Single response - just evaluate and return
+                logger.info("Single response, evaluating quality")
+                evaluation = self.synthesizer.evaluator.evaluate_response(
+                    responses[0][1], responses[0][0], context, parsed_request.response_objective
+                )
+                
+                if evaluation["needs_retry"]:
+                    logger.warning("Response needs retry, attempting...")
+                    retry_response = self.synthesizer.synthesizer._retry_response(
+                        responses[0][0], message, context, parsed_request.response_objective
+                    )
+                    return retry_response
+                
+                return responses[0][1]
+            
         except Exception as e:
-            return f"I encountered an error: {str(e)}"
+            logger.error(f"Error in chat: {e}")
+            return f"I apologize, but I encountered an error: {str(e)}"
     
     def _handle_low_confidence_response(self, message: str, prompt, context: str) -> str:
         """Handle low-confidence responses with clarification or engagement."""
