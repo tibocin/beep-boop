@@ -20,7 +20,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from modules.enums import Subject, Format, Tone, OutputStyle, ReqPrompt
 from modules.chat import ChatEngine
 from modules.parser import RequestParser
-from modules.rag import RAGEngine
+from modules.rag import create_rag_backend
 from modules.ui import GradioInterface
 
 def main():
@@ -37,8 +37,20 @@ def main():
         # Initialize components
         print("📦 Initializing components...")
         
-        # Initialize RAG engine
-        rag_engine = RAGEngine()
+        # Initialize RAG engine with adapter (auto-detects best backend)
+        rag_engine = create_rag_backend(backend_type="auto")
+        
+        # If no advanced backend is available, use basic RAG
+        if not rag_engine.backend:
+            print("⚠️ No advanced RAG backend available, using basic RAG")
+            from modules.rag import RAGEngine
+            rag_engine = RAGEngine()
+        
+        # Initialize with YAML data if backend supports it
+        if hasattr(rag_engine, 'initialize_from_yaml'):
+            rag_engine.initialize_from_yaml()
+        elif hasattr(rag_engine, 'backend') and hasattr(rag_engine.backend, 'initialize_from_yaml'):
+            rag_engine.backend.initialize_from_yaml()
         
         # Initialize request parser
         parser = RequestParser()
