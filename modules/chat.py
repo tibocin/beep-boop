@@ -22,6 +22,7 @@ class ChatEngine:
         """
         self.rag_engine = rag_engine
         self.parser = parser
+        self.name = name
     
     def process_prompt(self, prompt: ReqPrompt, message: str, context: str = "") -> str:
         """
@@ -92,7 +93,15 @@ Provide a helpful, engaging response that matches these specifications and sound
             parsed_request = self.parser.parse_request(message)
             
             # Step 2: Get relevant context from RAG
-            context = self.rag_engine.get_relevant_context(message)
+            if hasattr(self.rag_engine, 'get_context_for_prompts'):
+                # Use enhanced RAG with multi-prompt context
+                context = self.rag_engine.get_context_for_prompts(message, parsed_request.prompts)
+            elif hasattr(self.rag_engine, 'get_relevant_context'):
+                # Use basic RAG
+                context = self.rag_engine.get_relevant_context(message)
+            else:
+                # No context available
+                context = ""
             
             # Step 3: Process with the most confident prompt
             if parsed_request.prompts:
