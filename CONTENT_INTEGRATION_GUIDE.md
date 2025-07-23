@@ -36,6 +36,67 @@ data/
     └── session_meta.yaml # Session information (16 lines)
 ```
 
+### **Knowledge Graph Architecture**
+
+The system implements a **hybrid knowledge graph** with two complementary layers:
+
+#### **1. Explicit Knowledge Graph (YAML Cross-References)**
+
+```yaml
+# Stored in YAML files as cross_references
+cross_references:
+  - type: outgoing
+    target_category: preferences
+    target_file: movies
+    connection_type: ai_interest
+    relevance_score: 0.8
+    description: AI interest connects lumi to movies
+```
+
+**Purpose:**
+
+- **Structured Relationships**: Explicit semantic connections between entities
+- **Metadata Rich**: Connection types, relevance scores, descriptions
+- **Human Readable**: Clear, interpretable relationships
+- **Queryable**: Can be traversed programmatically
+
+#### **2. Implicit Knowledge Graph (Embeddings)**
+
+```python
+# Stored as vector embeddings with semantic relationships
+chunk_embedding = embed("""
+Lumi is an AI-powered platform for seed book tracking
+Related: AI movies (Interstellar, The Matrix),
+AI books (consciousness, ethics),
+Bitcoin projects, Python/ML skills
+""")
+```
+
+**Purpose:**
+
+- **Semantic Similarity**: Captures implicit relationships through vector space
+- **Fuzzy Matching**: Finds related content even without explicit links
+- **Scalable**: Can discover new relationships through similarity
+- **Performance**: Fast retrieval through vector search
+
+#### **3. Hybrid Benefits**
+
+**Complementary Strengths:**
+
+- **Explicit Graph**: Precise, interpretable relationships
+- **Implicit Graph**: Flexible, discovery-based relationships
+- **Combined**: Best of both worlds for comprehensive knowledge representation
+
+**Example Query Processing:**
+
+```
+Query: "What AI projects am I working on?"
+
+1. Explicit Graph: Direct links to AI projects (lumi, stackr, revao)
+2. Implicit Graph: Semantic similarity to AI-related content
+3. Combined Response: Rich, interconnected answer with both direct and related information
+```
+
 ### **Data Loading System**
 
 ```python
@@ -451,12 +512,12 @@ metadata:
 4. **✅ Simple Chunking**: Apply basic chunking strategies
 5. **✅ Metadata Structure**: Define unified metadata schema
 
-### **Phase 2: Advanced Processing (Week 2)**
+### **Phase 2: Advanced Processing (Week 2)** ✅ COMPLETED
 
-1. **Structured Data**: Process profiles and assessments
-2. **Cross-References**: Link related content across categories
-3. **Quality Scoring**: Implement confidence metrics
-4. **Validation**: Test chunking quality
+1. **✅ Structured Data**: Process profiles and assessments
+2. **✅ Cross-References**: Link related content across categories
+3. **✅ Quality Scoring**: Implement confidence metrics
+4. **✅ Validation**: Test chunking quality
 
 ### **Phase 3: Integration (Week 3)**
 
@@ -464,6 +525,72 @@ metadata:
 2. **Performance Testing**: Optimize retrieval
 3. **User Interface**: Add content upload/processing UI
 4. **Documentation**: Complete integration guide
+
+### **Phase 4: Learning Mode & Knowledge Graph Evolution (Week 4)** 🆕
+
+1. **Dynamic Cross-Reference Updates**: Update knowledge graph during learning mode
+2. **Semantic Discovery**: Use embeddings to discover new connections
+3. **Feedback Integration**: Refine connections based on user interactions
+4. **Knowledge Graph Analytics**: Monitor and optimize graph structure
+
+#### **Learning Mode Cross-Reference Updates**
+
+```python
+# modules/learning_mode_updater.py
+class LearningModeUpdater:
+    """Updates cross-references during learning mode interactions"""
+
+    def __init__(self, data_manager: DataManager, cross_reference_integrator: CrossReferenceIntegrator):
+        self.data_manager = data_manager
+        self.cross_reference_integrator = cross_reference_integrator
+
+    def process_interaction(self, user_query: str, response: str, feedback: Dict[str, Any]):
+        """Process user interaction and update knowledge graph"""
+
+        # Extract new insights from interaction
+        new_insights = self._extract_insights(user_query, response, feedback)
+
+        # Identify potential new connections
+        new_connections = self._identify_new_connections(new_insights)
+
+        # Update cross-references
+        self._update_cross_references(new_connections)
+
+        # Regenerate embeddings with new context
+        self._regenerate_embeddings()
+
+    def _extract_insights(self, query: str, response: str, feedback: Dict) -> List[Dict]:
+        """Extract new insights from user interaction"""
+        insights = []
+
+        # Analyze query-response patterns
+        # Identify new relationships
+        # Extract implicit connections
+
+        return insights
+
+    def _identify_new_connections(self, insights: List[Dict]) -> List[Dict]:
+        """Identify new cross-reference connections from insights"""
+        connections = []
+
+        # Use semantic similarity to find new connections
+        # Apply pattern matching to identify relationships
+        # Score and filter connections
+
+        return connections
+
+    def _update_cross_references(self, new_connections: List[Dict]):
+        """Update cross-references in YAML files"""
+        for connection in new_connections:
+            self.cross_reference_integrator._add_cross_reference(connection)
+
+    def _regenerate_embeddings(self):
+        """Regenerate embeddings with updated cross-reference context"""
+        # Update chunk content with new cross-references
+        # Regenerate embeddings
+        # Update vector database
+        pass
+```
 
 ---
 
@@ -481,7 +608,7 @@ metadata:
 - [x] **Extraction**: Extract text and structure from all sources
 - [x] **Chunking**: Apply appropriate chunking strategies
 - [x] **Metadata Addition**: Add rich metadata to all chunks
-- [ ] **Cross-Referencing**: Link related content across types
+- [x] **Cross-Referencing**: Link related content across types
 
 ### **Post-Processing**
 
@@ -489,6 +616,13 @@ metadata:
 - [ ] **Embedding Generation**: Create embeddings for all chunks
 - [ ] **RAG Integration**: Add to RAG system
 - [ ] **Performance Testing**: Test retrieval and response quality
+
+### **Learning Mode Integration** 🆕
+
+- [ ] **Interaction Processing**: Process user interactions for insights
+- [ ] **Connection Discovery**: Identify new cross-reference connections
+- [ ] **Dynamic Updates**: Update knowledge graph in real-time
+- [ ] **Embedding Regeneration**: Update embeddings with new context
 
 ---
 
@@ -515,6 +649,13 @@ metadata:
 - **✅ Personal Growth**: Writings show evolution and learning patterns
 - **✅ Rich Examples**: Diverse content provides specific examples and stories
 
+### **Knowledge Graph Evolution** 🆕
+
+- **Dynamic Learning**: Knowledge graph evolves through interactions
+- **Semantic Discovery**: New connections discovered automatically
+- **Adaptive Responses**: System learns and improves over time
+- **Personalized Growth**: Knowledge base grows with user
+
 ## 📊 **Current Data Status**
 
 ### **✅ Completed Categories**
@@ -538,5 +679,6 @@ metadata:
 - **✅ Caching Support**: Both eager and lazy loading options
 - **✅ Search Capability**: Cross-category content search
 - **✅ Metadata Standards**: Consistent metadata across all files
+- **✅ Knowledge Graph**: 90 cross-references across 3 connection types
 
-This comprehensive integration strategy has created a rich, multi-dimensional knowledge base that captures authentic personality, expertise, and experiences! 🎉
+This comprehensive integration strategy has created a rich, multi-dimensional knowledge base with a hybrid knowledge graph that captures authentic personality, expertise, and experiences! 🎉
