@@ -1,0 +1,125 @@
+metadata:
+  file_type: preferences
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - books
+  - preferences
+  - entertainment
+  description: Books preferences and analysis
+books:
+  nonfiction:
+  - title: The Recognition Sutras
+    author: Christopher Wallis
+    themes:
+    - non-dual Shaiva Tantra
+    - awareness
+    - direct realization
+    reason: "Helps eturn to this as a foundational scripture in his spiritual path\u2014\
+      core text in his Tantric worldview."
+  - title: Tantra Illuminated
+    author: Christopher Wallis
+    themes:
+    - history of Tantra
+    - Kashmir Shaivism
+    - philosophy
+    reason: A map and lineage overview that informs his practice and cosmology.
+  - title: Mastery
+    author: Robert Greene
+    themes:
+    - skill cultivation
+    - long-term discipline
+    - sovereignty
+    reason: Resonates with the desire to embody genius through structured devotion
+      to craft.
+  - title: The Laws of Human Nature
+    author: Robert Greene
+    themes:
+    - behavioral psychology
+    - power
+    - self-awareness
+    reason: Sharp insights into human drives; supports the spiritual discernment in
+      complex dynamics.
+  - title: The Status Game
+    author: Will Storr
+    themes:
+    - narrative construction
+    - tribalism
+    - ego
+    reason: "Exposes the hidden structures of societal behavior\u2014aligns with the\
+      \ reflections on story, power, and transcendence."
+  - title: We Who Wrestle With God
+    author: Jordan B. Peterson
+    themes:
+    - mythic integration
+    - faith
+    - suffering
+    reason: Peterson's integration of Christian symbols and moral challenge resonates
+      with a return to sacred texts and Christic inquiry.
+  - title: The Power of Now
+    author: Eckhart Tolle
+    themes:
+    - presence
+    - stillness
+    - ego dissolution
+    reason: Early doorway into the practice of presence and awareness.
+  - title: The Richest Man in Babylon
+    author: George S. Clason
+    themes:
+    - financial wisdom
+    - personal responsibility
+    reason: Appreciated for its parable format and timeless economic principles.
+  - title: Broken Money
+    author: Lyn Alden
+    themes:
+    - economic history
+    - monetary evolution
+    - Bitcoin
+    reason: "Frames Bitcoin as a moral and systemic turning point\u2014shapes the\
+      \ financial and freedom-tech ethos."
+  - title: The Bitcoin Standard
+    author: Saifedean Ammous
+    themes:
+    - sound money
+    - economic sovereignty
+    - Austrian economics
+    reason: Early influence on the understanding of Bitcoin as a spiritual and ethical
+      substrate.
+  poetry_and_mystic_texts:
+  - title: Naked Song
+    author: Lalla (Lal Ded)
+    themes:
+    - mystical poetry
+    - embodied realization
+    - surrender
+    reason: "Memorizes these poems as a form of devotional sadhana\u2014sacred mirror\
+      \ of the inner practice."
+  fiction:
+  - title: The Martian
+    author: Andy Weir
+    themes:
+    - ingenuity
+    - resilience
+    - science-as-salvation
+    reason: Enjoyed for its cleverness and grounded sci-fi problem-solving.
+  - title: Fear the Sky (series)
+    author: Stephen Moss
+    themes:
+    - first contact
+    - psychological thriller
+    - alien invasion
+    reason: Enjoyed the tension and worldbuilding; open to reading more sci-fi in
+      this vein.
+  reflective_reads:
+  - title: Politically Motivated Biographies (various)
+    tags:
+    - bias_reflection
+    - politics
+    - self-awareness
+    reason: 'Read multiple anti-Trump books during a period of political polarization.
+      In hindsight, he sees how confirmation bias and zeitgeist-driven narratives
+      influenced the reading choices. This reflection informs his current commitment
+      to balanced inquiry and caution around ideological echo chambers.
+
+      '
+    visibility: internal

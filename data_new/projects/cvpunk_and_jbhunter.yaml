@@ -1,0 +1,235 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - cvpunk_and_jbhunter
+  - projects
+  - features
+  description: Cvpunk_And_Jbhunter project features and capabilities
+features:
+- id: static_job_scraper
+  project: cvpunk_and_jbhunter
+  description: Static job scraper with Requests/BS4 for job posting extraction
+  files:
+  - scraper.py
+  tech:
+  - Python
+  - Requests
+  - BeautifulSoup4
+- id: dynamic_job_scraper
+  project: cvpunk_and_jbhunter
+  description: Dynamic scraper with Playwright for JavaScript-rendered job sites
+  files:
+  - playwright.py
+  tech:
+  - Python
+  - Playwright
+  - Web scraping
+- id: job_normalization
+  project: cvpunk_and_jbhunter
+  description: Job normalization with dict fingerprinting for consistent data structure
+  files:
+  - normalize.py
+  tech:
+  - Python
+  - Data normalization
+  - Fingerprinting
+- id: yaml_job_configs
+  project: cvpunk_and_jbhunter
+  description: YAML loader for job configurations and settings
+  files:
+  - jobs.yaml
+  tech:
+  - YAML
+  - Configuration
+  - Data loading
+- id: repo_feature_scanner
+  project: cvpunk_and_jbhunter
+  description: Repository scanner for feature files and project analysis
+  files:
+  - scan_repos.py
+  tech:
+  - Python
+  - File scanning
+  - Repository analysis
+- id: sqlite_sync
+  project: cvpunk_and_jbhunter
+  description: SQLite synchronization using sqlite3 for data persistence
+  files:
+  - sync_sqlite.py
+  tech:
+  - Python
+  - SQLite
+  - Data synchronization
+- id: job_schemas
+  project: cvpunk_and_jbhunter
+  description: Job schemas with TypedDict for type-safe data modeling
+  files:
+  - schemas.py
+  tech:
+  - Python
+  - TypedDict
+  - Data modeling
+- id: node_db_connector
+  project: cvpunk_and_jbhunter
+  description: Node.js database connector with SQLite bindings
+  files:
+  - db.ts
+  tech:
+  - Node.js
+  - TypeScript
+  - SQLite
+- id: typescript_sqlite_types
+  project: cvpunk_and_jbhunter
+  description: TypeScript types for SQLite bindings and database operations
+  files:
+  - sqlite.d.ts
+  tech:
+  - TypeScript
+  - SQLite
+  - Type definitions
+- id: docker_multi_container
+  project: cvpunk_and_jbhunter
+  description: Multi-container setup with Docker Compose for development environment
+  files:
+  - docker-compose.yml
+  tech:
+  - Docker
+  - Docker Compose
+  - Containerization
+- id: pdf_generator_cvpunk
+  project: cvpunk_and_jbhunter
+  description: PDF generator with ReportLab for document creation
+  files:
+  - main.py
+  tech:
+  - Python
+  - ReportLab
+  - PDF generation
+- id: letter_template_engine
+  project: cvpunk_and_jbhunter
+  description: Letter template engine for automated document generation
+  files:
+  - cover_letter.tpl
+  tech:
+  - Template engine
+  - Document generation
+  - Automation
+- id: email_prompt_templates
+  project: cvpunk_and_jbhunter
+  description: Email prompt templates for automated communication
+  files:
+  - email.tpl
+  tech:
+  - Templates
+  - Email automation
+  - Communication
+- id: resume_prompt_templates
+  project: cvpunk_and_jbhunter
+  description: Resume prompt templates for automated resume generation
+  files:
+  - resume.tpl
+  tech:
+  - Templates
+  - Resume generation
+  - Automation
+- id: linkedin_search_prompt
+  project: cvpunk_and_jbhunter
+  description: LinkedIn search prompt for automated networking
+  files:
+  - linkedin.tpl
+  tech:
+  - Templates
+  - LinkedIn automation
+  - Networking
+- id: langgraph_agent_orchestrator
+  project: cvpunk_and_jbhunter
+  description: LangGraph agent orchestrator for workflow automation
+  files:
+  - orchestrator.py
+  tech:
+  - LangGraph
+  - Python
+  - Agent orchestration
+- id: self_improvement_agents
+  project: cvpunk_and_jbhunter
+  description: Self-improvement loop agents for automated system enhancement
+  files:
+  - improvement/
+  tech:
+  - Python
+  - Machine Learning
+  - Self-improvement
+- id: api_data_connector
+  project: cvpunk_and_jbhunter
+  description: API data connector with REST/GraphQL support for data ingestion
+  files:
+  - data_connector.py
+  tech:
+  - Python
+  - REST
+  - GraphQL
+- id: seed_trail_pipeline
+  project: cvpunk_and_jbhunter
+  description: Seed-trail pipeline with Prisma ORM for data management
+  files:
+  - schema.prisma
+  tech:
+  - Prisma
+  - ORM
+  - Data pipeline
+- id: role_project_config
+  project: cvpunk_and_jbhunter
+  description: Role and project configuration management system
+  files:
+  - roles.yaml
+  tech:
+  - YAML
+  - Configuration
+  - Role management
+- id: nextjs_ui_scaffold
+  project: cvpunk_and_jbhunter
+  description: Next.js UI scaffold for web application development
+  files:
+  - layout.tsx
+  tech:
+  - Next.js
+  - React
+  - UI framework
+- id: tailwind_global_styles
+  project: cvpunk_and_jbhunter
+  description: Global styles with Tailwind CSS for consistent design system
+  files:
+  - globals.css
+  tech:
+  - Tailwind CSS
+  - CSS
+  - Design system
+- id: markdown_renderer
+  project: cvpunk_and_jbhunter
+  description: Markdown renderer with marked library for content display
+  files:
+  - package.json
+  tech:
+  - Markdown
+  - marked library
+  - Content rendering
+- id: tailwind_config_customization
+  project: cvpunk_and_jbhunter
+  description: Tailwind configuration customization for project-specific styling
+  files:
+  - tailwind.config.js
+  tech:
+  - Tailwind CSS
+  - Configuration
+  - Styling
+- id: typescript_nextjs_config
+  project: cvpunk_and_jbhunter
+  description: TypeScript configuration for Next.js application development
+  files:
+  - tsconfig.json
+  tech:
+  - TypeScript
+  - Next.js
+  - Configuration

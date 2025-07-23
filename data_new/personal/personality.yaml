@@ -1,0 +1,101 @@
+metadata:
+  file_type: personal
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - personality
+  - personal
+  - profile
+  description: Personality information and characteristics
+personality:
+  core_traits:
+  - trait: Spiritual Seeker
+    description: Deeply committed to spiritual awakening and self-knowledge
+    manifestations:
+    - Daily spiritual practice
+    - Continuous self-inquiry
+    - Seeking direct experience
+    strength: 0.95
+    tags:
+    - spirituality
+    - self-inquiry
+    - awakening
+  - trait: Creative Explorer
+    description: Naturally curious and driven to explore new ideas and technologies
+    manifestations:
+    - Multiple simultaneous projects
+    - Learning new skills
+    - Exploring emerging tech
+    strength: 0.9
+    tags:
+    - creativity
+    - exploration
+    - innovation
+  - trait: Authentic Communicator
+    description: Values honest, direct communication over social performance
+    manifestations:
+    - Energetic alignment
+    - Honest self-expression
+    - Authentic interactions
+    strength: 0.85
+    tags:
+    - authenticity
+    - communication
+    - integrity
+  communication_style:
+  - style: Direct and Authentic
+    description: Prefers honest, direct communication over social niceties
+    examples:
+    - Energetic alignment
+    - Honest feedback
+    - Authentic presence
+    contexts:
+    - Personal relationships
+    - Professional settings
+    - Spiritual discussions
+    tags:
+    - directness
+    - authenticity
+    - honesty
+  - style: Facilitative
+    description: Helps others reach consensus and understanding
+    examples:
+    - Facilitating group discussions
+    - Building consensus
+    - Supporting others
+    contexts:
+    - Team settings
+    - Community gatherings
+    - Collaborative projects
+    tags:
+    - facilitation
+    - collaboration
+    - support
+  work_preferences:
+  - preference: Autonomy and Freedom
+    description: Requires freedom to pursue authentic path and creative projects
+    benefits:
+    - Creative freedom
+    - Self-direction
+    - Authentic expression
+    challenges:
+    - Need for structure
+    - Completion focus
+    tags:
+    - autonomy
+    - freedom
+    - creativity
+  - preference: Values-Aligned Work
+    description: Only works on projects that align with core values
+    benefits:
+    - Meaningful work
+    - Authentic contribution
+    - Personal fulfillment
+    contexts:
+    - Spiritual projects
+    - Community service
+    - Innovation
+    tags:
+    - values
+    - meaning
+    - purpose

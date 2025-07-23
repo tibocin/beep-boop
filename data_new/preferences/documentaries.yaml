@@ -1,0 +1,59 @@
+metadata:
+  file_type: preferences
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - documentaries
+  - preferences
+  - entertainment
+  description: Documentaries preferences and analysis
+documentaries:
+- title: Capital
+  themes:
+  - global finance
+  - power structures
+  tone:
+  - "expos\xE9"
+  - systemic critique
+  reason: Watched with interest in economic systems and injustice.
+- title: Loose Change
+  topic: 9/11 conspiracy theories
+  tone:
+  - speculative
+  - questioning
+  - investigative
+  reason: 'Appealed to the curiosity and distrust of official narratives at the time.
+    Views this with more discernment now.
+
+    '
+  visibility: internal
+- title: An Inconvenient Truth
+  creator: Al Gore
+  themes:
+  - climate change
+  - environmental awareness
+  reason: Compelled by the message then; now seen with greater nuance regarding narrative
+    framing.
+  visibility: internal
+- title: The Social Dilemma
+  themes:
+  - social media
+  - addiction
+  - surveillance
+  - data privacy
+  tone:
+  - thought-provoking
+  - critical
+  - alarmist
+  reason: Explores the dark side of social media and its impact on society.
+  visibility: internal
+- title: Michael Moore Documentaries (e.g., Fahrenheit 9/11, Bowling for Columbine)
+  tone:
+  - provocative
+  - populist
+  reason: 'Watched during a time of political engagement; would view differently now
+    with more skepticism of editorial bias. Experience was formative in recognizing
+    the persuasive power of media and its alignment with emotional allegiance.
+
+    '
+  visibility: internal

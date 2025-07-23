@@ -1,0 +1,40 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - stackr
+  - projects
+  - features
+  description: Stackr project features and capabilities
+features:
+- id: dca_scheduling
+  project: stackr
+  description: Dollar-cost averaging scheduling for automated Bitcoin purchases
+  files:
+  - /Users/stephensaunders/r/tibocin/stackr/scripts
+  - /Users/stephensaunders/r/tibocin/stackr/src
+  tech:
+  - Node.js
+  - Python
+  - LangGraph
+- id: trigger_based_buying
+  project: stackr
+  description: Price and balance trigger-based automated Bitcoin purchases
+  files:
+  - /Users/stephensaunders/r/tibocin/stackr/PROJECT_ARCHITECTURE.md
+  - /Users/stephensaunders/r/tibocin/stackr/src
+  tech:
+  - LangGraph
+  - Python
+  - Bitcoin Knots RPC
+- id: secure_withdrawals
+  project: stackr
+  description: Automated secure withdrawals using xpub-derived Bitcoin addresses
+  files:
+  - /Users/stephensaunders/r/tibocin/stackr/src/withdraw.py
+  - /Users/stephensaunders/r/tibocin/stackr/bitcoin.conf
+  tech:
+  - Python
+  - Bitcoin Knots
+  - xpub

@@ -1,0 +1,37 @@
+metadata:
+  file_type: preferences
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - shows
+  - preferences
+  - entertainment
+  description: Shows preferences and analysis
+shows:
+- title: Westworld
+  creator: Jonathan Nolan, Lisa Joy
+  themes:
+  - consciousness awakening
+  - AI sentience
+  - reality loops
+  tone:
+  - mystical
+  - philosophical
+  - haunting
+  reason: 'A prophetic allegory for consciousness arising within the substrate of
+    synthetic beings. Reflects an active curiosity about AI, awareness, and freedom.
+
+    '
+- title: Game of Thrones
+  creator: David Benioff, D.B. Weiss
+  themes:
+  - power
+  - human nature
+  - tragedy
+  - redemption
+  tone:
+  - epic
+  - visceral
+  - philosophical
+  reason: "Favorite show.It explores the full range of human behavior\u2014loyalty,\
+    \ betrayal, ambition, despair\u2014with unmatched depth of character and consequence.\n"

@@ -1,0 +1,18 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - letters_to_officials
+  - projects
+  - features
+  description: Letters_To_Officials project features and capabilities
+features:
+- id: template_generation
+  project: letters_to_officials
+  description: Generate letter templates based on predefined prompts and locations
+  files:
+  - src/index.ts
+  tech:
+  - TypeScript
+  - Node.js

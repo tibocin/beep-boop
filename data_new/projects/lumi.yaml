@@ -1,0 +1,303 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - lumi
+  - projects
+  - features
+  description: Lumi project features and capabilities
+features:
+- id: seed_tracking
+  project: lumi
+  description: Track seed book journeys and user reflections anchored to block height
+  files:
+  - src/app/seed-trail/page.tsx
+  - prisma/schema.prisma
+  tech:
+  - Prisma
+  - PostgreSQL
+  - Next.js
+- id: pdf_generator
+  project: lumi
+  description: Generate cryptographically signed PDFs for seeds and genesis cards
+  files:
+  - scripts/pdf_generator/main.py
+  - scripts/pdf_generator/generators/book_stamps.py
+  tech:
+  - Python
+  - HTML templates
+  - reportlab
+- id: totp_authentication
+  project: lumi
+  description: TOTP two-factor authentication with Speakeasy library
+  files:
+  - apps/server/src/lib/2fa.ts
+  tech:
+  - TypeScript
+  - Speakeasy
+  - Next.js
+- id: email_invitation_flow
+  project: lumi
+  description: Email invitation system using Nodemailer for user onboarding
+  files:
+  - apps/server/src/services/email/index.ts
+  tech:
+  - TypeScript
+  - Nodemailer
+  - Node.js
+- id: qr_code_login
+  project: lumi
+  description: QR-code scanner login functionality via html5-qrcode
+  files:
+  - apps/web/src/components/QRCodeLogin.tsx
+  tech:
+  - React
+  - TypeScript
+  - html5-qrcode
+- id: stewardship_login_api
+  project: lumi
+  description: Stewardship login API with Next.js routes
+  files:
+  - apps/server/src/app/api/steward/login/route.ts
+  tech:
+  - Next.js
+  - TypeScript
+  - API Routes
+- id: reflection_submission_ui
+  project: lumi
+  description: User reflection submission interface in React
+  files:
+  - apps/web/src/components/ReflectionForm.tsx
+  tech:
+  - React
+  - TypeScript
+  - Form handling
+- id: certificate_viewer
+  project: lumi
+  description: Edition certificate viewer component in React
+  files:
+  - apps/web/src/components/CertificateViewer.tsx
+  tech:
+  - React
+  - TypeScript
+  - Certificate display
+- id: media_gallery
+  project: lumi
+  description: Media gallery with Tailwind CSS layouts
+  files:
+  - apps/web/src/components/MediaGallery.tsx
+  tech:
+  - React
+  - Tailwind CSS
+  - Media handling
+- id: admin_moderation_dashboard
+  project: lumi
+  description: Admin moderation dashboard for content management
+  files:
+  - apps/web/src/app/admin/page.tsx
+  tech:
+  - Next.js
+  - React
+  - Admin interface
+- id: aws_s3_storage
+  project: lumi
+  description: AWS S3 storage integration with AWS SDK v3
+  files:
+  - packages/storage/src/s3.ts
+  tech:
+  - AWS SDK v3
+  - TypeScript
+  - Cloud storage
+- id: ipfs_file_upload
+  project: lumi
+  description: IPFS file upload via ipfs-http-client
+  files:
+  - packages/storage/src/ipfs.ts
+  tech:
+  - IPFS
+  - TypeScript
+  - Decentralized storage
+- id: prisma_orm_integration
+  project: lumi
+  description: Prisma ORM for PostgreSQL modeling and type-safe database access
+  files:
+  - prisma/schema.prisma
+  - packages/db
+  tech:
+  - Prisma
+  - PostgreSQL
+  - TypeScript
+- id: docker_compose_setup
+  project: lumi
+  description: Docker Compose configuration for local development environment
+  files:
+  - docker-compose.yml
+  tech:
+  - Docker
+  - Docker Compose
+  - Containerization
+- id: database_backup_automation
+  project: lumi
+  description: Automated database backups and rollback with bash scripts
+  files:
+  - scripts/db-backup.sh
+  - scripts/db-rollback.sh
+  tech:
+  - Bash
+  - Database management
+  - Automation
+- id: turbo_monorepo_deployment
+  project: lumi
+  description: Multi-service stack deployment with Turbo and pnpm workspaces
+  files:
+  - pnpm-workspace.yaml
+  - turbo.json
+  tech:
+  - Turbo
+  - pnpm
+  - Monorepo
+- id: bcrypt_password_hashing
+  project: lumi
+  description: Secure password hashing using bcryptjs
+  files:
+  - src/lib/auth.ts
+  tech:
+  - bcryptjs
+  - Security
+  - Password management
+- id: jwt_authentication
+  project: lumi
+  description: JWT authentication implementation with jose library
+  files:
+  - packages/auth/src/jwt.ts
+  tech:
+  - JWT
+  - jose library
+  - Authentication
+- id: rate_limit_middleware
+  project: lumi
+  description: Rate limiting middleware for API protection
+  files:
+  - apps/server/src/middleware.ts
+  tech:
+  - Middleware
+  - Rate limiting
+  - API security
+- id: role_based_access_control
+  project: lumi
+  description: Guard pattern for role-based access control
+  files:
+  - apps/web/src/lib/withAuth.tsx
+  tech:
+  - React
+  - Authorization
+  - Guard pattern
+- id: http_only_cookies
+  project: lumi
+  description: HTTP-only cookies for secure session storage
+  files:
+  - apps/server/src/lib/cookies.ts
+  tech:
+  - Cookies
+  - Security
+  - Session management
+- id: nextauth_integration
+  project: lumi
+  description: NextAuth credential provider integration
+  files:
+  - apps/web/src/lib/nextAuth.ts
+  tech:
+  - NextAuth
+  - Authentication
+  - Next.js
+- id: cors_policy_enforcement
+  project: lumi
+  description: CORS policy enforcement across API routes
+  files:
+  - apps/server/next.config.js
+  tech:
+  - CORS
+  - Security
+  - Next.js
+- id: typescript_input_validation
+  project: lumi
+  description: TypeScript generics for robust input validation
+  files:
+  - src/utils/validators.ts
+  tech:
+  - TypeScript
+  - Generics
+  - Input validation
+- id: bitcoin_signature_generation
+  project: lumi
+  description: Bitcoin signature generation via bitcoinjs-lib
+  files:
+  - packages/bitcoin/src/signer.ts
+  tech:
+  - Bitcoin
+  - bitcoinjs-lib
+  - Cryptography
+- id: bitcoin_message_verification
+  project: lumi
+  description: Bitcoin message verification with bitcoinjs-message
+  files:
+  - packages/bitcoin/src/utils.ts
+  tech:
+  - Bitcoin
+  - bitcoinjs-message
+  - Message verification
+- id: hd_key_derivation
+  project: lumi
+  description: HD key derivation using BIP32 (bip32 library)
+  files:
+  - packages/bitcoin/src/hdnode.ts
+  tech:
+  - BIP32
+  - HD wallets
+  - Key derivation
+- id: psbt_signing_flow
+  project: lumi
+  description: BIP322 PSBT signing flow implementation
+  files:
+  - packages/bitcoin/src/psbt.ts
+  tech:
+  - BIP322
+  - PSBT
+  - Bitcoin transactions
+- id: bip322_authorization_challenge
+  project: lumi
+  description: bip322-js authorization challenge implementation
+  files:
+  - packages/bitcoin/src/challenge.ts
+  tech:
+  - BIP322
+  - Authorization
+  - Bitcoin
+- id: ecdsa_signature_verification
+  project: lumi
+  description: ECDSA signature verification with tiny-secp256k1
+  files:
+  - packages/bitcoin/src/crypto.ts
+  tech:
+  - ECDSA
+  - tiny-secp256k1
+  - Cryptography
+- id: sha256_hashing
+  project: lumi
+  description: SHA-256 hashing via Node core crypto module
+  files:
+  - src/utils/hash.ts
+  tech:
+  - SHA-256
+  - Node.js crypto
+  - Hashing
+- id: qr_code_generation
+  project: lumi
+  description: QR code generation with qrcode library
+  files:
+  - src/lib/qrcode.ts
+  tech:
+  - QR codes
+  - qrcode library
+  - Code generation

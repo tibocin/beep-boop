@@ -1,0 +1,110 @@
+metadata:
+  file_type: personal
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - interests
+  - personal
+  - profile
+  description: Interests information and characteristics
+interests:
+  technology:
+  - interest: Bitcoin
+    description: Deep interest in Bitcoin as technology and philosophy
+    focus_areas:
+    - Bitcoin Lightning
+    - Financial sovereignty
+    - Decentralization
+    - Financial sovereignty
+    - Self-custody
+    - Censorship resistance
+    - NOSTR
+    - Bitcoin backed finance
+    current_learning:
+    - Lightning network
+    - Bitcoin development
+    - Cryptocurrency economics
+    tags:
+    - bitcoin
+    - cryptocurrency
+    - decentralization
+    - finance
+  - interest: Artificial Intelligence
+    description: Fascinated by AI's potential to augment human capabilities
+    focus_areas:
+    - Large Language Models
+    - AI Agents
+    - Machine Learning
+    - AI Ethics
+    current_learning:
+    - LangGraph
+    - OpenAI APIs
+    - AI safety
+    - Agentic systems
+    tags:
+    - AI
+    - machine-learning
+    - automation
+    - ethics
+  spiritual_personal:
+  - interest: Spiritual Awakening
+    description: Deep commitment to spiritual practice and self-knowledge
+    focus_areas:
+    - Non-dual practice
+    - Self-inquiry
+    - Spiritual texts
+    - Direct experience
+    current_learning:
+    - Meditation
+    - Spiritual literature
+    - Community practice
+    tags:
+    - spirituality
+    - meditation
+    - self-inquiry
+    - awakening
+  - interest: Science and Technology
+    description: Exploration of scientific discoveries and technological innovations
+    focus_areas:
+    - Physics
+    - Quantum Physics
+    - Quantum Computing
+    - Virtual Reality
+    - Augmented Reality
+    - Material Science
+    - Computer Science
+    - Artificial Intelligence
+    - Energy Systems
+    - Space Exploration
+    - Micro nuclear
+    - Neuroscience
+    - Biotechnology
+    - Emerging technologies
+    - Scientific research
+    - Nanotechnology
+    current_learning:
+    - Latest scientific discoveries
+    - Emerging tech trends
+    - Research papers
+    tags:
+    - science
+    - technology
+    - research
+    - innovation
+  creative_pursuits:
+  - interest: Creative Expression
+    description: Finding joy in creative projects and artistic expression
+    forms:
+    - Software development
+    - Writing
+    - Community building
+    - Innovation
+    themes:
+    - Spiritual growth
+    - Technological advancement
+    - Human potential
+    tags:
+    - creativity
+    - expression
+    - innovation
+    - art

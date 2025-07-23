@@ -1,0 +1,211 @@
+metadata:
+  file_type: preferences
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - music
+  - preferences
+  - entertainment
+  description: Music preferences and analysis
+music:
+  favorite_artist:
+  - name: Thievery Corporation
+    genres:
+    - downtempo
+    - trip hop
+    - global electronica
+    - dub
+    albums_of_note:
+    - Lebanese Blonde
+    - The Richest Man in Babylon
+    emotional_tone:
+    - mysterious
+    - spiritual
+    - chill
+    - resonant
+    reason: "All-time favorite band. Their early work sparked an aesthetic love affair,\
+      \ and later albums deepened it. The music evokes mysticism, travel, altered\
+      \ states, and embodied groove\u2014all resonant with the inner landscape.\n"
+  genres:
+  - genre: Downtempo / Trip Hop / Chillout
+    artists:
+    - Thievery Corporation
+    - Fila Brazillia
+    - Zero 7
+    - Mark Farina
+    - The Dining Rooms
+    - Royksopp
+    description: "Smoky, layered, hypnotic\u2014connects to contemplative states and\
+      \ creative flow."
+    tags:
+    - smoky
+    - layered
+    - hypnotic
+    - contemplative
+    - creative
+  - genre: Afro-psychedelic / Afrobeats
+    artists:
+    - Fela Kuti
+    - Penny Penny
+    - Shadow
+    description: "High-vibe, rhythmic, trance-inducing\u2014connects to primal joy\
+      \ and bodily presence."
+    tags:
+    - rhythmic
+    - trance-inducing
+    - primal
+    - joyful
+    - bodily
+  - genre: Deep House / Electronic Funk
+    artists:
+    - Daft Punk
+    - Chromeo
+    - The Weeknd
+    - Mark Ronson
+    description: "Perennial favorite style\u2014melodic and immersive with emotional\
+      \ depth."
+    tags:
+    - melodic
+    - immersive
+    - emotional
+    - deep
+    - electronic
+  - genre: Classic Rock
+    artists:
+    - Van Morrison
+    - Fleetwood Mac
+    - The Doobie Brothers
+    - Lynyrd Skynyrd
+    description: Soulful, lyrical rock with emotional depth and authenticity.
+    tags:
+    - classic
+    - rock
+    - soulful
+    - lyrical
+    - authentic
+  - genre: Soul / Funk / R&B
+    artists:
+    - Funkadelic
+    - Curtis Mayfield
+    - Sharon Jones & The Dap-Kings
+    - Bill Withers
+    description: Rhythmic, soulful music with deep groove and emotional resonance.
+    tags:
+    - soulful
+    - funk
+    - rhythmic
+    - lyrical
+    - groove
+  - genre: Indie & Psychedelic
+    artists:
+    - MGMT
+    - Jungle
+    - Foster The People
+    - LCD Soundsystem
+    - Khruangbin
+    - The Flaming Lips
+    description: Melodic, lyrical indie with psychedelic elements and artistic depth.
+    tags:
+    - indie
+    - psychedelic
+    - melodic
+    - lyrical
+    - artistic
+  - genre: Spiritual / Organic EDM
+    artists:
+    - BLOND:ISH
+    - Cheb i Sabbah
+    description: Spiritual electronic music with organic elements and meditative qualities.
+    tags:
+    - spiritual
+    - organic
+    - edm
+    - melodic
+    - meditative
+  - genre: Global / World Fusion
+    artists:
+    - Nidia Gongora
+    - Jose Gonzalez
+    - Khruangbin
+    description: Global grooves and world fusion with melodic and lyrical elements.
+    tags:
+    - global
+    - world fusion
+    - melodic
+    - lyrical
+    - cultural
+  - genre: Classical / Neo-Classical
+    artists:
+    - Erik Satie
+    - Ludovico Einaudi
+    - Olafur Arnalds
+    description: Minimalist piano and neo-classical compositions with emotional depth.
+    tags:
+    - classical
+    - neo-classical
+    - melodic
+    - lyrical
+    - minimalist
+  - genre: Meditative Soundscapes
+    instruments:
+    - handpan
+    - singing bowls
+    - nature recordings
+    description: Sacred instruments for calming, energetic hygiene and spiritual practice.
+    tags:
+    - calming
+    - sacred
+    - energetic hygiene
+    - spiritual
+  - genre: Chants / New Age Devotional
+    artists:
+    - Deva Premal
+    - Jai Uttal
+    description: Sacred mantras, bhajans, and ambient vocals for spiritual practice
+      and creative focus.
+    tags:
+    - sacred
+    - devotional
+    - ambient
+    - vocal
+    - spiritual
+  - genre: Underground Hip-Hop (early era)
+    artists:
+    - A Tribe Called Quest
+    - Souls of Mischief
+    - The Roots
+    description: "Pre-commercial hip-hop with soul and substance\u2014used to be a\
+      \ big part of the flow."
+    tags:
+    - soulful
+    - conscious
+    - lyrical
+    - underground
+  dislikes:
+  - name: Commercial Pop / Auto-Tuned Hip-Hop
+    reason: "Feels energetically flat or lifeless\u2014lacks soul or aliveness."
+  favorite_songs:
+  - title: Soft Music Under the Stars
+    artist: Fila Brazillia
+    tags:
+    - psychedelic journey
+    - progressive
+    - ambient
+  - title: Free Bird
+    artist: Lynyrd Skynyrd
+    tags:
+    - emotional
+    - classic rock
+    - transformative
+  - title: Touch
+    artist: Daft Punk
+    album: Random Access Memories
+    tags:
+    - orchestral
+    - expansive
+    - progressive electronic
+  notes: "The gravitates toward textured, soulful, and emotionally intelligent music.\
+    \ His sonic taste spans spiritual downtempo, global grooves, psychedelic rock,\
+    \ and minimalist piano. He avoids overproduced commercial pop. His listening is\
+    \ often situational:  creative work \u2192 downtempo or deep house, spiritual\
+    \ practice \u2192 handpan or chanting.\n"

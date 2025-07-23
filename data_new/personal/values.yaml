@@ -1,0 +1,155 @@
+metadata:
+  file_type: personal
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - values
+  - personal
+  - profile
+  description: Values information and characteristics
+values:
+  core_principles:
+  - value: Self-Knowledge / Spiritual Awakening
+    description: Life-long pull toward direct experience of the Mystery (Awareness);
+      meditation, prayer,daily mantra, reflective awareness
+    discovered_when: Early childhood onward; near death experience; persistent wonder
+      about 'who is experiencing?'
+    daily_expression:
+    - meditation
+    - prayer
+    - sacred texts contemplation and study
+    - mantra chanting
+    - moment-to-moment inquiry
+    - seeing wisdom everywhere
+    importance: 0.98
+    examples:
+    - Daily spiritual practice
+    - Heart-centered prayer
+    - Devotional practice
+    - Continuous self-inquiry
+    - Resting in direct experience
+    conflict_resolution: Freedom required to pursue; will choose authenticity over
+      conformity
+    tags:
+    - spirituality
+    - self-inquiry
+    - awakening
+    - authenticity
+    - purpose
+  - value: Freedom & Autonomy
+    description: Prerequisite for awakening and authentic living; choose adventure,
+      creation over passive consumption; Life force must be free to flow
+    discovered_when: Adulthood; through the ups and downs of life; revelation and
+      inspiration; liberty vs socialism; travel and independent projects
+    daily_expression:
+    - low passive media consumption
+    - time as sacred
+    - try-new-things bias
+    importance: 0.95
+    examples:
+    - Independent travel
+    - Self-directed projects
+    - Minimal passive entertainment
+    - Ideation and creation
+    - Creative expression
+    conflict_resolution: Will trade short-term safety for exploratory growth
+    tags:
+    - freedom
+    - autonomy
+    - exploration
+    - growth
+  - value: Generosity / Service
+    description: Give self, resources, attention to uplift others and honor the sacred
+    discovered_when: Through community involvement and spiritual practice
+    daily_expression:
+    - drop-everything airport friend visits
+    - being present and fully engaged
+    - giving space for others to be fully themselves
+    - consciously being affirming love energy
+    - offer time and skills to help others
+    - participate in community service
+    - facilitate charitable giving
+    - fostering community
+    importance: 0.92
+    examples:
+    - Supporting friends in crisis
+    - Joining community gatherings
+    - Donating to charity on behalf of others
+    - Community service
+    - Sharing knowledge freely
+    conflict_resolution: Balances personal needs with service to others
+    tags:
+    - generosity
+    - service
+    - community
+    - compassion
+  - value: Integrity-as-Being
+    description: Desire to be what I am fully and purely; energetic honesty over social
+      performance
+    discovered_when: Through spiritual practice, self-reflection, and direct experience
+      (communion) with the Divine
+    daily_expression:
+    - energetic alignment
+    - spiritual practice
+    - care in presence
+    importance: 0.9
+    examples:
+    - Authentic communication
+    - Living according to values
+    - Honest self-expression
+    - Going down the rabbit hole of truth
+    - Being fully present in the moment
+    - Letting unfoldment happen
+    conflict_resolution: Will withdraw when not aligned
+    tags:
+    - integrity
+    - authenticity
+    - alignment
+    - honesty
+  - value: Curiosity / Insatiable Learning
+    description: Constant exploration of tech, awareness, systems; fuels many simultaneous
+      projects; modern rennissance man
+    discovered_when: Lifelong trait; enhanced through diverse experiences
+    daily_expression:
+    - continuous learning
+    - exploring new technologies
+    - reading widely
+    - dreaming
+    - vision
+    importance: 0.88
+    examples:
+    - Learning new programming languages
+    - Exploring spiritual texts
+    - Studying emerging technologies
+    - Listening to podcasts
+    - Listening to audiobooks
+    - Starting projects
+    - Documenting business ideas
+    - Watching YouTube
+    tags:
+    - curiosity
+    - learning
+    - exploration
+    - growth
+  decision_making:
+  - principle: Intuitive / noetic sensing
+    description: Primary decision-making mode; try-adapt-pivot approach
+    process:
+    - Intuitive sensing
+    - Quick experimentation
+    - Adaptation based on results
+    - Pivot when needed
+    conviction_domains:
+    - Bitcoin
+    - nature_of_awareness
+    - libertarianism
+    - self-ownership
+    - human nature
+    - incentive systems
+    - narrative
+    collaborative_style: Facilitates consensus; low absolutism
+    tags:
+    - intuition
+    - adaptation
+    - experimentation
+    - collaboration

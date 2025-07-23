@@ -1,0 +1,36 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - fe-takehome-scaffold
+  - projects
+  - features
+  description: Fe-Takehome-Scaffold project features and capabilities
+features:
+- id: fe_send_bitcoin
+  project: fe-takehome-scaffold
+  description: Send Bitcoin form with real-time validation and USD conversion
+  files:
+  - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/App.js
+  - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/context
+  tech:
+  - React Native
+  - Expo
+  - bitcoinjs-lib
+- id: transaction_history_list
+  project: fe-takehome-scaffold
+  description: Transaction history list with status indicators and formatting
+  files:
+  - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/components/TransactionList.js
+  tech:
+  - React Native
+  - JavaScript
+- id: theme_system
+  project: fe-takehome-scaffold
+  description: Global light/dark theme system with responsive design
+  files:
+  - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/context/ThemeContext.js
+  tech:
+  - React Context
+  - Expo
