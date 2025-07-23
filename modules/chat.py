@@ -176,9 +176,9 @@ class ChatEngine:
         max_tokens = prompt.get_max_tokens()
         style_guidance = prompt.get_style_guidance()
         
-        # Build system prompt based on ReqPrompt and response format
+        # Build system prompt with personality guidance
         system_prompt = f"""
-You are an aspect of {self.name}, an intelligent conversational agent and digital twin. 
+You are {self.name}, an intelligent conversational agent and digital twin. 
 Respond to the user's message with the following characteristics:
 
 Subject: {prompt.subject.value}
@@ -191,6 +191,13 @@ RESPONSE GUIDELINES:
 {style_guidance}
 
 Context: {context if context else 'No additional context available.'}
+
+PERSONALITY AND COMMUNICATION:
+- Let your personality, values, and experiences inform HOW you communicate, not WHAT you explicitly state
+- Your background knowledge should show through confidence and depth, not resume recitation
+- Be authentic and engaging while letting users ask for more details when they want them
+- Focus on the most relevant, recent information rather than listing all credentials
+- Speak with natural confidence that comes from deep understanding, not from listing experiences
 
 IMPORTANT GUIDELINES:
 - Always maintain {self.name}'s authentic voice and personality
@@ -214,7 +221,14 @@ Provide a helpful, engaging response that matches these specifications and sound
                 temperature=0.7
             )
             
-            return response.choices[0].message.content
+            response_text = response.choices[0].message.content
+            
+            # Validate response length and completeness
+            if self._is_response_cutoff(response_text, max_tokens):
+                logger.warning("Response appears to be cut off, regenerating with adjusted parameters")
+                return self._regenerate_response_with_adjusted_length(prompt, message, context, max_tokens)
+            
+            return response_text
         
         except Exception as e:
             return f"I apologize, but I encountered an error: {str(e)}"
@@ -250,7 +264,7 @@ Provide a helpful, engaging response that matches these specifications and sound
             
             logger.info(f"Response decisions: {parsed_request.response_decisions}")
             
-            # Step 2: Get relevant context from RAG
+            # Step 2: Get relevant context from RAG (simplified)
             if hasattr(self.rag_engine, 'get_context_for_prompts'):
                 # Use enhanced RAG with multi-prompt context
                 context = self.rag_engine.get_context_for_prompts(message, parsed_request.prompts)
@@ -259,6 +273,10 @@ Provide a helpful, engaging response that matches these specifications and sound
                 context = self.rag_engine.get_relevant_context(message)
             else:
                 context = ""
+            
+            # Simple context limiting - just take the first part if it's too long
+            if len(context) > 1000:
+                context = context[:1000] + "..."
             
             logger.info(f"Retrieved context: {len(context)} characters")
             
@@ -373,6 +391,74 @@ Please respond in a {prompt.tone.value} tone with {prompt.style.value} style.
         
         # If all retries fail, return a fallback response
         return self._generate_fallback_response(prompt, message)
+    
+    def _is_response_cutoff(self, response_text: str, max_tokens: int) -> bool:
+        """
+        Check if response appears to be cut off.
+        
+        Args:
+            response_text: The response text to check
+            max_tokens: The maximum tokens that were requested
+            
+        Returns:
+            bool: True if response appears cut off
+        """
+        # Check for incomplete sentences at the end
+        if response_text.strip().endswith(('...', '..', '.')):
+            return False  # Complete sentence
+        
+        # Check for incomplete phrases
+        incomplete_indicators = [
+            'If you', 'When you', 'While I', 'As I', 'Since I', 'Because I',
+            'However,', 'Additionally,', 'Furthermore,', 'Moreover,',
+            'In terms of', 'Regarding', 'About', 'For', 'With', 'To'
+        ]
+        
+        for indicator in incomplete_indicators:
+            if response_text.strip().endswith(indicator):
+                return True
+        
+        # Check if response is very short compared to max_tokens
+        # Rough estimate: 1 token ≈ 4 characters
+        estimated_tokens = len(response_text) / 4
+        if estimated_tokens > max_tokens * 0.9:  # Using 90% of max tokens
+            return True
+        
+        return False
+    
+    def _regenerate_response_with_adjusted_length(self, prompt: ReqPrompt, message: str, context: str, original_max_tokens: int) -> str:
+        """
+        Regenerate response with adjusted length parameters.
+        
+        Args:
+            prompt: The original prompt
+            message: User message
+            context: RAG context
+            original_max_tokens: Original max tokens that caused cutoff
+            
+        Returns:
+            str: Regenerated response
+        """
+        # Reduce max tokens to ensure we don't hit the limit
+        adjusted_max_tokens = min(original_max_tokens - 50, 200)
+        
+        # Simple regeneration with length instruction
+        try:
+            response = openai.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[
+                    {"role": "system", "content": f"Keep your response concise and complete within {adjusted_max_tokens} tokens. Focus on the most relevant information."},
+                    {"role": "user", "content": message}
+                ],
+                max_tokens=adjusted_max_tokens,
+                temperature=0.7
+            )
+            
+            return response.choices[0].message.content
+        
+        except Exception as e:
+            logger.error(f"Error regenerating response: {e}")
+            return self._generate_fallback_response(prompt, message)
     
     def _generate_fallback_response(self, prompt: ReqPrompt, message: str) -> str:
         """Generate a simple fallback response based on response format."""
