@@ -218,3 +218,100 @@ technical_skills:
     - testing
     - quality
     - reliability
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to technical_skills
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to technical_skills
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to technical_skills
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to technical_skills
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to stackr
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to revao
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to work_experience

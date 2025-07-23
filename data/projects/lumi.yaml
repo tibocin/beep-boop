@@ -301,3 +301,136 @@ features:
   - QR codes
   - qrcode library
   - Code generation
+cross_references:
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects lumi to stackr
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects lumi to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects lumi to work_experience
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects stackr to lumi
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects books to lumi
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects work_experience to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to stackr
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to revao
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to work_experience
+- type: outgoing
+  target_category: career
+  target_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to technical_skills
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to lumi
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to lumi
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to lumi
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to lumi
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to lumi
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to lumi
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to lumi
+- type: incoming
+  source_category: career
+  source_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to lumi

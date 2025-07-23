@@ -35,3 +35,124 @@ shows:
   - philosophical
   reason: "Favorite show.It explores the full range of human behavior\u2014loyalty,\
     \ betrayal, ambition, despair\u2014with unmatched depth of character and consequence.\n"
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to shows
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to shows
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to shows
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to shows
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to stackr
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to revao
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to movies
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to work_experience
+- type: outgoing
+  target_category: career
+  target_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to shows
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to shows
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to shows
+- type: incoming
+  source_category: career
+  source_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to shows
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects movies to shows
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects shows to movies
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects shows to books
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects books to shows

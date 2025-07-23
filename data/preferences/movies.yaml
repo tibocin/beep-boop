@@ -548,3 +548,124 @@ movies:
     - dignified
     reason: Compelling biographical drama that showcases both martial arts mastery
       and profound human dignity under occupation.
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to movies
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to movies
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to movies
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to stackr
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to revao
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to work_experience
+- type: outgoing
+  target_category: career
+  target_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to movies
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to movies
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to movies
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to movies
+- type: incoming
+  source_category: career
+  source_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects movies to shows
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects movies to books
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects shows to movies
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: freedom_value
+  relevance_score: 0.85
+  description: Freedom value connects books to movies
