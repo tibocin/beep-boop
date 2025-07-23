@@ -108,7 +108,7 @@ class RequestParser:
                                 "should_expand": {"type": "boolean", "description": "True if the response should be expanded beyond the default format due to follow-up questions, high engagement, or explicit requests for detail."},
                                 "should_pivot": {"type": "boolean", "description": "True if the conversation should pivot to a different topic or approach, often indicated by 'but what about...' or 'on the other hand...' type phrases."},
                                 "return_to_default": {"type": "boolean", "description": "True if the system should return to default concise format after providing detailed responses, maintaining conversation balance."},
-                                "evaluation_required": {"type": "boolean", "description": "True if the response quality should be evaluated before delivery, typically for complex or high-stakes interactions."},
+                                "evaluation_required": {"type": "boolean", "description": "True if the response quality should be evaluated before delivery, typically for complex or high-stakes interactions. Set to false for simple, routine responses to avoid unnecessary processing."},
                                 "synthesis_required": {"type": "boolean", "description": "True if multiple response prompts need to be synthesized into a single coherent response, indicated by multi-faceted requests."}
                             },
                             "description": "Strategic decisions about response characteristics, expansion needs, and quality control based on user intent and conversation context."

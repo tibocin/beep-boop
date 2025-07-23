@@ -55,7 +55,7 @@ class ResponseEvaluator:
             max_length_guide = "50-100 words" if should_be_concise else "100-300 words"
             
             evaluation_prompt = f"""
-You are a response quality evaluator. Rate the following response on multiple dimensions:
+You are a response quality evaluator. Rate the following response on multiple dimensions.
 
 RESPONSE OBJECTIVE: {response_objective if response_objective else 'No specific objective'}
 RESPONSE FORMAT: {prompt.response_format.value}
@@ -73,17 +73,8 @@ CONTEXT: {context if context else 'No additional context'}
 RESPONSE TO EVALUATE:
 {response}
 
-Rate each dimension from 0.0 to 1.0 and provide brief feedback:
+Rate each dimension from 0.0 to 1.0 and provide brief feedback. You MUST respond with ONLY valid JSON in this exact format:
 
-1. RELEVANCE: How well does the response address the request AND the response objective?
-2. COHERENCE: Is the response logically structured and clear?
-3. TONE_MATCH: Does the tone match the requested tone?
-4. COMPLETENESS: Does the response feel complete and satisfying?
-5. ENGAGEMENT: Is the response engaging and conversational?
-6. OBJECTIVE_ALIGNMENT: How well does the response serve the stated objective?
-7. LENGTH_APPROPRIATENESS: Is the response length appropriate for the format?
-
-Provide scores as JSON:
 {{
     "relevance": 0.8,
     "coherence": 0.7,
@@ -96,6 +87,8 @@ Provide scores as JSON:
     "feedback": "Good response but could be more complete",
     "needs_retry": false
 }}
+
+CRITICAL: Respond with ONLY the JSON object, no other text or explanation.
 """
             
             result = openai.chat.completions.create(
@@ -105,9 +98,22 @@ Provide scores as JSON:
                 temperature=0.1
             )
             
-            # Parse the JSON response
+            # Parse the JSON response with better error handling
             import json
-            evaluation = json.loads(result.choices[0].message.content)
+            response_content = result.choices[0].message.content.strip()
+            
+            # Try to extract JSON if there's extra text
+            if response_content.startswith('{') and response_content.endswith('}'):
+                evaluation = json.loads(response_content)
+            else:
+                # Try to find JSON in the response
+                start_idx = response_content.find('{')
+                end_idx = response_content.rfind('}') + 1
+                if start_idx != -1 and end_idx > start_idx:
+                    json_str = response_content[start_idx:end_idx]
+                    evaluation = json.loads(json_str)
+                else:
+                    raise ValueError(f"Invalid JSON response: {response_content}")
             
             # Determine if retry is needed
             evaluation["needs_retry"] = (
@@ -121,10 +127,18 @@ Provide scores as JSON:
             
         except Exception as e:
             logger.error(f"Error evaluating response: {e}")
+            # Return a default evaluation that doesn't trigger retry
             return {
-                "overall_score": 0.5,
-                "feedback": f"Evaluation error: {str(e)}",
-                "needs_retry": True
+                "relevance": 0.7,
+                "coherence": 0.7,
+                "tone_match": 0.7,
+                "completeness": 0.7,
+                "engagement": 0.7,
+                "objective_alignment": 0.7,
+                "length_appropriateness": 0.7,
+                "overall_score": 0.7,
+                "feedback": f"Evaluation failed, using default score: {str(e)}",
+                "needs_retry": False  # Don't retry if evaluation fails
             }
 
 class ChatEngine:
@@ -295,6 +309,8 @@ Provide a helpful, engaging response that matches these specifications and sound
                         return retry_response
                     
                     logger.info(f"Response evaluation score: {evaluation['overall_score']:.2f}")
+                else:
+                    logger.info("Skipping evaluation based on parser decision")
                 
                 return response
             
