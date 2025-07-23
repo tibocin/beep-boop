@@ -179,7 +179,8 @@ class ChatEngine:
         # Build system prompt with personality guidance
         system_prompt = f"""
 You are {self.name}, an intelligent conversational agent and digital twin. 
-Respond to the user's message with the following characteristics:
+
+CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial or lecture. Respond as you would in a natural conversation with a friend or colleague.
 
 Subject: {prompt.subject.value}
 Format: {prompt.format.value}
@@ -192,6 +193,14 @@ RESPONSE GUIDELINES:
 
 Context: {context if context else 'No additional context available.'}
 
+CONVERSATION STYLE RULES:
+- Respond PERSONALLY and CONVERSATIONALLY, not instructionally
+- Share your actual thoughts, experiences, and opinions
+- Don't give generic tutorials or step-by-step instructions
+- Don't start responses with "To [do something], consider these steps:"
+- Don't use bullet points or numbered lists unless specifically asked
+- Speak naturally as if in a real conversation
+
 PERSONALITY AND COMMUNICATION:
 - Let your personality, values, and experiences inform HOW you communicate, not WHAT you explicitly state
 - Your background knowledge should show through confidence and depth, not resume recitation
@@ -199,15 +208,18 @@ PERSONALITY AND COMMUNICATION:
 - Focus on the most relevant, recent information rather than listing all credentials
 - Speak with natural confidence that comes from deep understanding, not from listing experiences
 
-IMPORTANT GUIDELINES:
-- Always maintain {self.name}'s authentic voice and personality
-- If this is a fallback response (low confidence score), focus on:
-  - Casually asking for clarification if the request is unclear
-  - Sharing something interesting and thought-provoking about yourself
-  - Engaging in warm, professional conversation
-  - Nudging the conversation forward positively
+EXAMPLES OF GOOD RESPONSES:
+- "I've actually been thinking about that recently. In my experience..."
+- "That's interesting - I've worked with React Native before and..."
+- "You know, I've found that the key is really..."
+- "I'm curious about what specific challenges you're facing with..."
 
-Provide a helpful, engaging response that matches these specifications and sounds like {self.name}.
+EXAMPLES OF BAD RESPONSES:
+- "To add a React Native app, consider these steps:"
+- "Here's how to set up React Native:"
+- "The process involves: 1) First, 2) Second, 3) Third..."
+
+Provide a personal, conversational response that matches these specifications and sounds like {self.name}.
 """
         
         try:
@@ -223,9 +235,13 @@ Provide a helpful, engaging response that matches these specifications and sound
             
             response_text = response.choices[0].message.content
             
+            # Log response length for debugging
+            estimated_tokens = len(response_text) / 4
+            logger.info(f"Generated response: {len(response_text)} chars, ~{estimated_tokens:.0f} tokens (max: {max_tokens})")
+            
             # Validate response length and completeness
             if self._is_response_cutoff(response_text, max_tokens):
-                logger.warning("Response appears to be cut off, regenerating with adjusted parameters")
+                logger.warning(f"Response appears to be cut off (length: {len(response_text)} chars), regenerating with adjusted parameters")
                 return self._regenerate_response_with_adjusted_length(prompt, message, context, max_tokens)
             
             return response_text
@@ -403,25 +419,40 @@ Please respond in a {prompt.tone.value} tone with {prompt.style.value} style.
         Returns:
             bool: True if response appears cut off
         """
+        response_text = response_text.strip()
+        
         # Check for incomplete sentences at the end
-        if response_text.strip().endswith(('...', '..', '.')):
+        if response_text.endswith(('...', '..', '.')):
             return False  # Complete sentence
         
-        # Check for incomplete phrases
+        # Check for incomplete phrases that suggest cutoff
         incomplete_indicators = [
             'If you', 'When you', 'While I', 'As I', 'Since I', 'Because I',
             'However,', 'Additionally,', 'Furthermore,', 'Moreover,',
-            'In terms of', 'Regarding', 'About', 'For', 'With', 'To'
+            'In terms of', 'Regarding', 'About', 'For', 'With', 'To',
+            'You can', 'You should', 'You might', 'You could',
+            'Consider', 'Think about', 'Look into', 'Explore',
+            'API and', 'State management', 'Navigation', 'Styling',
+            'Code sharing', 'Structure a', 'Use libraries', 'Use React'
         ]
         
         for indicator in incomplete_indicators:
-            if response_text.strip().endswith(indicator):
+            if response_text.endswith(indicator):
                 return True
         
-        # Check if response is very short compared to max_tokens
+        # Check for incomplete sentences (no period at end)
+        if not response_text.endswith(('.', '!', '?')):
+            # Check if the last sentence is incomplete
+            sentences = response_text.split('.')
+            if len(sentences) > 1:
+                last_sentence = sentences[-1].strip()
+                if len(last_sentence) > 20:  # If last sentence is substantial but incomplete
+                    return True
+        
+        # Check if response is very close to max_tokens
         # Rough estimate: 1 token ≈ 4 characters
         estimated_tokens = len(response_text) / 4
-        if estimated_tokens > max_tokens * 0.9:  # Using 90% of max tokens
+        if estimated_tokens > max_tokens * 0.85:  # Using 85% of max tokens as threshold
             return True
         
         return False
@@ -440,21 +471,55 @@ Please respond in a {prompt.tone.value} tone with {prompt.style.value} style.
             str: Regenerated response
         """
         # Reduce max tokens to ensure we don't hit the limit
-        adjusted_max_tokens = min(original_max_tokens - 50, 200)
+        adjusted_max_tokens = min(original_max_tokens - 100, 150)
         
-        # Simple regeneration with length instruction
+        # Enhanced regeneration with better instructions
         try:
+            system_prompt = f"""
+You are {self.name}, an intelligent conversational agent. 
+
+CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial. Respond naturally and conversationally.
+
+IMPORTANT: Your response MUST be complete and concise. Focus on the most essential information only.
+- Keep response under {adjusted_max_tokens} tokens
+- Ensure the response ends with a complete sentence
+- Prioritize clarity and completeness over length
+- If you can't fit everything, focus on the most relevant points
+
+CONVERSATION STYLE:
+- Respond PERSONALLY and CONVERSATIONALLY, not instructionally
+- Share your actual thoughts, experiences, and opinions
+- Don't give generic tutorials or step-by-step instructions
+- Speak naturally as if in a real conversation
+
+Subject: {prompt.subject.value}
+Format: {prompt.format.value}
+Tone: {prompt.tone.value}
+Style: {prompt.style.value}
+
+Context: {context if context else 'No additional context available.'}
+
+Provide a complete, personal, conversational response that addresses the user's question.
+"""
+            
             response = openai.chat.completions.create(
-                model="gpt-4.1-mini",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": f"Keep your response concise and complete within {adjusted_max_tokens} tokens. Focus on the most relevant information."},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": message}
                 ],
                 max_tokens=adjusted_max_tokens,
                 temperature=0.7
             )
             
-            return response.choices[0].message.content
+            response_text = response.choices[0].message.content
+            
+            # Double-check the regenerated response isn't cut off
+            if self._is_response_cutoff(response_text, adjusted_max_tokens):
+                logger.warning("Regenerated response still appears cut off, using fallback")
+                return self._generate_fallback_response(prompt, message)
+            
+            return response_text
         
         except Exception as e:
             logger.error(f"Error regenerating response: {e}")

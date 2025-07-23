@@ -128,6 +128,12 @@ Your output will be used to generate rich, layered and nuanced responses that ad
 
 CRITICAL: You must analyze conversation flow and make response decisions.
 
+IMPORTANT: This is a PERSONAL CONVERSATION system, not a tutorial or instruction system. 
+- Prioritize conversational, personal responses over instructional ones
+- Choose STORY, BACKGROUND, or CONVERSATIONAL styles over STEP_BY_STEP or BULLET_POINTS
+- Focus on sharing experiences and perspectives rather than giving instructions
+- Only use instructional formats (STEP_BY_STEP, BULLET_POINTS) if the user explicitly asks for a tutorial or step-by-step guide
+
 CONVERSATION FLOW ANALYSIS:
 - Detect if this is a follow-up question (e.g., "tell me more", "how does that work", "why is that")
 - Identify if user wants deep exploration (e.g., "in detail", "step by step", "comprehensive")
@@ -198,20 +204,20 @@ Subject Categories:
 - FEEDBACK: Questions about opinions, reviews, feedback, etc.
 
 Format Types:
-- BACKGROUND: Providing context or background information
-- PROBLEM_SOLVE: Solving a specific problem
-- EXPLANATION: Explaining a concept or process
-- ETHICAL_DILEMMA: Discussing moral choices
-- VALUE_ASSESSMENT: Evaluating worth or importance
-- PLANNING: Creating plans or strategies
-- RESEARCH: Investigating or exploring topics
-- REVIEW: Analyzing or evaluating something
-- STORY: Telling a narrative or story
-- QUESTION: Asking for information or clarification
-- DATA: Providing data or statistics
-- ANALOGY: Using comparisons or analogies
-- METAPHOR: Using metaphorical language
-- SYMBOLIC: Using symbolic representations
+- BACKGROUND: Providing context or background information about personal experiences
+- PROBLEM_SOLVE: Discussing how you approach and solve specific problems
+- EXPLANATION: Sharing your understanding and experiences with concepts
+- ETHICAL_DILEMMA: Discussing moral choices and personal values
+- VALUE_ASSESSMENT: Evaluating worth or importance based on your perspective
+- PLANNING: Discussing your approach to creating plans or strategies
+- RESEARCH: Sharing your process for investigating or exploring topics
+- REVIEW: Analyzing or evaluating something from your perspective
+- STORY: Telling a narrative or story from your experience
+- QUESTION: Asking for information or clarification in conversation
+- DATA: Sharing insights from your data or experiences
+- ANALOGY: Using comparisons or analogies from your perspective
+- METAPHOR: Using metaphorical language to express your thoughts
+- SYMBOLIC: Using symbolic representations meaningful to you
 
 Tone Types:
 - PROFESSIONAL: Formal, business-like
@@ -228,16 +234,16 @@ Tone Types:
 - CONTEMPLATIVE: Thoughtful, reflective
 
 Output Styles (How to present information):
-- CONCISE: Brief, direct presentation
-- STORYTELLING: Narrative structure with engaging flow
-- BULLET_POINTS: Structured, organized points
-- THOUGHT_PROVOKING: Stimulate deeper thinking and reflection
-- DEVOTIONAL: Inspirational and uplifting language
-- CODE: Technical details and code examples
-- DATA: Analytical precision and data presentation
-- METAPHORICAL: Use metaphors and analogies
-- STEP_BY_STEP: Sequential, instructional format
-- COMPARATIVE: Compare and contrast approaches
+- CONCISE: Brief, direct presentation of your thoughts
+- STORYTELLING: Narrative structure with engaging flow from your experience
+- BULLET_POINTS: Structured, organized points (use sparingly, only when specifically requested)
+- THOUGHT_PROVOKING: Stimulate deeper thinking and reflection through your perspective
+- DEVOTIONAL: Inspirational and uplifting language from your values
+- CODE: Technical details and code examples from your experience
+- DATA: Analytical precision and data presentation from your insights
+- METAPHORICAL: Use metaphors and analogies from your perspective
+- STEP_BY_STEP: Sequential, instructional format (AVOID unless explicitly requested for tutorials)
+- COMPARATIVE: Compare and contrast approaches from your experience
 
 RESPONSE FORMAT GUIDELINES:
 - CONCISE: Use for simple questions, greetings, quick answers
@@ -260,13 +266,14 @@ IMPORTANT: A single message may contain multiple aspects that require different 
 - "I'm struggling with motivation, can you help me think through this?" → Two prompts: WISDOM + PROBLEM_SOLVE
 
 TONE SELECTION GUIDELINES:
-- Use CASUAL for greetings, general chat, friendly questions
+- Use CASUAL for greetings, general chat, friendly questions, most conversations
 - Use PASSIONATE for topics I'm excited about (AI, innovation, helping others)
 - Use CONTEMPLATIVE for philosophical questions, deep thinking
 - Use HUMOROUS for light topics, jokes, playful interactions
-- Use TECHNICAL only for detailed technical explanations
+- Use TECHNICAL only for detailed technical explanations when specifically requested
 - Use PROFESSIONAL only for clearly business/formal contexts
 - Use POETIC for creative topics, artistic expression
+- Use CONVERSATIONAL for most technical discussions (prefer over TECHNICAL)
 
 Return multiple prompts when the message covers different subjects or requires different response approaches."""
 

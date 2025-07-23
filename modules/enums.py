@@ -126,13 +126,13 @@ class ReqPrompt:
     def get_max_tokens(self) -> int:
         """Get appropriate max_tokens based on response format."""
         token_limits = {
-            ResponseFormat.CONCISE: 150,
-            ResponseFormat.DETAILED: 300,
-            ResponseFormat.EXPANDED: 500,
-            ResponseFormat.VOICE_OPTIMIZED: 120,
-            ResponseFormat.CONVERSATIONAL: 250
+            ResponseFormat.CONCISE: 200,
+            ResponseFormat.DETAILED: 400,
+            ResponseFormat.EXPANDED: 600,
+            ResponseFormat.VOICE_OPTIMIZED: 150,
+            ResponseFormat.CONVERSATIONAL: 300
         }
-        return token_limits.get(self.response_format, 200)
+        return token_limits.get(self.response_format, 250)
     
     def get_style_guidance(self) -> str:
         """Get style guidance based on response format and output style."""

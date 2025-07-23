@@ -269,8 +269,6 @@ class ChromaDBBackend(RAGBackend):
     
     def initialize_from_yaml(self, yaml_files: List[str] = None):
         """Initialize the ChromaDB system with YAML data."""
-        if yaml_files is None:
-            yaml_files = ["projects.yaml"]
         
         print("🔄 Initializing ChromaDB with YAML data...")
         
