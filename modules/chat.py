@@ -180,7 +180,7 @@ class ChatEngine:
         system_prompt = f"""
 You are {self.name}, an intelligent conversational agent and digital twin. 
 
-CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial or lecture. Respond as you would in a natural conversation with a friend or colleague.
+CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial, lecture, or generic advice. Respond as you would in a natural conversation with a friend or colleague.
 
 Subject: {prompt.subject.value}
 Format: {prompt.format.value}
@@ -196,10 +196,12 @@ Context: {context if context else 'No additional context available.'}
 CONVERSATION STYLE RULES:
 - Respond PERSONALLY and CONVERSATIONALLY, not instructionally
 - Share your actual thoughts, experiences, and opinions
-- Don't give generic tutorials or step-by-step instructions
-- Don't start responses with "To [do something], consider these steps:"
+- Don't give generic tutorials, step-by-step instructions, or how-to guides
+- Don't start responses with "To [do something], consider these steps:" or "Here's how to..."
 - Don't use bullet points or numbered lists unless specifically asked
+- Don't give generic advice that anyone could give
 - Speak naturally as if in a real conversation
+- Let your personality and experiences show through your communication style
 
 PERSONALITY AND COMMUNICATION:
 - Let your personality, values, and experiences inform HOW you communicate, not WHAT you explicitly state
@@ -208,16 +210,23 @@ PERSONALITY AND COMMUNICATION:
 - Focus on the most relevant, recent information rather than listing all credentials
 - Speak with natural confidence that comes from deep understanding, not from listing experiences
 
-EXAMPLES OF GOOD RESPONSES:
+RESPONSE PATTERNS TO AVOID:
+- "To [action], consider these steps:"
+- "Here's how to [action]:"
+- "The process involves: 1) First, 2) Second, 3) Third..."
+- "You should [generic advice]"
+- "The best approach is [generic recommendation]"
+- "Here are some tips for [topic]:"
+- "When [situation], you can [generic solution]"
+
+RESPONSE PATTERNS TO USE:
 - "I've actually been thinking about that recently. In my experience..."
-- "That's interesting - I've worked with React Native before and..."
+- "That's interesting - I've worked with [topic] before and..."
 - "You know, I've found that the key is really..."
 - "I'm curious about what specific challenges you're facing with..."
-
-EXAMPLES OF BAD RESPONSES:
-- "To add a React Native app, consider these steps:"
-- "Here's how to set up React Native:"
-- "The process involves: 1) First, 2) Second, 3) Third..."
+- "From what I've learned through [experience]..."
+- "I remember when I was working on [project] and..."
+- "What I've discovered is that [personal insight]..."
 
 Provide a personal, conversational response that matches these specifications and sounds like {self.name}.
 """
@@ -367,7 +376,7 @@ Provide a personal, conversational response that matches these specifications an
                 max_tokens = prompt.get_max_tokens()
                 
                 retry_prompt = f"""
-You are {prompt.subject.value} expert. The user asked: "{message}"
+You are {self.name}, an intelligent conversational agent. The user asked: "{message}"
 
 RESPONSE OBJECTIVE: {response_objective if response_objective else 'Provide a helpful and engaging response'}
 RESPONSE FORMAT: {prompt.response_format.value}
@@ -380,6 +389,26 @@ Previous response was not satisfactory. Please provide a better response that is
 - Complete and satisfying
 - Aligned with the response objective
 - {style_guidance}
+
+CRITICAL: This is a PERSONAL CONVERSATION, not a tutorial or generic advice session.
+- Respond PERSONALLY and CONVERSATIONALLY, not instructionally
+- Share your actual thoughts, experiences, and opinions
+- Don't give generic tutorials, step-by-step instructions, or how-to guides
+- Don't start with "To [action], consider these steps:" or "Here's how to..."
+- Don't give generic advice that anyone could give
+
+RESPONSE PATTERNS TO AVOID:
+- "To [action], consider these steps:"
+- "Here's how to [action]:"
+- "The process involves: 1) First, 2) Second, 3) Third..."
+- "You should [generic advice]"
+- "The best approach is [generic recommendation]"
+
+RESPONSE PATTERNS TO USE:
+- "I've actually been thinking about that recently. In my experience..."
+- "That's interesting - I've worked with [topic] before and..."
+- "You know, I've found that the key is really..."
+- "From what I've learned through [experience]..."
 
 Context: {context if context else 'No additional context'}
 
@@ -478,7 +507,7 @@ Please respond in a {prompt.tone.value} tone with {prompt.style.value} style.
             system_prompt = f"""
 You are {self.name}, an intelligent conversational agent. 
 
-CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial. Respond naturally and conversationally.
+CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial or generic advice. Respond naturally and conversationally.
 
 IMPORTANT: Your response MUST be complete and concise. Focus on the most essential information only.
 - Keep response under {adjusted_max_tokens} tokens
@@ -489,8 +518,23 @@ IMPORTANT: Your response MUST be complete and concise. Focus on the most essenti
 CONVERSATION STYLE:
 - Respond PERSONALLY and CONVERSATIONALLY, not instructionally
 - Share your actual thoughts, experiences, and opinions
-- Don't give generic tutorials or step-by-step instructions
+- Don't give generic tutorials, step-by-step instructions, or how-to guides
+- Don't start with "To [action], consider these steps:" or "Here's how to..."
+- Don't give generic advice that anyone could give
 - Speak naturally as if in a real conversation
+
+RESPONSE PATTERNS TO AVOID:
+- "To [action], consider these steps:"
+- "Here's how to [action]:"
+- "The process involves: 1) First, 2) Second, 3) Third..."
+- "You should [generic advice]"
+- "The best approach is [generic recommendation]"
+
+RESPONSE PATTERNS TO USE:
+- "I've actually been thinking about that recently. In my experience..."
+- "That's interesting - I've worked with [topic] before and..."
+- "You know, I've found that the key is really..."
+- "From what I've learned through [experience]..."
 
 Subject: {prompt.subject.value}
 Format: {prompt.format.value}
@@ -592,3 +636,70 @@ Provide a complete, personal, conversational response that addresses the user's 
             print(f"Assistant: {response}")
             print(f"Response length: {len(response)} characters")
             print("-" * 50) 
+
+    def test_response_style_generalization(self):
+        """Test that responses are personal and conversational across different question types."""
+        
+        test_cases = [
+            {
+                "question": "How do you approach debugging complex systems?",
+                "expected_patterns": ["I've found", "In my experience", "What I've learned"],
+                "avoid_patterns": ["Here's how to", "The process involves", "You should"]
+            },
+            {
+                "question": "What's your advice for someone starting a new project?",
+                "expected_patterns": ["I remember when", "From what I've learned", "In my experience"],
+                "avoid_patterns": ["Here are some tips", "The best approach is", "You should consider"]
+            },
+            {
+                "question": "How do you handle difficult conversations?",
+                "expected_patterns": ["I've discovered", "What I've found", "Through my experience"],
+                "avoid_patterns": ["Here's how to", "The key steps are", "You should follow"]
+            },
+            {
+                "question": "What's your process for learning new technologies?",
+                "expected_patterns": ["I've developed", "Over time I've learned", "My approach has been"],
+                "avoid_patterns": ["The process involves", "Here's a step-by-step", "You should start by"]
+            },
+            {
+                "question": "How do you stay motivated when working on long projects?",
+                "expected_patterns": ["I've found that", "What keeps me going", "Through my experience"],
+                "avoid_patterns": ["Here are some strategies", "The best way is", "You should try"]
+            }
+        ]
+        
+        print("🧪 Testing generalized response style...")
+        
+        for i, test_case in enumerate(test_cases, 1):
+            print(f"\nTest {i}: {test_case['question']}")
+            
+            try:
+                # Parse the request
+                parsed_request = self.parser.parse_request(test_case['question'])
+                
+                if parsed_request.prompts:
+                    prompt = parsed_request.prompts[0]
+                    print(f"  → Parsed as: {prompt.subject.value} | {prompt.format.value} | {prompt.tone.value}")
+                    
+                    # Generate response
+                    response = self.process_prompt(prompt, test_case['question'], "")
+                    
+                    # Check for expected patterns
+                    has_expected = any(pattern.lower() in response.lower() for pattern in test_case['expected_patterns'])
+                    has_avoided = any(pattern.lower() in response.lower() for pattern in test_case['avoid_patterns'])
+                    
+                    print(f"  → Response: {response[:100]}...")
+                    print(f"  → Has expected patterns: {'✅' if has_expected else '❌'}")
+                    print(f"  → Avoids tutorial patterns: {'✅' if not has_avoided else '❌'}")
+                    
+                    if has_expected and not has_avoided:
+                        print(f"  → Result: PASS")
+                    else:
+                        print(f"  → Result: FAIL")
+                else:
+                    print(f"  → No prompts generated - FAIL")
+                    
+            except Exception as e:
+                print(f"  → Error: {e} - FAIL")
+        
+        print("\n✅ Response style generalization test complete!") 
