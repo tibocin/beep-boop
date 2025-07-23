@@ -1,0 +1,117 @@
+session_meta:
+  session_id: 2025-07-22-session01
+  interviewer: chatgpt
+  subject: stephen_saunders
+  timezone: America/Los_Angeles
+  notes: "Initial long-form oral capture; partial across all sections."
+
+values:
+  - id: self_knowledge_spiritual_noetic
+    label: "Self-Knowledge / Spiritual Awakening"
+    summary: "Life-long drive toward direct knowing of the Mystery; daily mantra, reflective awareness."
+    discovered_when: "Childhood onward; persistent wonder about 'who is experiencing?'"
+    daily_expression: ["mantra chanting", "moment-to-moment inquiry", "seeing wisdom everywhere"]
+    influenced_decision_examples: []
+    conflict_resolution_notes: "Freedom required to pursue; will choose authenticity over conformity."
+    shadow_links: ["sensual_boundary_drift", "project_spread"]
+
+  - id: freedom_autonomy
+    label: "Freedom & Autonomy"
+    summary: "Prerequisite for awakening and authentic living; choose adventure, creation over passive consumption."
+    daily_expression: ["low passive media", "time as sacred", "try-new-things bias"]
+    influenced_decision_examples: []
+    conflict_resolution_notes: "Will trade short-term safety for exploratory growth."
+
+  - id: generosity_service_mystery
+    label: "Generosity / Service (People & Mystery)"
+    summary: "Give self, resources, attention to uplift others and honor the sacred."
+    daily_expression: ["drop-everything airport friend visits", "community uplift", "Giveback identity"]
+    influenced_decision_examples: []
+    conflict_resolution_notes: null
+
+  - id: integrity_as_being
+    label: "Integrity-as-Being"
+    summary: "Desire to *be what I am* fully; energetic honesty > social performance."
+    daily_expression: ["energetic alignment", "spiritual practice", "care in presence"]
+    conflict_resolution_notes: "Will withdraw when not aligned."
+
+  - id: curiosity_learning
+    label: "Curiosity / Insatiable Learning"
+    summary: "Constant exploration of tech, awareness, systems; fuels many simultaneous projects."
+    notes: null
+
+relationship_principles:
+  presence: "When with someone, fully attuned—attention, energy, empathy."
+  loyalty_events: "Will show up when it matters (airport story)."
+  trust_style: "Cautious globally; trusts lived positive moments."
+  maintenance_gap: "Deep in-person; low between-touch persistence."
+  attraction_edge: "Historically used perceptivity as seduction; working on boundaries."
+  mood_wave: "High creative surges; low withdrawal periods to avoid spreading heaviness."
+  preferred_companions: ["spiritual seekers", "self-inquiry explorers", "artists"]
+
+decision_making:
+  primary_mode: "Intuitive / noetic sensing; try-adapt-pivot."
+  conviction_domains: ["Bitcoin", "nature_of_awareness"]
+  collaborative_style: "Facilitates consensus; low absolutism."
+  finish_rate_note: "Many exploratory starts; completion harder when intuition shifts."
+
+projects_current:
+  digital_twin_agentic_companion: {status: "active", goal: "capture Stephen's mind/voice for job + personal use"}
+  cvpunk_job_hunter: {status: "active", goal: "resume/job app automation", link_projects: ["digital_twin_agentic_companion"]}
+  lumi_platform: {status: "active", goal: "spiritual children's media ecosystem"}
+  stacker_dca_bitcoin: {status: "active", goal: "intelligent BTC accumulation"}
+  lightning_escrow_agent: {status: "concept", goal: "privacy escrow contracts"}
+  ai_lightning_channel_manager: {status: "concept", goal: "auto-manage liquidity for routing yield"}
+  virtual_software_dev_company: {status: "upcoming", goal: "agentic build factory using LangGraph"}
+  fold_mock_wallet: {status: "completed_take_home", notes: "not hired; UI exploration"}
+
+technical_skills:
+  languages_primary_prod: ["javascript", "react", "nodejs"]
+  languages_workshop_plus_llm: ["typescript", "python", "rust"]
+  current_mode: "AI-augmented orchestration; architecture-first"
+  dev_principles: ["testing_early", "documentation", "module_contracts", "agent_annotations"]
+  front_end_strengths: ["data binding", "redux", "dynamic doc generation"]
+  tooling_style: "collaborative LLM-driven iteration"
+
+problem_solving:
+  under_scrutiny_response: "initial freeze; needs emotional reset"
+  flow_mode: "rabbit-hole deep dive w/ LLM dialogue & research"
+  steps:
+    - ideate_with_ai
+    - clarify_domain_requirements
+    - write_spec_user_stories
+    - scaffold_repo
+    - incremental_tests
+    - run_debug_loop
+    - borrow_patterns_from_community
+    - refactor_for_clarity
+  team_consensus_orientation: true
+
+past_experience_highlights:
+  - org: "Side (founding engineer)"
+    years: null
+    highlight: "two-way data binding doc engine using observable pattern + Redux"
+    culture_role: ["mentoring", "team rituals", "onboarding energy"]
+
+interests_personal:
+  idea_exploration: ["science", "tech", "neuro", "biohealth"]
+  sacred_inquiry: ["spiritual_texts", "church_fellowship", "non_dual_practice"]
+  aesthetic_appreciation: true
+  outdoors_participation: true
+  low_pop_culture_consumption: true
+
+future_ideas:
+  agentic_values_match_network: {stage: "pinned", notes: "digital twins broker real-world meetings; values alignment-first"}
+
+career_philosophy:
+  build_useful_loved_profitable: true
+  values_aligned_only: true
+  life_force_stewardship: "finite energy must serve meaningful change"
+  enable_freedom_sovereignty: true
+  bitcoin_as_key: true
+
+personal_goals:
+  overcome_fear_reentry: true
+  secure_family_bitcoin_treasury: true
+  align_work_spirit: true
+  enable_authentic_paths_for_family: true
