@@ -1,0 +1,850 @@
+- id: seed_tracking
+  project: lumi
+  description: Track seed book journeys and user reflections anchored to block height
+  files:
+    - src/app/seed-trail/page.tsx
+    - prisma/schema.prisma
+  tech:
+    - Prisma
+    - PostgreSQL
+    - Next.js
+- id: pdf_generator
+  project: lumi
+  description: Generate cryptographically signed PDFs for seeds and genesis cards
+  files:
+    - scripts/pdf_generator/main.py
+    - scripts/pdf_generator/generators/book_stamps.py
+  tech:
+    - Python
+    - HTML templates
+    - reportlab
+- id: totp_authentication
+  project: lumi
+  description: TOTP two-factor authentication with Speakeasy library
+  files:
+    - apps/server/src/lib/2fa.ts
+  tech:
+    - TypeScript
+    - Speakeasy
+    - Next.js
+- id: email_invitation_flow
+  project: lumi
+  description: Email invitation system using Nodemailer for user onboarding
+  files:
+    - apps/server/src/services/email/index.ts
+  tech:
+    - TypeScript
+    - Nodemailer
+    - Node.js
+- id: qr_code_login
+  project: lumi
+  description: QR-code scanner login functionality via html5-qrcode
+  files:
+    - apps/web/src/components/QRCodeLogin.tsx
+  tech:
+    - React
+    - TypeScript
+    - html5-qrcode
+- id: stewardship_login_api
+  project: lumi
+  description: Stewardship login API with Next.js routes
+  files:
+    - apps/server/src/app/api/steward/login/route.ts
+  tech:
+    - Next.js
+    - TypeScript
+    - API Routes
+- id: reflection_submission_ui
+  project: lumi
+  description: User reflection submission interface in React
+  files:
+    - apps/web/src/components/ReflectionForm.tsx
+  tech:
+    - React
+    - TypeScript
+    - Form handling
+- id: certificate_viewer
+  project: lumi
+  description: Edition certificate viewer component in React
+  files:
+    - apps/web/src/components/CertificateViewer.tsx
+  tech:
+    - React
+    - TypeScript
+    - Certificate display
+- id: media_gallery
+  project: lumi
+  description: Media gallery with Tailwind CSS layouts
+  files:
+    - apps/web/src/components/MediaGallery.tsx
+  tech:
+    - React
+    - Tailwind CSS
+    - Media handling
+- id: admin_moderation_dashboard
+  project: lumi
+  description: Admin moderation dashboard for content management
+  files:
+    - apps/web/src/app/admin/page.tsx
+  tech:
+    - Next.js
+    - React
+    - Admin interface
+- id: aws_s3_storage
+  project: lumi
+  description: AWS S3 storage integration with AWS SDK v3
+  files:
+    - packages/storage/src/s3.ts
+  tech:
+    - AWS SDK v3
+    - TypeScript
+    - Cloud storage
+- id: ipfs_file_upload
+  project: lumi
+  description: IPFS file upload via ipfs-http-client
+  files:
+    - packages/storage/src/ipfs.ts
+  tech:
+    - IPFS
+    - TypeScript
+    - Decentralized storage
+- id: prisma_orm_integration
+  project: lumi
+  description: Prisma ORM for PostgreSQL modeling and type-safe database access
+  files:
+    - prisma/schema.prisma
+    - packages/db
+  tech:
+    - Prisma
+    - PostgreSQL
+    - TypeScript
+- id: docker_compose_setup
+  project: lumi
+  description: Docker Compose configuration for local development environment
+  files:
+    - docker-compose.yml
+  tech:
+    - Docker
+    - Docker Compose
+    - Containerization
+- id: database_backup_automation
+  project: lumi
+  description: Automated database backups and rollback with bash scripts
+  files:
+    - scripts/db-backup.sh
+    - scripts/db-rollback.sh
+  tech:
+    - Bash
+    - Database management
+    - Automation
+- id: turbo_monorepo_deployment
+  project: lumi
+  description: Multi-service stack deployment with Turbo and pnpm workspaces
+  files:
+    - pnpm-workspace.yaml
+    - turbo.json
+  tech:
+    - Turbo
+    - pnpm
+    - Monorepo
+- id: bcrypt_password_hashing
+  project: lumi
+  description: Secure password hashing using bcryptjs
+  files:
+    - src/lib/auth.ts
+  tech:
+    - bcryptjs
+    - Security
+    - Password management
+- id: jwt_authentication
+  project: lumi
+  description: JWT authentication implementation with jose library
+  files:
+    - packages/auth/src/jwt.ts
+  tech:
+    - JWT
+    - jose library
+    - Authentication
+- id: rate_limit_middleware
+  project: lumi
+  description: Rate limiting middleware for API protection
+  files:
+    - apps/server/src/middleware.ts
+  tech:
+    - Middleware
+    - Rate limiting
+    - API security
+- id: role_based_access_control
+  project: lumi
+  description: Guard pattern for role-based access control
+  files:
+    - apps/web/src/lib/withAuth.tsx
+  tech:
+    - React
+    - Authorization
+    - Guard pattern
+- id: http_only_cookies
+  project: lumi
+  description: HTTP-only cookies for secure session storage
+  files:
+    - apps/server/src/lib/cookies.ts
+  tech:
+    - Cookies
+    - Security
+    - Session management
+- id: nextauth_integration
+  project: lumi
+  description: NextAuth credential provider integration
+  files:
+    - apps/web/src/lib/nextAuth.ts
+  tech:
+    - NextAuth
+    - Authentication
+    - Next.js
+- id: cors_policy_enforcement
+  project: lumi
+  description: CORS policy enforcement across API routes
+  files:
+    - apps/server/next.config.js
+  tech:
+    - CORS
+    - Security
+    - Next.js
+- id: typescript_input_validation
+  project: lumi
+  description: TypeScript generics for robust input validation
+  files:
+    - src/utils/validators.ts
+  tech:
+    - TypeScript
+    - Generics
+    - Input validation
+- id: bitcoin_signature_generation
+  project: lumi
+  description: Bitcoin signature generation via bitcoinjs-lib
+  files:
+    - packages/bitcoin/src/signer.ts
+  tech:
+    - Bitcoin
+    - bitcoinjs-lib
+    - Cryptography
+- id: bitcoin_message_verification
+  project: lumi
+  description: Bitcoin message verification with bitcoinjs-message
+  files:
+    - packages/bitcoin/src/utils.ts
+  tech:
+    - Bitcoin
+    - bitcoinjs-message
+    - Message verification
+- id: hd_key_derivation
+  project: lumi
+  description: HD key derivation using BIP32 (bip32 library)
+  files:
+    - packages/bitcoin/src/hdnode.ts
+  tech:
+    - BIP32
+    - HD wallets
+    - Key derivation
+- id: psbt_signing_flow
+  project: lumi
+  description: BIP322 PSBT signing flow implementation
+  files:
+    - packages/bitcoin/src/psbt.ts
+  tech:
+    - BIP322
+    - PSBT
+    - Bitcoin transactions
+- id: bip322_authorization_challenge
+  project: lumi
+  description: bip322-js authorization challenge implementation
+  files:
+    - packages/bitcoin/src/challenge.ts
+  tech:
+    - BIP322
+    - Authorization
+    - Bitcoin
+- id: ecdsa_signature_verification
+  project: lumi
+  description: ECDSA signature verification with tiny-secp256k1
+  files:
+    - packages/bitcoin/src/crypto.ts
+  tech:
+    - ECDSA
+    - tiny-secp256k1
+    - Cryptography
+- id: sha256_hashing
+  project: lumi
+  description: SHA-256 hashing via Node core crypto module
+  files:
+    - src/utils/hash.ts
+  tech:
+    - SHA-256
+    - Node.js crypto
+    - Hashing
+- id: qr_code_generation
+  project: lumi
+  description: QR code generation with qrcode library
+  files:
+    - src/lib/qrcode.ts
+  tech:
+    - QR codes
+    - qrcode library
+    - Code generation
+- id: agent_orchestrator
+  project: revao
+  description: Modular orchestration of LangGraph agents for real estate analysis
+  files:
+    - core/orchestrator.py
+    - agents/hello_agent.py
+  tech:
+    - LangGraph
+    - Python
+- id: data_connector
+  project: revao
+  description: Connects to APIs and databases to ingest market and local news data
+  files:
+    - core/data_connector.py
+  tech:
+    - Python
+    - REST
+    - GraphQL
+- id: self_improvement_loop
+  project: revao
+  description: Improvement agents propose code/config updates to refine workflows
+  files:
+    - core/improvement/
+  tech:
+    - Python
+    - Machine Learning
+- id: async_concurrency_workflows
+  project: revao
+  description: Sequential workflows with asyncio and parallel task orchestration
+  files:
+    - core/orchestrator.py
+    - core/agent_framework.py
+  tech:
+    - asyncio
+    - Python
+    - Concurrency
+- id: configurable_concurrency_limits
+  project: revao
+  description: Configurable concurrency limits and timeout/retry policies
+  files:
+    - core/config.py
+    - core/orchestrator.py
+  tech:
+    - Python
+    - Configuration management
+    - Concurrency control
+- id: in_memory_data_connector
+  project: revao
+  description: In-memory DataConnector backed by dict store with unified interface
+  files:
+    - core/data_connector.py
+  tech:
+    - Python
+    - In-memory storage
+    - Data abstraction
+- id: redis_postgres_connector
+  project: revao
+  description: Unified Redis/Postgres connector interface with dynamic backend selection
+  files:
+    - core/data_connector.py
+  tech:
+    - Python
+    - Redis
+    - PostgreSQL
+- id: centralized_crud_api
+  project: revao
+  description: Centralized CRUD operations via execute(operation, payload) API
+  files:
+    - core/data_connector.py
+  tech:
+    - Python
+    - CRUD operations
+    - API design
+- id: python_type_hints
+  project: revao
+  description: Python type hints for payloads and return values in data operations
+  files:
+    - core/data_connector.py
+  tech:
+    - Python
+    - Type hints
+    - Type safety
+- id: structured_logging
+  project: revao
+  description: Structured logging using LogConfig utility with distributed tracing
+  files:
+    - core/logging_utils.py
+    - core/orchestrator.py
+  tech:
+    - Python
+    - Structured logging
+    - Observability
+- id: metric_error_logging
+  project: revao
+  description: Standardized metric and error event logging patterns with contextual fields
+  files:
+    - core/orchestrator.py
+    - core/logging_utils.py
+  tech:
+    - Python
+    - Metrics
+    - Error tracking
+- id: pytest_testing_suite
+  project: revao
+  description: Comprehensive pytest suite for DataConnector and orchestrator flows
+  files:
+    - tests/test_data_connector.py
+    - tests/test_orchestrator.py
+  tech:
+    - pytest
+    - Python
+    - Testing
+- id: async_agent_mocks
+  project: revao
+  description: Fixtures for both sync and async agent mocks in testing
+  files:
+    - tests/conftest.py
+  tech:
+    - pytest
+    - Python
+    - Mock testing
+- id: analytics_db_validation
+  project: revao
+  description: Analytics database operations validation through comprehensive tests
+  files:
+    - tests/test_analytics_db.py
+  tech:
+    - pytest
+    - Database testing
+    - Analytics
+- id: ci_coverage_standards
+  project: revao
+  description: CI coverage standards enforcement via .coveragerc configuration
+  files:
+    - ./.coveragerc
+  tech:
+    - Coverage
+    - CI/CD
+    - Quality assurance
+- id: local_environment_setup
+  project: revao
+  description: Bash script for local environment setup and configuration
+  files:
+    - scripts/setup_local.sh
+  tech:
+    - Bash
+    - Environment setup
+    - Automation
+- id: git_hooks_installer
+  project: revao
+  description: Git-hooks installer for development workflow automation
+  files:
+    - scripts/gitHooks.sh
+  tech:
+    - Git hooks
+    - Bash
+    - Development workflow
+- id: pre_commit_linting
+  project: revao
+  description: Pre-commit linting with configuration file for code quality
+  files:
+    - .pre-commit-config.yaml
+  tech:
+    - Pre-commit
+    - Linting
+    - Code quality
+- id: flake8_style_enforcement
+  project: revao
+  description: Project-wide flake8 rules for Python style enforcement
+  files:
+    - .flake8
+  tech:
+    - flake8
+    - Python
+    - Code style
+- id: pr_template_standardization
+  project: revao
+  description: Standardized PR templates to enforce CI checks and quality gates
+  files:
+    - .github/pull_request_template.md
+  tech:
+    - GitHub
+    - PR templates
+    - CI/CD
+- id: orchestrator_agent_framework
+  project: revao
+  description: Core orchestrator-agent framework layers with documented architecture
+  files:
+    - core/orchestrator.py
+    - agent docs/user stories and flows.md
+  tech:
+    - Python
+    - Architecture
+    - Documentation
+- id: kernel_development_roadmap
+  project: revao
+  description: Kernel roadmap and key milestones documentation
+  files:
+    - agent docs/kernel development roadmap.md
+  tech:
+    - Documentation
+    - Project planning
+    - Roadmap
+- id: core_agents_package_organization
+  project: revao
+  description: Organized code into core/ and agents/ packages with proper structure
+  files:
+    - core/__init__.py
+  tech:
+    - Python
+    - Package organization
+    - Code structure
+- id: orchestrator_config_settings
+  project: revao
+  description: OrchestratorConfig settings for default configuration management
+  files:
+    - core/config.py
+  tech:
+    - Python
+    - Configuration
+    - Settings management
+- id: template_generation
+  project: letters_to_officials
+  description: Generate letter templates based on predefined prompts and locations
+  files:
+    - src/index.ts
+  tech:
+    - TypeScript
+    - Node.js
+- id: static_job_scraper
+  project: cvpunk_and_jbhunter
+  description: Static job scraper with Requests/BS4 for job posting extraction
+  files:
+    - scraper.py
+  tech:
+    - Python
+    - Requests
+    - BeautifulSoup4
+- id: dynamic_job_scraper
+  project: cvpunk_and_jbhunter
+  description: Dynamic scraper with Playwright for JavaScript-rendered job sites
+  files:
+    - playwright.py
+  tech:
+    - Python
+    - Playwright
+    - Web scraping
+- id: job_normalization
+  project: cvpunk_and_jbhunter
+  description: Job normalization with dict fingerprinting for consistent data structure
+  files:
+    - normalize.py
+  tech:
+    - Python
+    - Data normalization
+    - Fingerprinting
+- id: yaml_job_configs
+  project: cvpunk_and_jbhunter
+  description: YAML loader for job configurations and settings
+  files:
+    - jobs.yaml
+  tech:
+    - YAML
+    - Configuration
+    - Data loading
+- id: repo_feature_scanner
+  project: cvpunk_and_jbhunter
+  description: Repository scanner for feature files and project analysis
+  files:
+    - scan_repos.py
+  tech:
+    - Python
+    - File scanning
+    - Repository analysis
+- id: sqlite_sync
+  project: cvpunk_and_jbhunter
+  description: SQLite synchronization using sqlite3 for data persistence
+  files:
+    - sync_sqlite.py
+  tech:
+    - Python
+    - SQLite
+    - Data synchronization
+- id: job_schemas
+  project: cvpunk_and_jbhunter
+  description: Job schemas with TypedDict for type-safe data modeling
+  files:
+    - schemas.py
+  tech:
+    - Python
+    - TypedDict
+    - Data modeling
+- id: node_db_connector
+  project: cvpunk_and_jbhunter
+  description: Node.js database connector with SQLite bindings
+  files:
+    - db.ts
+  tech:
+    - Node.js
+    - TypeScript
+    - SQLite
+- id: typescript_sqlite_types
+  project: cvpunk_and_jbhunter
+  description: TypeScript types for SQLite bindings and database operations
+  files:
+    - sqlite.d.ts
+  tech:
+    - TypeScript
+    - SQLite
+    - Type definitions
+- id: docker_multi_container
+  project: cvpunk_and_jbhunter
+  description: Multi-container setup with Docker Compose for development environment
+  files:
+    - docker-compose.yml
+  tech:
+    - Docker
+    - Docker Compose
+    - Containerization
+- id: pdf_generator_cvpunk
+  project: cvpunk_and_jbhunter
+  description: PDF generator with ReportLab for document creation
+  files:
+    - main.py
+  tech:
+    - Python
+    - ReportLab
+    - PDF generation
+- id: letter_template_engine
+  project: cvpunk_and_jbhunter
+  description: Letter template engine for automated document generation
+  files:
+    - cover_letter.tpl
+  tech:
+    - Template engine
+    - Document generation
+    - Automation
+- id: email_prompt_templates
+  project: cvpunk_and_jbhunter
+  description: Email prompt templates for automated communication
+  files:
+    - email.tpl
+  tech:
+    - Templates
+    - Email automation
+    - Communication
+- id: resume_prompt_templates
+  project: cvpunk_and_jbhunter
+  description: Resume prompt templates for automated resume generation
+  files:
+    - resume.tpl
+  tech:
+    - Templates
+    - Resume generation
+    - Automation
+- id: linkedin_search_prompt
+  project: cvpunk_and_jbhunter
+  description: LinkedIn search prompt for automated networking
+  files:
+    - linkedin.tpl
+  tech:
+    - Templates
+    - LinkedIn automation
+    - Networking
+- id: langgraph_agent_orchestrator
+  project: cvpunk_and_jbhunter
+  description: LangGraph agent orchestrator for workflow automation
+  files:
+    - orchestrator.py
+  tech:
+    - LangGraph
+    - Python
+    - Agent orchestration
+- id: self_improvement_agents
+  project: cvpunk_and_jbhunter
+  description: Self-improvement loop agents for automated system enhancement
+  files:
+    - improvement/
+  tech:
+    - Python
+    - Machine Learning
+    - Self-improvement
+- id: api_data_connector
+  project: cvpunk_and_jbhunter
+  description: API data connector with REST/GraphQL support for data ingestion
+  files:
+    - data_connector.py
+  tech:
+    - Python
+    - REST
+    - GraphQL
+- id: seed_trail_pipeline
+  project: cvpunk_and_jbhunter
+  description: Seed-trail pipeline with Prisma ORM for data management
+  files:
+    - schema.prisma
+  tech:
+    - Prisma
+    - ORM
+    - Data pipeline
+- id: role_project_config
+  project: cvpunk_and_jbhunter
+  description: Role and project configuration management system
+  files:
+    - roles.yaml
+  tech:
+    - YAML
+    - Configuration
+    - Role management
+- id: nextjs_ui_scaffold
+  project: cvpunk_and_jbhunter
+  description: Next.js UI scaffold for web application development
+  files:
+    - layout.tsx
+  tech:
+    - Next.js
+    - React
+    - UI framework
+- id: tailwind_global_styles
+  project: cvpunk_and_jbhunter
+  description: Global styles with Tailwind CSS for consistent design system
+  files:
+    - globals.css
+  tech:
+    - Tailwind CSS
+    - CSS
+    - Design system
+- id: markdown_renderer
+  project: cvpunk_and_jbhunter
+  description: Markdown renderer with marked library for content display
+  files:
+    - package.json
+  tech:
+    - Markdown
+    - marked library
+    - Content rendering
+- id: tailwind_config_customization
+  project: cvpunk_and_jbhunter
+  description: Tailwind configuration customization for project-specific styling
+  files:
+    - tailwind.config.js
+  tech:
+    - Tailwind CSS
+    - Configuration
+    - Styling
+- id: typescript_nextjs_config
+  project: cvpunk_and_jbhunter
+  description: TypeScript configuration for Next.js application development
+  files:
+    - tsconfig.json
+  tech:
+    - TypeScript
+    - Next.js
+    - Configuration
+
+- id: dca_scheduling
+  project: stackr
+  description: Dollar-cost averaging scheduling for automated Bitcoin purchases
+  files:
+    - /Users/stephensaunders/r/tibocin/stackr/scripts
+    - /Users/stephensaunders/r/tibocin/stackr/src
+  tech:
+    - Node.js
+    - Python
+    - LangGraph
+
+- id: trigger_based_buying
+  project: stackr
+  description: Price and balance trigger-based automated Bitcoin purchases
+  files:
+    - /Users/stephensaunders/r/tibocin/stackr/PROJECT_ARCHITECTURE.md
+    - /Users/stephensaunders/r/tibocin/stackr/src
+  tech:
+    - LangGraph
+    - Python
+    - Bitcoin Knots RPC
+
+- id: secure_withdrawals
+  project: stackr
+  description: Automated secure withdrawals using xpub-derived Bitcoin addresses
+  files:
+    - /Users/stephensaunders/r/tibocin/stackr/src/withdraw.py
+    - /Users/stephensaunders/r/tibocin/stackr/bitcoin.conf
+  tech:
+    - Python
+    - Bitcoin Knots
+    - xpub
+
+- id: fe_send_bitcoin
+  project: fe-takehome-scaffold
+  description: Send Bitcoin form with real-time validation and USD conversion
+  files:
+    - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/App.js
+    - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/context
+  tech:
+    - React Native
+    - Expo
+    - bitcoinjs-lib
+
+- id: transaction_history_list
+  project: fe-takehome-scaffold
+  description: Transaction history list with status indicators and formatting
+  files:
+    - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/components/TransactionList.js
+  tech:
+    - React Native
+    - JavaScript
+
+- id: theme_system
+  project: fe-takehome-scaffold
+  description: Global light/dark theme system with responsive design
+  files:
+    - /Users/stephensaunders/Downloads/FE-takehome-scaffold-main/context/ThemeContext.js
+  tech:
+    - React Context
+    - Expo
+
+- id: conversational_ai_engine
+  project: beep-boop
+  description: Conversational AI chatbot orchestrated with LangGraph
+  files:
+    - modules/chat.py
+    - app.py
+  tech:
+    - Python
+    - LangGraph
+
+- id: rag_qa_system
+  project: beep-boop
+  description: Retrieval-Augmented Generation Q&A with ChromaDB backend
+  files:
+    - modules/rag.py
+    - chroma_db
+  tech:
+    - ChromaDB
+    - Python
+
+- id: content_processing_pipeline
+  project: beep-boop
+  description: Content ingestion, chunking, and embedding generation pipeline
+  files:
+    - modules/content_processor.py
+    - data/features.yaml
+  tech:
+    - Python
+    - YAML
+    - Embeddings
+
+- id: response_synthesizer
+  project: beep-boop
+  description: Synthesizes responses combining retrieved context and LLM outputs
+  files:
+    - modules/synthesizer.py
+  tech:
+    - Python
+    - LLM
+
