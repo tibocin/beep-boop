@@ -77,16 +77,17 @@ class Tone(Enum):
     CONVERSATIONAL = "conversational"
 
 class OutputStyle(Enum):
-    """Output style types for response generation."""
-    CONCISE = "concise"
-    STORYTELLING = "storytelling"
-    DETAILED = "detailed"
-    BULLET_POINTS = "bullet_points"
-    THOUGHT_PROVOKING = "thought_provoking"
-    CONVERSATIONAL = "conversational"
-    DEVOTIONAL = "devotional"
-    CODE = "code"
-    DATA = "data"
+    """Output style types for response presentation and structure."""
+    CONCISE = "concise"           # Brief, to the point
+    STORYTELLING = "storytelling" # Narrative, engaging
+    BULLET_POINTS = "bullet_points" # Structured, listed
+    THOUGHT_PROVOKING = "thought_provoking" # Stimulating, challenging
+    DEVOTIONAL = "devotional"     # Inspirational, uplifting
+    CODE = "code"                 # Technical, code-focused
+    DATA = "data"                 # Analytical, data-driven
+    METAPHORICAL = "metaphorical" # Using metaphors and analogies
+    STEP_BY_STEP = "step_by_step" # Sequential, instructional
+    COMPARATIVE = "comparative"   # Comparing and contrasting
 
 class ResponseFormat(Enum):
     """Response format types for length and delivery optimization."""
@@ -102,8 +103,8 @@ class ReqPrompt:
     subject: Subject
     format: Format
     tone: Tone
-    style: OutputStyle
-    response_format: ResponseFormat  # New: controls response length and delivery
+    style: OutputStyle          # How to present the information (storytelling, bullet points, etc.)
+    response_format: ResponseFormat  # Length and delivery optimization (concise, detailed, etc.)
     score: float  # Confidence score 0-1
     feedback: str
     expansion_flags: Optional[dict] = None  # New: flags for conversation flow
@@ -134,15 +135,34 @@ class ReqPrompt:
         return token_limits.get(self.response_format, 200)
     
     def get_style_guidance(self) -> str:
-        """Get style guidance based on response format."""
-        guidance = {
+        """Get style guidance based on response format and output style."""
+        # Length guidance from response format
+        length_guidance = {
             ResponseFormat.CONCISE: "Keep response concise and digestible (1-2 sentences)",
             ResponseFormat.DETAILED: "Provide comprehensive response with context and examples",
             ResponseFormat.EXPANDED: "Provide detailed, thorough response with extensive context",
             ResponseFormat.VOICE_OPTIMIZED: "Keep response very concise and voice-friendly (1 sentence preferred)",
             ResponseFormat.CONVERSATIONAL: "Provide natural, conversational response with good flow"
         }
-        return guidance.get(self.response_format, "Provide appropriate response")
+        
+        # Presentation guidance from output style
+        presentation_guidance = {
+            OutputStyle.CONCISE: "Present information in a brief, direct manner",
+            OutputStyle.STORYTELLING: "Use narrative structure with engaging flow",
+            OutputStyle.BULLET_POINTS: "Structure response with clear, organized points",
+            OutputStyle.THOUGHT_PROVOKING: "Stimulate deeper thinking and reflection",
+            OutputStyle.DEVOTIONAL: "Use inspirational and uplifting language",
+            OutputStyle.CODE: "Include technical details and code examples",
+            OutputStyle.DATA: "Present information with analytical precision",
+            OutputStyle.METAPHORICAL: "Use metaphors and analogies to illustrate points",
+            OutputStyle.STEP_BY_STEP: "Present information in sequential, instructional format",
+            OutputStyle.COMPARATIVE: "Compare and contrast different approaches or concepts"
+        }
+        
+        length = length_guidance.get(self.response_format, "Provide appropriate response")
+        presentation = presentation_guidance.get(self.style, "Present information clearly")
+        
+        return f"{length}. {presentation}."
 
 class ParsedRequest(BaseModel):
     """Parsed request structure with conversation context and response decisions."""
