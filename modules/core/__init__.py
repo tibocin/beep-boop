@@ -27,6 +27,7 @@ from .interfaces import (
     CandidateResponse,
     EvaluationScore
 )
+from .orchestrator import ConversationOrchestrator
 
 __version__ = "0.1.0"
 __all__ = [
@@ -39,5 +40,6 @@ __all__ = [
     "ResponseObjective", 
     "RAGContext",
     "CandidateResponse",
-    "EvaluationScore"
+    "EvaluationScore",
+    "ConversationOrchestrator"
 ]
