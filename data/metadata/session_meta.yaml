@@ -1,0 +1,16 @@
+metadata:
+  file_type: metadata
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - session_meta
+  - metadata
+  description: Session Meta metadata
+session_meta:
+  session_id: 2025-07-22-session01
+  interviewer: chatgpt
+  subject: stephen_saunders
+  timezone: America/Los_Angeles
+  processing_date: '2025-01-22'
+  confidence: 0.95
+  notes: Initial long-form oral capture; enhanced for optimal RAG processing

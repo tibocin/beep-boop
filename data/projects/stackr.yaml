@@ -1,0 +1,173 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - stackr
+  - projects
+  - features
+  description: Stackr project features and capabilities
+features:
+- id: dca_scheduling
+  project: stackr
+  description: Dollar-cost averaging scheduling for automated Bitcoin purchases
+  files:
+  - /Users/stephensaunders/r/tibocin/stackr/scripts
+  - /Users/stephensaunders/r/tibocin/stackr/src
+  tech:
+  - Node.js
+  - Python
+  - LangGraph
+- id: trigger_based_buying
+  project: stackr
+  description: Price and balance trigger-based automated Bitcoin purchases
+  files:
+  - /Users/stephensaunders/r/tibocin/stackr/PROJECT_ARCHITECTURE.md
+  - /Users/stephensaunders/r/tibocin/stackr/src
+  tech:
+  - LangGraph
+  - Python
+  - Bitcoin Knots RPC
+- id: secure_withdrawals
+  project: stackr
+  description: Automated secure withdrawals using xpub-derived Bitcoin addresses
+  files:
+  - /Users/stephensaunders/r/tibocin/stackr/src/withdraw.py
+  - /Users/stephensaunders/r/tibocin/stackr/bitcoin.conf
+  tech:
+  - Python
+  - Bitcoin Knots
+  - xpub
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects lumi to stackr
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects stackr to lumi
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects stackr to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects stackr to work_experience
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects books to stackr
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects work_experience to stackr
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to stackr
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to lumi
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to revao
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to work_experience
+- type: outgoing
+  target_category: career
+  target_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to technical_skills
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to stackr
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to stackr
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to stackr
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to stackr
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to stackr
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to stackr
+- type: incoming
+  source_category: career
+  source_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to stackr

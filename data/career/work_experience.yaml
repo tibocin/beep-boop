@@ -1,0 +1,282 @@
+work_experience:
+- id: current_role
+  title: Independent Developer and Entrepreneur
+  company: Self-employed
+  duration: "2023\u2013present"
+  responsibilities:
+  - Developing AI and Bitcoin-related projects
+  - Building agentic systems and automation tools
+  - Maintaining spiritual and personal development practices
+  achievements:
+  - Launched several active projects, including Beep-Boop and Lumi
+  - Created AI-powered resume/job automation and Bitcoin tools
+  - Built Lightning-compatible applications
+  technologies:
+  - JavaScript
+  - React
+  - Python
+  - Bitcoin
+  - LangGraph
+  - AI
+  tags:
+  - entrepreneurship
+  - bitcoin
+  - AI
+  - automation
+  - spiritual-tech
+  visibility: public
+- id: side_engineer
+  title: Founding Engineer
+  company: Side
+  duration: "2020\u20132023"
+  responsibilities:
+  - Developed dynamic document generation system
+  - Led feature design using Redux and observable patterns
+  - Onboarded new engineers and created team culture rituals
+  achievements:
+  - Built a two-way binding document engine used in real estate workflows
+  - Helped define the IP foundation of the platform
+  - Established culture traditions (e.g., waffle mornings)
+  technologies:
+  - JavaScript
+  - React
+  - Redux
+  - Observable
+  tags:
+  - early-stage
+  - feature-ownership
+  - culture-leadership
+  - real-estate-tech
+  visibility: public
+- id: autodesk
+  title: Senior Software Engineer
+  company: "Autodesk \u2013 ACC (Autodesk Construction Cloud)"
+  duration: "2018\u20132020"
+  responsibilities:
+  - Created front-end tooling to allow teams to author their own reports
+  - Built and maintained Node + React components for PDF generation
+  achievements:
+  - Defined UI standard for internal analytics reporting
+  - Enabled extensibility across engineering teams
+  technologies:
+  - React
+  - Node.js
+  - Puppeteer
+  - PostgreSQL
+  tags:
+  - enterprise
+  - data-viz
+  - platform-tools
+  - internal-infrastructure
+  visibility: public
+- id: tyco
+  title: Sales Engineer / Project Manager
+  company: "Tyco/ADT \u2013 Corporate Security Division"
+  duration: "2012\u20132016"
+  responsibilities:
+  - Designed corporate security systems for large institutions
+  - Oversaw multi-year headquarters installations (e.g., TD Ameritrade)
+  achievements:
+  - Secured multi-million dollar contracts
+  - Developed trusted relationships with client CTO/CIOs
+  technologies:
+  - Access Control
+  - Video Surveillance
+  - Physical Security
+  tags:
+  - sales
+  - security
+  - project-management
+  visibility: internal
+- id: ice_dev
+  title: Software Engineer
+  company: IceDev (JavaScript Consultancy)
+  duration: "2011\u20132012"
+  responsibilities:
+  - Worked on small team with strong open-source background
+  - Built project scaffolding tools and client stack showcases
+  achievements:
+  - Created visual package.json-based tech stack analyzer
+  technologies:
+  - JavaScript
+  - React
+  - Gulp
+  - Redux
+  tags:
+  - open-source
+  - javascript
+  - client-tools
+  visibility: internal
+- id: general_assembly
+  title: "Student \u2013 Web Development Immersive"
+  company: General Assembly (NYC)
+  duration: '2011'
+  notes: Completed intensive bootcamp to shift from enterprise sales to tech
+  tags:
+  - career-pivot
+  - web-dev
+  - bootcamp
+  visibility: public
+- id: english_teacher_china
+  title: English Teacher
+  company: Guangzhou School District / English First
+  duration: "2008\u20132010"
+  responsibilities:
+  - Taught English through gamified simulations
+  - Designed curriculum for adults and K-2 students
+  achievements:
+  - Most requested teacher in English First branch
+  tags:
+  - education
+  - china
+  - teaching
+  - curriculum-design
+  visibility: internal
+- id: brand_outlook
+  title: Marketing Analyst
+  company: Brand Outlook
+  duration: "2006\u20132008"
+  responsibilities:
+  - Ran SPSS concept clustering and sentiment analysis
+  - Created branding strategy for Fortune 500 clients
+  achievements:
+  - 'Coined GoDaddy tagline: ''The web is your domain'''
+  - Helped launch Chantix tortoise/hare campaign for Pfizer
+  tags:
+  - brand-strategy
+  - market-research
+  - early-career
+  visibility: public
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects lumi to work_experience
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects stackr to work_experience
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects books to work_experience
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects work_experience to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects work_experience to stackr
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: bitcoin_interest
+  relevance_score: 0.8
+  description: Bitcoin interest connects work_experience to books
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to work_experience
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to work_experience
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to work_experience
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to work_experience
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to work_experience
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to work_experience
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to work_experience
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to stackr
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to revao
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to books
+- type: outgoing
+  target_category: career
+  target_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to technical_skills
+- type: incoming
+  source_category: career
+  source_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to work_experience

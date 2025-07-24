@@ -1,0 +1,317 @@
+metadata:
+  file_type: career
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - technical_skills
+  - career
+  - professional
+  description: Technical Skills information
+technical_skills:
+  programming_languages:
+  - language: JavaScript
+    proficiency: 0.95
+    experience_years: 8
+    use_cases:
+    - Frontend development
+    - Node.js backend
+    - React applications
+    - Cloud Functions
+    - Serverless
+    frameworks:
+    - React
+    - Node.js
+    - Express
+    - Redux
+    - Next.js
+    - Tailwind CSS
+    tags:
+    - programming
+    - frontend
+    - backend
+    - web
+  - language: React
+    proficiency: 0.9
+    experience_years: 6
+    use_cases:
+    - User interfaces
+    - Data binding
+    - Dynamic document generation
+    - WSIWYG
+    - Internationalization
+    - Testing
+    - Deployment
+    - Logging
+    - Error Handling
+    frameworks:
+    - Redux
+    - Hooks
+    - Context API
+    tags:
+    - frontend
+    - UI
+    - react
+    - web
+    - mobile
+  - language: Python
+    proficiency: 0.8
+    experience_years: 3
+    use_cases:
+    - AI/ML
+    - Automation
+    - Data processing
+    frameworks:
+    - OpenAI
+    - LangGraph
+    - Pandas
+    - NumPy
+    tags:
+    - programming
+    - AI
+    - automation
+    - data
+  - language: TypeScript
+    proficiency: 0.75
+    experience_years: 3
+    use_cases:
+    - Type-safe development
+    - Large applications
+    - Team collaboration
+    frameworks:
+    - React
+    - Node.js
+    - Express
+    tags:
+    - programming
+    - typescript
+    - type-safety
+  - language: Rust
+    proficiency: 0.6
+    experience_years: 2
+    use_cases:
+    - Backend development
+    - System programming
+    - Cryptography
+    - Networking
+    - Concurrency
+    - Memory Safety
+    frameworks:
+    - Tokio
+    tags:
+    - programming
+    - rust
+    - backend
+    - system
+    - cryptography
+    - networking
+    - concurrency
+  problem_solving_approach:
+    methodology:
+    - step: Ideate with AI
+      description: Use AI tools to explore and develop initial ideas
+      techniques:
+      - LLM dialogue
+      - Research
+      - Prototyping
+      tags:
+      - AI
+      - ideation
+      - research
+    - step: Clarify domain requirements
+      description: Deeply understand the problem domain and requirements
+      techniques:
+      - Domain analysis
+      - User stories
+      - Requirements gathering
+      tags:
+      - analysis
+      - requirements
+      - understanding
+    - step: Write spec and user stories
+      description: Document specifications and user stories
+      techniques:
+      - Technical specifications
+      - User story mapping
+      - Documentation
+      tags:
+      - documentation
+      - specifications
+      - planning
+    - step: Scaffold repository
+      description: Set up project structure and initial codebase
+      techniques:
+      - Project structure
+      - Initial setup
+      - Development environment
+      tags:
+      - setup
+      - structure
+      - development
+    - step: Incremental tests
+      description: Write and run tests throughout development
+      techniques:
+      - Unit testing
+      - Integration testing
+      - Test-driven development
+      tags:
+      - testing
+      - quality
+      - reliability
+    - step: Run debug loop
+      description: Iterative development with debugging
+      techniques:
+      - Debugging
+      - Iteration
+      - Problem solving
+      tags:
+      - debugging
+      - iteration
+      - development
+    - step: Borrow patterns from community
+      description: Learn from existing solutions and best practices
+      techniques:
+      - Research
+      - Community learning
+      - Pattern adoption
+      tags:
+      - learning
+      - community
+      - best-practices
+    - step: Refactor for clarity
+      description: Improve code quality and maintainability
+      techniques:
+      - Refactoring
+      - Code review
+      - Documentation
+      tags:
+      - refactoring
+      - quality
+      - maintainability
+  technical_philosophy:
+  - principle: AI-augmented orchestration
+    description: Use AI tools to enhance human capabilities and productivity
+    examples:
+    - LLM-assisted coding
+    - AI-powered research
+    - Automated workflows
+    tags:
+    - AI
+    - productivity
+    - augmentation
+  - principle: Architecture-first approach
+    description: Focus on system design and architecture before implementation
+    examples:
+    - System design
+    - Modular architecture
+    - Scalable solutions
+    tags:
+    - architecture
+    - design
+    - scalability
+  - principle: Testing early and often
+    description: Integrate testing throughout the development process
+    examples:
+    - Test-driven development
+    - Continuous testing
+    - Quality assurance
+    tags:
+    - testing
+    - quality
+    - reliability
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to technical_skills
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to technical_skills
+- type: incoming
+  source_category: projects
+  source_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to technical_skills
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to technical_skills
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to stackr
+- type: outgoing
+  target_category: projects
+  target_file: revao
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to revao
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to work_experience

@@ -1,0 +1,46 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - beep-boop
+  - projects
+  - features
+  description: Beep-Boop project features and capabilities
+features:
+- id: conversational_ai_engine
+  project: beep-boop
+  description: Conversational AI chatbot orchestrated with LangGraph
+  files:
+  - modules/chat.py
+  - app.py
+  tech:
+  - Python
+  - LangGraph
+- id: rag_qa_system
+  project: beep-boop
+  description: Retrieval-Augmented Generation Q&A with ChromaDB backend
+  files:
+  - modules/rag.py
+  - chroma_db
+  tech:
+  - ChromaDB
+  - Python
+- id: content_processing_pipeline
+  project: beep-boop
+  description: Content ingestion, chunking, and embedding generation pipeline
+  files:
+  - modules/content_processor.py
+  - data/features.yaml
+  tech:
+  - Python
+  - YAML
+  - Embeddings
+- id: response_synthesizer
+  project: beep-boop
+  description: Synthesizes responses combining retrieved context and LLM outputs
+  files:
+  - modules/synthesizer.py
+  tech:
+  - Python
+  - LLM

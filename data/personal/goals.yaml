@@ -1,0 +1,59 @@
+metadata:
+  file_type: personal
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - goals
+  - personal
+  - profile
+  description: Goals information and characteristics
+goals:
+  immediate:
+  - goal: Overcome fear reentry
+    description: Address and overcome fears that limit personal and professional growth
+    approach:
+    - Spiritual practice
+    - Self-inquiry
+    - Gradual exposure
+    priority: 0.95
+    tags:
+    - personal-growth
+    - fear
+    - overcoming-limitations
+  - goal: Secure family Bitcoin treasury
+    description: Build and secure Bitcoin holdings for family financial sovereignty
+    approach:
+    - Bitcoin accumulation
+    - Secure storage
+    - Family education
+    priority: 0.9
+    tags:
+    - bitcoin
+    - family
+    - financial-sovereignty
+  long_term:
+  - goal: Align work with spirit
+    description: Ensure all work activities align with spiritual values and purpose
+    approach:
+    - Values assessment
+    - Authentic work
+    - Spiritual integration
+    priority: 0.88
+    tags:
+    - spirituality
+    - work
+    - alignment
+    - purpose
+  - goal: Enable authentic paths for family
+    description: Support family members in pursuing their authentic paths and purposes
+    approach:
+    - Family support
+    - Education
+    - Resources
+    - Encouragement
+    priority: 0.85
+    tags:
+    - family
+    - support
+    - authenticity
+    - growth

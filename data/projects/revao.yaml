@@ -1,0 +1,329 @@
+metadata:
+  file_type: projects
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - revao
+  - projects
+  - features
+  description: Revao project features and capabilities
+features:
+- id: agent_orchestrator
+  project: revao
+  description: Modular orchestration of LangGraph agents for real estate analysis
+  files:
+  - core/orchestrator.py
+  - agents/hello_agent.py
+  tech:
+  - LangGraph
+  - Python
+- id: data_connector
+  project: revao
+  description: Connects to APIs and databases to ingest market and local news data
+  files:
+  - core/data_connector.py
+  tech:
+  - Python
+  - REST
+  - GraphQL
+- id: self_improvement_loop
+  project: revao
+  description: Improvement agents propose code/config updates to refine workflows
+  files:
+  - core/improvement/
+  tech:
+  - Python
+  - Machine Learning
+- id: async_concurrency_workflows
+  project: revao
+  description: Sequential workflows with asyncio and parallel task orchestration
+  files:
+  - core/orchestrator.py
+  - core/agent_framework.py
+  tech:
+  - asyncio
+  - Python
+  - Concurrency
+- id: configurable_concurrency_limits
+  project: revao
+  description: Configurable concurrency limits and timeout/retry policies
+  files:
+  - core/config.py
+  - core/orchestrator.py
+  tech:
+  - Python
+  - Configuration management
+  - Concurrency control
+- id: in_memory_data_connector
+  project: revao
+  description: In-memory DataConnector backed by dict store with unified interface
+  files:
+  - core/data_connector.py
+  tech:
+  - Python
+  - In-memory storage
+  - Data abstraction
+- id: redis_postgres_connector
+  project: revao
+  description: Unified Redis/Postgres connector interface with dynamic backend selection
+  files:
+  - core/data_connector.py
+  tech:
+  - Python
+  - Redis
+  - PostgreSQL
+- id: centralized_crud_api
+  project: revao
+  description: Centralized CRUD operations via execute(operation, payload) API
+  files:
+  - core/data_connector.py
+  tech:
+  - Python
+  - CRUD operations
+  - API design
+- id: python_type_hints
+  project: revao
+  description: Python type hints for payloads and return values in data operations
+  files:
+  - core/data_connector.py
+  tech:
+  - Python
+  - Type hints
+  - Type safety
+- id: structured_logging
+  project: revao
+  description: Structured logging using LogConfig utility with distributed tracing
+  files:
+  - core/logging_utils.py
+  - core/orchestrator.py
+  tech:
+  - Python
+  - Structured logging
+  - Observability
+- id: metric_error_logging
+  project: revao
+  description: Standardized metric and error event logging patterns with contextual
+    fields
+  files:
+  - core/orchestrator.py
+  - core/logging_utils.py
+  tech:
+  - Python
+  - Metrics
+  - Error tracking
+- id: pytest_testing_suite
+  project: revao
+  description: Comprehensive pytest suite for DataConnector and orchestrator flows
+  files:
+  - tests/test_data_connector.py
+  - tests/test_orchestrator.py
+  tech:
+  - pytest
+  - Python
+  - Testing
+- id: async_agent_mocks
+  project: revao
+  description: Fixtures for both sync and async agent mocks in testing
+  files:
+  - tests/conftest.py
+  tech:
+  - pytest
+  - Python
+  - Mock testing
+- id: analytics_db_validation
+  project: revao
+  description: Analytics database operations validation through comprehensive tests
+  files:
+  - tests/test_analytics_db.py
+  tech:
+  - pytest
+  - Database testing
+  - Analytics
+- id: ci_coverage_standards
+  project: revao
+  description: CI coverage standards enforcement via .coveragerc configuration
+  files:
+  - ./.coveragerc
+  tech:
+  - Coverage
+  - CI/CD
+  - Quality assurance
+- id: local_environment_setup
+  project: revao
+  description: Bash script for local environment setup and configuration
+  files:
+  - scripts/setup_local.sh
+  tech:
+  - Bash
+  - Environment setup
+  - Automation
+- id: git_hooks_installer
+  project: revao
+  description: Git-hooks installer for development workflow automation
+  files:
+  - scripts/gitHooks.sh
+  tech:
+  - Git hooks
+  - Bash
+  - Development workflow
+- id: pre_commit_linting
+  project: revao
+  description: Pre-commit linting with configuration file for code quality
+  files:
+  - .pre-commit-config.yaml
+  tech:
+  - Pre-commit
+  - Linting
+  - Code quality
+- id: flake8_style_enforcement
+  project: revao
+  description: Project-wide flake8 rules for Python style enforcement
+  files:
+  - .flake8
+  tech:
+  - flake8
+  - Python
+  - Code style
+- id: pr_template_standardization
+  project: revao
+  description: Standardized PR templates to enforce CI checks and quality gates
+  files:
+  - .github/pull_request_template.md
+  tech:
+  - GitHub
+  - PR templates
+  - CI/CD
+- id: orchestrator_agent_framework
+  project: revao
+  description: Core orchestrator-agent framework layers with documented architecture
+  files:
+  - core/orchestrator.py
+  - agent docs/user stories and flows.md
+  tech:
+  - Python
+  - Architecture
+  - Documentation
+- id: kernel_development_roadmap
+  project: revao
+  description: Kernel roadmap and key milestones documentation
+  files:
+  - agent docs/kernel development roadmap.md
+  tech:
+  - Documentation
+  - Project planning
+  - Roadmap
+- id: core_agents_package_organization
+  project: revao
+  description: Organized code into core/ and agents/ packages with proper structure
+  files:
+  - core/__init__.py
+  tech:
+  - Python
+  - Package organization
+  - Code structure
+- id: orchestrator_config_settings
+  project: revao
+  description: OrchestratorConfig settings for default configuration management
+  files:
+  - core/config.py
+  tech:
+  - Python
+  - Configuration
+  - Settings management
+cross_references:
+- type: incoming
+  source_category: projects
+  source_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects lumi to revao
+- type: incoming
+  source_category: projects
+  source_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects stackr to revao
+- type: outgoing
+  target_category: projects
+  target_file: lumi
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to lumi
+- type: outgoing
+  target_category: projects
+  target_file: stackr
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to stackr
+- type: outgoing
+  target_category: preferences
+  target_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to movies
+- type: outgoing
+  target_category: preferences
+  target_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to shows
+- type: outgoing
+  target_category: preferences
+  target_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to music
+- type: outgoing
+  target_category: preferences
+  target_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to books
+- type: outgoing
+  target_category: career
+  target_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to work_experience
+- type: outgoing
+  target_category: career
+  target_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects revao to technical_skills
+- type: incoming
+  source_category: preferences
+  source_file: movies
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects movies to revao
+- type: incoming
+  source_category: preferences
+  source_file: shows
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects shows to revao
+- type: incoming
+  source_category: preferences
+  source_file: music
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects music to revao
+- type: incoming
+  source_category: preferences
+  source_file: books
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects books to revao
+- type: incoming
+  source_category: career
+  source_file: work_experience
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects work_experience to revao
+- type: incoming
+  source_category: career
+  source_file: technical_skills
+  connection_type: ai_interest
+  relevance_score: 0.8
+  description: AI interest connects technical_skills to revao

@@ -1,0 +1,187 @@
+metadata:
+  file_type: personal
+  last_updated: '2025-01-22'
+  version: '1.0'
+  tags:
+  - projects
+  - personal
+  - profile
+  description: Projects information and characteristics
+projects:
+  current:
+  - name: Beep-Boop - Digital Twin Agentic Companion
+    description: Building an AI companion that captures mind and voice for job and
+      personal use
+    status: active
+    start_date: 2025-07
+    technologies:
+    - Python
+    - OpenAI
+    - RAG
+    - LangGraph
+    - ElevenLabs
+    - Chromadb
+    - Hugging Face
+    - LLM
+    challenges:
+    - Capturing authentic personality
+    - Voice synthesis
+    - Memory persistence
+    solutions:
+    - Comprehensive content integration
+    - Response synthesis
+    - Evaluation systems
+    impact: Personal AI assistant with authentic personality
+    tags:
+    - AI
+    - personal-assistant
+    - voice-synthesis
+    - personality
+  - name: CVPunk JBhunter
+    description: Resume and job application automation system
+    status: active
+    start_date: 2025-04
+    technologies:
+    - JavaScript
+    - React
+    - Node.js
+    - AI
+    challenges:
+    - Job market complexity
+    - Application automation
+    - Personal branding
+    solutions:
+    - Automated application process
+    - AI-enhanced resumes
+    - Strategic targeting
+    impact: Streamlined job search process
+    tags:
+    - automation
+    - job-search
+    - AI
+    - productivity
+  - name: Lumi Platform
+    description: Spiritual children's media ecosystem
+    status: active
+    start_date: 2024-10
+    technologies:
+    - React
+    - Node.js
+    - Content Management
+    - Bitcoin
+    - SHA256
+    - AI
+    challenges:
+    - Proving identity authorization for an anonymous author
+    - Child-appropriate spiritual content
+    - Parent engagement
+    - Educational value
+    - Book publishing
+    - Community building
+    - Spiritual content
+    solutions:
+    - Age-appropriate content
+    - Parent resources
+    - Interactive learning
+    - Community building
+    - Spiritual content
+    impact: Spiritual education for children
+    tags:
+    - education
+    - spirituality
+    - children
+    - media
+  - name: Stacker DCA Bitcoin
+    description: Intelligent Bitcoin accumulation system using Power Law model and
+      DCA strategies
+    status: active
+    start_date: 2024-10
+    technologies:
+    - Python
+    - Bitcoin APIs
+    - Automation
+    challenges:
+    - Market timing
+    - Risk management
+    - Automation reliability
+    - Bitcoin price volatility
+    - Self-custody
+    - Financial literacy
+    solutions:
+    - Dollar-cost averaging
+    - Intelligent timing
+    - Risk controls
+    - Self-custody
+    - Data visualization
+    - AI
+    - Automation
+    impact: Automated Bitcoin accumulation
+    tags:
+    - bitcoin
+    - automation
+    - investment
+    - cryptocurrency
+    - self-custody
+    - financial literacy
+    - data visualization
+    - AI
+    - automation
+    - open source
+  concepts:
+  - name: Lightning Escrow Agent
+    description: Privacy-focused escrow contracts using Bitcoin Lightning and Oracles
+    status: concept
+    goal: Secure, private escrow services
+    technologies:
+    - Bitcoin Lightning
+    - Smart Contracts
+    - Privacy
+    - Oracles
+    - AI
+    - Automation
+    - Dentralized Compute
+    - NOSTR
+    tags:
+    - bitcoin
+    - lightning
+    - escrow
+    - privacy
+    - NOSTR
+    - Dentralized Compute
+    - AI
+    - Automation
+    - akash
+    - dapp
+  - name: AI Lightning Channel Manager
+    description: Automated liquidity management for routing yield
+    status: concept
+    goal: Optimize Lightning network participation; earn yield from routing fees
+    technologies:
+    - Bitcoin Lightning
+    - AI
+    - Automation
+    - Machine Learning
+    - Data Visualization
+    - Open Source
+    tags:
+    - bitcoin
+    - lightning
+    - automation
+    - yield
+    - routing
+    - liquidity
+    - open source
+  - name: Virtual Software Dev Company
+    description: Agentic build factory using LangGraph
+    status: upcoming
+    goal: Automated software development company
+    technologies:
+    - LangGraph
+    - AI Agents
+    - Automation
+    tags:
+    - automation
+    - AI-agents
+    - software-development
+    - digital marketing
+    - digital agency
