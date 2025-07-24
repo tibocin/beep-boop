@@ -9,6 +9,11 @@ into a standalone application.
 import os
 import sys
 from dotenv import load_dotenv
+import gradio as gr
+from modules.rag import create_rag_backend
+from modules.parser import RequestParser
+from modules.chat import ChatEngine
+import logging
 
 # Load environment variables
 load_dotenv()
@@ -18,55 +23,97 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Import our modules
 from modules.enums import Subject, Format, Tone, OutputStyle, ReqPrompt
-from modules.chat import ChatEngine
-from modules.parser import RequestParser
-from modules.rag import create_rag_backend
-from modules.ui import GradioInterface
 
-def main():
-    """Main application entry point."""
-    print("🧠 Starting Agentic Companion...")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def discover_yaml_files(data_dir: str = "data") -> list:
+    """
+    Discover all YAML files in the data directory and subdirectories.
     
-    # Check for OpenAI API key
-    if not os.getenv("OPENAI_API_KEY"):
-        print("❌ Error: OPENAI_API_KEY not found in environment variables")
-        print("Please set your OpenAI API key in .env file")
-        return
+    Args:
+        data_dir: Directory to search for YAML files
+        
+    Returns:
+        list: List of full paths to YAML files found
+    """
+    yaml_files = []
+    if os.path.exists(data_dir):
+        for root, dirs, files in os.walk(data_dir):
+            for file in files:
+                if file.endswith('.yaml') or file.endswith('.yml'):
+                    yaml_files.append(os.path.join(root, file))
+    return yaml_files
+
+def initialize_rag_with_yaml(rag_engine) -> bool:
+    """
+    Initialize RAG engine with all discovered YAML files.
     
+    Args:
+        rag_engine: The RAG engine to initialize
+        
+    Returns:
+        bool: True if files were found and loaded, False otherwise
+    """
+    yaml_files = discover_yaml_files()
+    
+    if not yaml_files:
+        print("⚠️ No YAML files found in data directory")
+        return False
+    
+    print(f"📄 Found {len(yaml_files)} YAML files to load")
+    
+    # Try direct initialization first
+    if hasattr(rag_engine, 'initialize_from_yaml'):
+        rag_engine.initialize_from_yaml(yaml_files)
+        return True
+    # Try backend initialization
+    elif hasattr(rag_engine, 'backend') and hasattr(rag_engine.backend, 'initialize_from_yaml'):
+        rag_engine.backend.initialize_from_yaml(yaml_files)
+        return True
+    else:
+        print("⚠️ RAG engine doesn't support YAML initialization")
+        return False
+
+def create_chat_interface():
+    """Create and configure the chat interface."""
     try:
         # Initialize components
-        print("📦 Initializing components...")
-        
-        # Initialize RAG engine with adapter (auto-detects best backend)
+        print("🚀 Initializing RAG engine...")
         rag_engine = create_rag_backend(backend_type="auto")
         
-        # If no advanced backend is available, use basic RAG
-        if not rag_engine.backend:
-            print("⚠️ No advanced RAG backend available, using basic RAG")
-            from modules.rag import RAGEngine
-            rag_engine = RAGEngine()
-        
-        # Initialize with YAML data if backend supports it
-        if hasattr(rag_engine, 'initialize_from_yaml'):
-            rag_engine.initialize_from_yaml()
-        elif hasattr(rag_engine, 'backend') and hasattr(rag_engine.backend, 'initialize_from_yaml'):
-            rag_engine.backend.initialize_from_yaml()
-        
-        # Initialize request parser
+        print("🧠 Initializing parser...")
         parser = RequestParser()
         
-        # Initialize chat engine
+        print("💬 Initializing chat engine...")
         chat_engine = ChatEngine(rag_engine, parser)
         
-        # Initialize and launch Gradio interface
-        print("🚀 Launching Gradio interface...")
-        interface = GradioInterface(chat_engine)
-        interface.launch()
+        # Initialize RAG with YAML data
+        initialize_rag_with_yaml(rag_engine)
+        
+        # Create Gradio interface
+        with gr.Blocks(title="Agentic AI Companion") as demo:
+            gr.Markdown("# 🤖 Agentic AI Companion")
+            gr.Markdown("Chat with your personalized AI companion!")
+            
+            chatbot = gr.Chatbot(height=600)
+            msg = gr.Textbox(label="Message", placeholder="Type your message here...")
+            clear = gr.Button("Clear")
+            
+            def respond(message, history):
+                response = chat_engine.chat(message, history)
+                return "", history + [[message, response]]
+            
+            msg.submit(respond, [msg, chatbot], [msg, chatbot])
+            clear.click(lambda: None, None, chatbot, queue=False)
+        
+        return demo
         
     except Exception as e:
-        print(f"❌ Error starting application: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error creating chat interface: {e}")
+        raise
 
 if __name__ == "__main__":
-    main() 
+    demo = create_chat_interface()
+    demo.launch(share=False, debug=True) 

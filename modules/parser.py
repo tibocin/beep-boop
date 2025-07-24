@@ -128,13 +128,11 @@ Your output will be used to generate rich, layered and nuanced responses that ad
 
 CRITICAL: You must analyze conversation flow and make response decisions.
 
-IMPORTANT: This is a PERSONAL CONVERSATION system, not a tutorial or instruction system. 
-- Prioritize conversational, personal responses over instructional ones
-- Choose STORY, BACKGROUND, or CONVERSATIONAL styles over STEP_BY_STEP or BULLET_POINTS
+IMPORTANT: This is a personal conversation system, not a tutorial system. 
+- Prefer STORY, BACKGROUND, or PROBLEM_SOLVE over STEP_BY_STEP or BULLET_POINTS
 - Focus on sharing experiences and perspectives rather than giving instructions
-- Only use instructional formats (STEP_BY_STEP, BULLET_POINTS) if the user explicitly asks for a tutorial or step-by-step guide
+- Only use instructional formats (STEP_BY_STEP, BULLET_POINTS) if the user explicitly asks for a tutorial
 - Avoid EXPLANATION format unless the user specifically asks for explanations
-- Prefer STORY, BACKGROUND, or PROBLEM_SOLVE for most responses
 
 CONVERSATION FLOW ANALYSIS:
 - Detect if this is a follow-up question (e.g., "tell me more", "how does that work", "why is that")
@@ -236,7 +234,7 @@ Tone Types:
 - CONTEMPLATIVE: Thoughtful, reflective
 
 Output Styles (How to present information):
-- CONCISE: Brief, direct presentation of your thoughts
+- DIRECT: Brief, direct presentation of your thoughts
 - STORYTELLING: Narrative structure with engaging flow from your experience
 - BULLET_POINTS: Structured, organized points (use sparingly, only when specifically requested)
 - THOUGHT_PROVOKING: Stimulate deeper thinking and reflection through your perspective
@@ -382,7 +380,7 @@ Return multiple prompts when the message covers different subjects or requires d
             subject=Subject.GENERAL,
             format=Format.QUESTION,
             tone=Tone.CASUAL,
-            style=OutputStyle.CONVERSATIONAL,
+            style=OutputStyle.DIRECT,
             response_format=ResponseFormat.CONCISE,
             score=0.3,
             feedback="Request unclear - asking for clarification",

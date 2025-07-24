@@ -78,7 +78,7 @@ class Tone(Enum):
 
 class OutputStyle(Enum):
     """Output style types for response presentation and structure."""
-    CONCISE = "concise"           # Brief, to the point
+    DIRECT = "direct"           # Brief, to the point
     STORYTELLING = "storytelling" # Narrative, engaging
     BULLET_POINTS = "bullet_points" # Structured, listed
     THOUGHT_PROVOKING = "thought_provoking" # Stimulating, challenging
@@ -147,7 +147,7 @@ class ReqPrompt:
         
         # Presentation guidance from output style
         presentation_guidance = {
-            OutputStyle.CONCISE: "Present information in a brief, direct manner",
+            OutputStyle.DIRECT: "Present information in a brief, direct manner",
             OutputStyle.STORYTELLING: "Use narrative structure with engaging flow",
             OutputStyle.BULLET_POINTS: "Structure response with clear, organized points",
             OutputStyle.THOUGHT_PROVOKING: "Stimulate deeper thinking and reflection",

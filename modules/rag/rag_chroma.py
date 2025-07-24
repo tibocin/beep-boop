@@ -72,41 +72,102 @@ class ChromaDBBackend(RAGBackend):
             chunks = []
             chunk_id = 0
             
+            def process_value(value, section, key):
+                """Process a value and convert it to text."""
+                if isinstance(value, str):
+                    return value
+                elif isinstance(value, list):
+                    # Handle list of strings
+                    if all(isinstance(item, str) for item in value):
+                        return ', '.join(value)
+                    # Handle list of dictionaries
+                    elif all(isinstance(item, dict) for item in value):
+                        texts = []
+                        for item in value:
+                            if isinstance(item, dict):
+                                item_texts = []
+                                for k, v in item.items():
+                                    if isinstance(v, str):
+                                        item_texts.append(f"{k}: {v}")
+                                    elif isinstance(v, list) and all(isinstance(x, str) for x in v):
+                                        item_texts.append(f"{k}: {', '.join(v)}")
+                                    elif isinstance(v, (int, float)):
+                                        item_texts.append(f"{k}: {v}")
+                                    elif isinstance(v, dict):
+                                        # Handle nested dictionaries
+                                        nested_texts = []
+                                        for nk, nv in v.items():
+                                            if isinstance(nv, str):
+                                                nested_texts.append(f"{nk}: {nv}")
+                                            elif isinstance(nv, (int, float)):
+                                                nested_texts.append(f"{nk}: {nv}")
+                                        if nested_texts:
+                                            item_texts.append(f"{k}: {'; '.join(nested_texts)}")
+                                if item_texts:
+                                    texts.append('; '.join(item_texts))
+                        return ' | '.join(texts) if texts else str(value)
+                    # Mixed list - convert all items to strings
+                    else:
+                        return ', '.join([str(item) for item in value])
+                elif isinstance(value, dict):
+                    texts = []
+                    for k, v in value.items():
+                        if isinstance(v, str):
+                            texts.append(f"{k}: {v}")
+                        elif isinstance(v, list) and all(isinstance(x, str) for x in v):
+                            texts.append(f"{k}: {', '.join(v)}")
+                        elif isinstance(v, (int, float)):
+                            texts.append(f"{k}: {v}")
+                        elif isinstance(v, dict):
+                            # Handle nested dictionaries
+                            nested_texts = []
+                            for nk, nv in v.items():
+                                if isinstance(nv, str):
+                                    nested_texts.append(f"{nk}: {nv}")
+                                elif isinstance(nv, (int, float)):
+                                    nested_texts.append(f"{nk}: {nv}")
+                            if nested_texts:
+                                texts.append(f"{k}: {'; '.join(nested_texts)}")
+                    return '; '.join(texts) if texts else str(value)
+                else:
+                    return str(value)
+            
             for section, content in data.items():
+                if section == 'metadata':
+                    continue  # Skip metadata section
+                
                 if isinstance(content, dict):
                     for key, value in content.items():
-                        if isinstance(value, list):
-                            chunk_text = f"{section} - {key}: {', '.join(value)}"
-                        else:
-                            chunk_text = f"{section} - {key}: {value}"
-                        
+                        chunk_text = process_value(value, section, key)
+                        if chunk_text and chunk_text.strip():
+                            chunks.append({
+                                "id": f"chunk_{chunk_id}",
+                                "text": f"{section} - {key}: {chunk_text}",
+                                "metadata": {
+                                    "section": section,
+                                    "key": key,
+                                    "source": yaml_file,
+                                    "type": "yaml_chunk",
+                                    "subject": self._infer_subject(section, key, chunk_text),
+                                    "content_type": "complex"
+                                }
+                            })
+                            chunk_id += 1
+                else:
+                    chunk_text = process_value(content, section, "")
+                    if chunk_text and chunk_text.strip():
                         chunks.append({
                             "id": f"chunk_{chunk_id}",
-                            "text": chunk_text,
+                            "text": f"{section}: {chunk_text}",
                             "metadata": {
                                 "section": section,
-                                "key": key,
                                 "source": yaml_file,
                                 "type": "yaml_chunk",
-                                "subject": self._infer_subject(section, key, chunk_text),
-                                "content_type": "list" if isinstance(value, list) else "text"
+                                "subject": self._infer_subject(section, "", chunk_text),
+                                "content_type": "text"
                             }
                         })
                         chunk_id += 1
-                else:
-                    chunk_text = f"{section}: {content}"
-                    chunks.append({
-                        "id": f"chunk_{chunk_id}",
-                        "text": chunk_text,
-                        "metadata": {
-                            "section": section,
-                            "source": yaml_file,
-                            "type": "yaml_chunk",
-                            "subject": self._infer_subject(section, "", chunk_text),
-                            "content_type": "text"
-                        }
-                    })
-                    chunk_id += 1
             
             return chunks
         

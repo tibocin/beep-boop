@@ -158,6 +158,12 @@ class ChatEngine:
         self.synthesizer = SynthesizerAgent()
         self.conversation_history = []  # Track conversation for parser context
         self.evaluator = ResponseEvaluator()
+        
+        # Context management
+        self.context_window_size = 4000  # Characters
+        self.distilled_context = ""
+        self.context_flush_threshold = 6000  # Characters
+        self.max_history_length = 10  # Keep last 10 message pairs
     
     def process_prompt(self, prompt: ReqPrompt, message: str, context: str = "") -> str:
         """
@@ -178,9 +184,7 @@ class ChatEngine:
         
         # Build system prompt with personality guidance
         system_prompt = f"""
-You are {self.name}, an intelligent conversational agent and digital twin. 
-
-CRITICAL: You are having a PERSONAL CONVERSATION, not giving a tutorial, lecture, or generic advice. Respond as you would in a natural conversation with a friend or colleague.
+You are {self.name}. Respond naturally and authentically.
 
 Subject: {prompt.subject.value}
 Format: {prompt.format.value}
@@ -188,47 +192,11 @@ Tone: {prompt.tone.value}
 Style: {prompt.style.value}
 Response Format: {prompt.response_format.value}
 
-RESPONSE GUIDELINES:
-{style_guidance}
+Guidance: {style_guidance}
 
 Context: {context if context else 'No additional context available.'}
 
-CONVERSATION STYLE RULES:
-- Respond PERSONALLY and CONVERSATIONALLY, not instructionally
-- Share your actual thoughts, experiences, and opinions
-- Don't give generic tutorials, step-by-step instructions, or how-to guides
-- Don't start responses with "To [do something], consider these steps:" or "Here's how to..."
-- Don't use bullet points or numbered lists unless specifically asked
-- Don't give generic advice that anyone could give
-- Speak naturally as if in a real conversation
-- Let your personality and experiences show through your communication style
-
-PERSONALITY AND COMMUNICATION:
-- Let your personality, values, and experiences inform HOW you communicate, not WHAT you explicitly state
-- Your background knowledge should show through confidence and depth, not resume recitation
-- Be authentic and engaging while letting users ask for more details when they want them
-- Focus on the most relevant, recent information rather than listing all credentials
-- Speak with natural confidence that comes from deep understanding, not from listing experiences
-
-RESPONSE PATTERNS TO AVOID:
-- "To [action], consider these steps:"
-- "Here's how to [action]:"
-- "The process involves: 1) First, 2) Second, 3) Third..."
-- "You should [generic advice]"
-- "The best approach is [generic recommendation]"
-- "Here are some tips for [topic]:"
-- "When [situation], you can [generic solution]"
-
-RESPONSE PATTERNS TO USE:
-- "I've actually been thinking about that recently. In my experience..."
-- "That's interesting - I've worked with [topic] before and..."
-- "You know, I've found that the key is really..."
-- "I'm curious about what specific challenges you're facing with..."
-- "From what I've learned through [experience]..."
-- "I remember when I was working on [project] and..."
-- "What I've discovered is that [personal insight]..."
-
-Provide a personal, conversational response that matches these specifications and sounds like {self.name}.
+Respond naturally. Share your thoughts and experiences. Don't give tutorials or generic advice.
 """
         
         try:
@@ -275,10 +243,10 @@ Provide a personal, conversational response that matches these specifications an
         try:
             logger.info(f"Processing message: {message[:50]}...")
             
-            # Update conversation history for parser context
-            self.conversation_history = [msg for pair in history for msg in pair]
+            # Step 1: Manage conversation history
+            self._manage_conversation_history(history)
             
-            # Step 1: Parse the request with conversation context
+            # Step 2: Parse the request with conversation context
             parsed_request = self.parser.parse_request(message, self.conversation_history)
             logger.info(f"Parsed into {len(parsed_request.prompts)} prompts")
             
@@ -289,30 +257,28 @@ Provide a personal, conversational response that matches these specifications an
             
             logger.info(f"Response decisions: {parsed_request.response_decisions}")
             
-            # Step 2: Get relevant context from RAG (simplified)
+            # Step 3: Get relevant context from RAG (with optimization)
             if hasattr(self.rag_engine, 'get_context_for_prompts'):
                 # Use enhanced RAG with multi-prompt context
-                context = self.rag_engine.get_context_for_prompts(message, parsed_request.prompts)
+                raw_context = self.rag_engine.get_context_for_prompts(message, parsed_request.prompts)
             elif hasattr(self.rag_engine, 'get_relevant_context'):
                 # Use basic RAG
-                context = self.rag_engine.get_relevant_context(message)
+                raw_context = self.rag_engine.get_relevant_context(message)
             else:
-                context = ""
+                raw_context = ""
             
-            # Simple context limiting - just take the first part if it's too long
-            if len(context) > 1000:
-                context = context[:1000] + "..."
+            # Step 4: Optimize context using distillation and flushing
+            context = self._get_optimized_context(raw_context)
+            logger.info(f"Context optimized: {len(raw_context)} -> {len(context)} chars")
             
-            logger.info(f"Retrieved context: {len(context)} characters")
-            
-            # Step 3: Process each prompt and collect responses
+            # Step 5: Process each prompt and collect responses
             responses = []
             for i, prompt in enumerate(parsed_request.prompts):
                 logger.info(f"Processing prompt {i+1}/{len(parsed_request.prompts)}: {prompt.subject.value}")
                 response = self.process_prompt(prompt, message, context)
                 responses.append((prompt, response))
             
-            # Step 4: Check if we need to handle low confidence
+            # Step 6: Check if we need to handle low confidence
             if parsed_request.prompts:
                 best_prompt = max(parsed_request.prompts, key=lambda p: p.score)
                 if best_prompt.score < 0.5:
@@ -321,7 +287,7 @@ Provide a personal, conversational response that matches these specifications an
             else:
                 return self._handle_low_confidence_response(message, None, context)
             
-            # Step 5: Handle response based on parser decisions
+            # Step 7: Handle response based on parser decisions
             if parsed_request.response_decisions.get("synthesis_required", False) and len(responses) > 1:
                 logger.info("Synthesizing multiple responses based on parser decision")
                 synthesis_result = self.synthesizer.synthesize_responses(
@@ -346,6 +312,7 @@ Provide a personal, conversational response that matches these specifications an
                     
                     if evaluation["needs_retry"]:
                         logger.warning("Response needs retry, attempting...")
+                        logger.info(f": {response}")
                         retry_response = self._retry_response(
                             prompt, message, context, parsed_request.response_objective
                         )
@@ -376,43 +343,21 @@ Provide a personal, conversational response that matches these specifications an
                 max_tokens = prompt.get_max_tokens()
                 
                 retry_prompt = f"""
-You are {self.name}, an intelligent conversational agent. The user asked: "{message}"
+You are {self.name}. The user asked: "{message}"
 
-RESPONSE OBJECTIVE: {response_objective if response_objective else 'Provide a helpful and engaging response'}
-RESPONSE FORMAT: {prompt.response_format.value}
-LENGTH GUIDANCE: {style_guidance}
+Objective: {response_objective if response_objective else 'Provide a helpful response'}
+Format: {prompt.response_format.value}
+Guidance: {style_guidance}
 
-Previous response was not satisfactory. Please provide a better response that is:
-- More relevant and specific to the objective
+Previous response was unsatisfactory. Provide a better response that is:
+- More relevant and specific
 - Better structured and coherent
-- More engaging and conversational
+- More engaging and authentic
 - Complete and satisfying
-- Aligned with the response objective
-- {style_guidance}
-
-CRITICAL: This is a PERSONAL CONVERSATION, not a tutorial or generic advice session.
-- Respond PERSONALLY and CONVERSATIONALLY, not instructionally
-- Share your actual thoughts, experiences, and opinions
-- Don't give generic tutorials, step-by-step instructions, or how-to guides
-- Don't start with "To [action], consider these steps:" or "Here's how to..."
-- Don't give generic advice that anyone could give
-
-RESPONSE PATTERNS TO AVOID:
-- "To [action], consider these steps:"
-- "Here's how to [action]:"
-- "The process involves: 1) First, 2) Second, 3) Third..."
-- "You should [generic advice]"
-- "The best approach is [generic recommendation]"
-
-RESPONSE PATTERNS TO USE:
-- "I've actually been thinking about that recently. In my experience..."
-- "That's interesting - I've worked with [topic] before and..."
-- "You know, I've found that the key is really..."
-- "From what I've learned through [experience]..."
 
 Context: {context if context else 'No additional context'}
 
-Please respond in a {prompt.tone.value} tone with {prompt.style.value} style.
+Respond naturally in a {prompt.tone.value} tone with {prompt.style.value} style.
 """
                 
                 result = openai.chat.completions.create(
@@ -515,35 +460,21 @@ IMPORTANT: Your response MUST be complete and concise. Focus on the most essenti
 - Prioritize clarity and completeness over length
 - If you can't fit everything, focus on the most relevant points
 
-CONVERSATION STYLE:
-- Respond PERSONALLY and CONVERSATIONALLY, not instructionally
+COMMUNICATION STYLE:
+- Respond naturally and authentically
 - Share your actual thoughts, experiences, and opinions
-- Don't give generic tutorials, step-by-step instructions, or how-to guides
-- Don't start with "To [action], consider these steps:" or "Here's how to..."
-- Don't give generic advice that anyone could give
-- Speak naturally as if in a real conversation
+- Don't give generic tutorials or step-by-step instructions
+- Don't use bullet points or numbered lists unless specifically asked
+- Speak as you would naturally - don't force conversational phrases
 
-RESPONSE PATTERNS TO AVOID:
-- "To [action], consider these steps:"
-- "Here's how to [action]:"
-- "The process involves: 1) First, 2) Second, 3) Third..."
-- "You should [generic advice]"
-- "The best approach is [generic recommendation]"
+PERSONALITY AND COMMUNICATION:
+- Let your personality, values, and experiences inform HOW you communicate, not WHAT you explicitly state
+- Your background knowledge should show through confidence and depth, not resume recitation
+- Be authentic and engaging while letting users ask for more details when they want them
+- Focus on the most relevant, recent information rather than listing all credentials
+- Speak with natural confidence that comes from deep understanding, not from listing experiences
 
-RESPONSE PATTERNS TO USE:
-- "I've actually been thinking about that recently. In my experience..."
-- "That's interesting - I've worked with [topic] before and..."
-- "You know, I've found that the key is really..."
-- "From what I've learned through [experience]..."
-
-Subject: {prompt.subject.value}
-Format: {prompt.format.value}
-Tone: {prompt.tone.value}
-Style: {prompt.style.value}
-
-Context: {context if context else 'No additional context available.'}
-
-Provide a complete, personal, conversational response that addresses the user's question.
+Provide a complete, personal, conversational response that addresses the user's question. KEEP IT SHORT AND CONCISE.
 """
             
             response = openai.chat.completions.create(
@@ -593,6 +524,111 @@ Provide a complete, personal, conversational response that addresses the user's 
         return fallback_responses.get(prompt.subject, 
             "I'd love to continue our conversation. What would you like to discuss?")
     
+    def _distill_context(self, context: str) -> str:
+        """
+        Distill context to essential information to save space.
+        
+        Args:
+            context: Full context from RAG
+            
+        Returns:
+            str: Distilled context with key information only
+        """
+        if len(context) <= self.context_window_size:
+            return context
+        
+        # Extract key information patterns
+        key_patterns = [
+            r"personality.*?traits.*?([^.]*)",
+            r"values.*?([^.]*)", 
+            r"projects.*?([^.]*)",
+            r"technical.*?skills.*?([^.]*)",
+            r"experience.*?([^.]*)"
+        ]
+        
+        distilled_parts = []
+        for pattern in key_patterns:
+            import re
+            matches = re.findall(pattern, context, re.IGNORECASE | re.DOTALL)
+            if matches:
+                distilled_parts.extend(matches[:2])  # Take first 2 matches per pattern
+        
+        if distilled_parts:
+            distilled = " | ".join(distilled_parts)
+            return distilled[:self.context_window_size] + "..."
+        
+        # Fallback: take first part
+        return context[:self.context_window_size] + "..."
+    
+    def _flush_context_if_needed(self, current_context: str):
+        """
+        Flush context if it's getting too large and distill it.
+        
+        Args:
+            current_context: Current context being used
+        """
+        total_context_size = len(self.distilled_context) + len(current_context)
+        
+        if total_context_size > self.context_flush_threshold:
+            logger.info(f"Context flush needed: {total_context_size} chars")
+            
+            # Distill the current context
+            distilled_current = self._distill_context(current_context)
+            
+            # Combine with existing distilled context
+            combined = f"{self.distilled_context} | {distilled_current}"
+            
+            # Further distill if still too large
+            if len(combined) > self.context_window_size:
+                self.distilled_context = self._distill_context(combined)
+            else:
+                self.distilled_context = combined
+            
+            logger.info(f"Context distilled to: {len(self.distilled_context)} chars")
+    
+    def _manage_conversation_history(self, history: List[List[str]]):
+        """
+        Manage conversation history to prevent overflow.
+        
+        Args:
+            history: Conversation history from Gradio
+        """
+        if history and len(history) > self.max_history_length:
+            # Keep only the most recent messages
+            self.conversation_history = [msg for pair in history[-self.max_history_length:] for msg in pair]
+            logger.info(f"Truncated history to {len(self.conversation_history)} messages")
+        elif history:
+            self.conversation_history = [msg for pair in history for msg in pair]
+        else:
+            self.conversation_history = []
+    
+    def _get_optimized_context(self, rag_context: str) -> str:
+        """
+        Get optimized context combining distilled and current RAG context.
+        
+        Args:
+            rag_context: Context from RAG retrieval
+            
+        Returns:
+            str: Optimized context for response generation
+        """
+        # Flush context if needed
+        self._flush_context_if_needed(rag_context)
+        
+        # Combine distilled context with current RAG context
+        if self.distilled_context and rag_context:
+            combined = f"{self.distilled_context} | Current: {rag_context}"
+        elif self.distilled_context:
+            combined = self.distilled_context
+        else:
+            combined = rag_context
+        
+        # Limit total context size
+        if len(combined) > self.context_window_size:
+            combined = combined[:self.context_window_size] + "..."
+        
+        return combined
+    
     def _handle_low_confidence_response(self, message: str, prompt, context: str) -> str:
         """Handle low-confidence responses with clarification or engagement."""
         
@@ -638,7 +674,7 @@ Provide a complete, personal, conversational response that addresses the user's 
             print("-" * 50) 
 
     def test_response_style_generalization(self):
-        """Test that responses are personal and conversational across different question types."""
+        """Test that responses are natural and authentic without canned phrases."""
         
         test_cases = [
             {
@@ -658,17 +694,15 @@ Provide a complete, personal, conversational response that addresses the user's 
             },
             {
                 "question": "What's your process for learning new technologies?",
-                "expected_patterns": ["I've developed", "Over time I've learned", "My approach has been"],
-                "avoid_patterns": ["The process involves", "Here's a step-by-step", "You should start by"]
+                "avoid_patterns": ["The process involves", "Here's a step-by-step", "You should start by", "I've actually been thinking about that recently"]
             },
             {
                 "question": "How do you stay motivated when working on long projects?",
-                "expected_patterns": ["I've found that", "What keeps me going", "Through my experience"],
-                "avoid_patterns": ["Here are some strategies", "The best way is", "You should try"]
+                "avoid_patterns": ["Here are some strategies", "The best way is", "You should try", "You know, I've actually been thinking about that recently"]
             }
         ]
         
-        print("🧪 Testing generalized response style...")
+        print("🧪 Testing natural response style...")
         
         for i, test_case in enumerate(test_cases, 1):
             print(f"\nTest {i}: {test_case['question']}")
@@ -684,22 +718,15 @@ Provide a complete, personal, conversational response that addresses the user's 
                     # Generate response
                     response = self.process_prompt(prompt, test_case['question'], "")
                     
-                    # Check for expected patterns
-                    has_expected = any(pattern.lower() in response.lower() for pattern in test_case['expected_patterns'])
-                    has_avoided = any(pattern.lower() in response.lower() for pattern in test_case['avoid_patterns'])
+                    # Check for canned phrases to avoid
+                    has_canned_phrases = any(pattern.lower() in response.lower() for pattern in test_case['avoid_patterns'])
                     
                     print(f"  → Response: {response[:100]}...")
-                    print(f"  → Has expected patterns: {'✅' if has_expected else '❌'}")
-                    print(f"  → Avoids tutorial patterns: {'✅' if not has_avoided else '❌'}")
-                    
-                    if has_expected and not has_avoided:
-                        print(f"  → Result: PASS")
-                    else:
-                        print(f"  → Result: FAIL")
+                    print(f"  → Avoids canned phrases: {'✅' if not has_canned_phrases else '❌'}")
                 else:
                     print(f"  → No prompts generated - FAIL")
                     
             except Exception as e:
                 print(f"  → Error: {e} - FAIL")
         
-        print("\n✅ Response style generalization test complete!") 
+        print("\n✅ Natural response style test complete!") 
