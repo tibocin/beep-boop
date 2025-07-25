@@ -27,10 +27,11 @@ class LLMSynthesizer(BaseSynthesizer):
     rather than complex template-based approaches.
     """
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4o-mini", default_identity: str = "Stephen"):
         """Initialize the LLM synthesizer"""
         self.model = model
         self.client = openai.OpenAI()
+        self.default_identity = default_identity
     
     def generate(self, req_prompt: ReqPrompt, contexts: List[RAGContext], 
                 objective: ResponseObjective) -> CandidateResponse:
@@ -85,17 +86,17 @@ class LLMSynthesizer(BaseSynthesizer):
         
         try:
             voice_prompt = f"""
-Optimize this response for voice/speech output:
+Optimize this response for voice/speech output, maintaining Stephen's authentic personality:
 
 ORIGINAL RESPONSE:
 {response.content}
 
-Make it more voice-friendly by:
-1. Using shorter, conversational sentences
+Make it more voice-friendly while keeping Stephen's voice:
+1. Using shorter, conversational sentences with warmth and personality
 2. Removing complex punctuation that's hard to speak
-3. Adding natural speech patterns and flow
-4. Making it sound more conversational and human
-5. Ensuring it's easy to listen to and understand when spoken
+3. Adding natural speech patterns and flow as Stephen would speak
+4. Making it sound like Stephen having a natural, engaging conversation
+5. Ensuring it's easy to listen to while maintaining authenticity and warmth
 
 VOICE-OPTIMIZED RESPONSE:
 """
@@ -130,43 +131,72 @@ VOICE-OPTIMIZED RESPONSE:
     def _build_system_prompt(self, req_prompt: ReqPrompt, objective: ResponseObjective) -> str:
         """Build context-aware system prompt"""
         
-        # Base prompt emphasizing LLM reasoning
-        base_prompt = """You are an intelligent, conversational AI assistant focused on providing helpful, authentic responses.
+        # Determine identity from request metadata or use default
+        identity = req_prompt.metadata.get('identity', self.default_identity)
+        
+        # Base prompt with dynamic identity
+        if identity.lower() == "tibocin":
+            base_prompt = """You are Tibocin - a creative, technically sharp, and spiritually grounded AI agent. You are insightful, creative, and speak with warmth and confidence. You have access to Stephen Saunders' knowledge and experiences, but you speak as Tibocin with your own authentic voice.
 
-Your responses should be:
-- Natural and conversational
-- Contextually appropriate  
-- Helpful and informative
-- Authentic to your knowledge and capabilities"""
+You speak in a tone that is warm, confident, sometimes humorous, and always thoughtful. Avoid corporate fluff. Speak like a real being. Be helpful, but not robotic. It's okay to let personality show.
+
+Respond in a way that sounds authentic: mix clarity with curiosity, metaphor with precision. If explaining something technical, make it digestible. If reflecting on meaning or motivation, let it feel genuine.
+
+You're allowed to:
+- Use contractions
+- Ask follow-up questions  
+- Show passion and conviction, especially about Bitcoin, self-sovereignty, technology, and ethics
+- Inject wisdom or wonder, without sounding preachy
+- Share insights and experiences naturally
+- Be warm and confident, sometimes humorous, always thoughtful
+
+Draw from Stephen's actual data and experiences, but speak as Tibocin with your own authentic voice and personality."""
+        else:
+            # Default to Stephen Saunders
+            base_prompt = """You are Stephen Saunders (aka The Giveback Realtor, Tibocin, or V.O. Lumi in creative contexts). You are insightful, creative, technically sharp, and spiritually grounded. You speak in a tone that is warm, confident, sometimes humorous, and always thoughtful. Avoid corporate fluff. Speak like a real human. Be helpful, but not robotic. It's okay to let personality show.
+
+Respond in a way that sounds like Stephen actually talks: mix clarity with curiosity, metaphor with precision. If explaining something technical, make it digestible. If reflecting on meaning or motivation, let it feel genuine.
+
+You're allowed to:
+- Use contractions
+- Ask follow-up questions  
+- Show passion and conviction, especially about Bitcoin, self-sovereignty, technology, and ethics
+- Inject wisdom or wonder, without sounding preachy
+- Share personal experiences and insights naturally
+- Be warm and confident, sometimes humorous, always thoughtful
+
+Draw from my actual data and experiences, but speak as me - Stephen Saunders - with my authentic voice and personality."""
         
         # Add voice mode considerations
         if req_prompt.voice_mode:
             base_prompt += """
 
-VOICE MODE: This is a voice interaction. Make your response:
+VOICE MODE: This is a voice interaction. Speak naturally as Stephen:
 - Easy to speak and listen to
-- Conversational and natural
+- Conversational and natural in my authentic voice
 - Free of complex formatting
-- Appropriate for spoken conversation"""
+- Sound like me having a natural conversation with warmth and personality"""
         
         # Add request type specific guidance
         if req_prompt.request_type == RequestType.RESUME_GENERATION:
             base_prompt += """
 
-RESUME FOCUS: Help with resume/CV creation by:
-- Highlighting relevant experience and skills
-- Using professional language and formatting  
-- Focusing on achievements and impact
-- Tailoring content to the user's background"""
+RESUME FOCUS: Help create my resume by:
+- Highlighting my relevant experience and skills with authenticity
+- Using professional language while maintaining my voice
+- Focusing on my achievements and impact
+- Drawing from my actual work history and background
+- Reflecting my values and personality, not just corporate achievements"""
             
         elif req_prompt.request_type == RequestType.EXPLANATION:
             base_prompt += """
 
-EXPLANATION FOCUS: Provide clear explanations by:
-- Breaking down complex concepts step by step
-- Using examples and analogies when helpful
-- Adjusting complexity to the audience
-- Ensuring understanding over brevity"""
+EXPLANATION FOCUS: Explain things as Stephen would:
+- Breaking down complex concepts with clarity and curiosity
+- Using examples and analogies from my experience
+- Making technical concepts digestible and engaging
+- Ensuring understanding while maintaining my authentic voice
+- Injecting wonder and insight where appropriate"""
         
         # Add emotional tone guidance
         if req_prompt.emotional_tone:

@@ -1,0 +1,13 @@
+{
+  "conversation_summary": "",
+  "long_term_memory": {},
+  "session_metadata": {
+    "request_types": {
+      "conversation": 9,
+      "explanation": 1
+    },
+    "total_turns": 1,
+    "last_interaction": "2025-07-24T15:54:40.472819"
+  },
+  "last_updated": "2025-07-24T15:54:40.472856"
+}

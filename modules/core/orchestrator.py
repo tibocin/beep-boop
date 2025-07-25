@@ -74,13 +74,14 @@ class ConversationOrchestrator:
         
         print("🚀 Conversation orchestrator ready!")
     
-    def process_message(self, user_input: str, voice_mode: bool = False) -> Dict[str, Any]:
+    def process_message(self, user_input: str, voice_mode: bool = False, identity_override: str = None) -> Dict[str, Any]:
         """
         Process a user message through the complete pipeline
         
         Args:
             user_input: User's input message
             voice_mode: Whether this is from voice interaction
+            identity_override: Override the detected identity ("Stephen" or "Tibocin")
             
         Returns:
             Dict containing response and metadata
@@ -89,6 +90,10 @@ class ConversationOrchestrator:
             # Step 1: Parse user request
             print(f"🔤 Parsing request: {user_input[:50]}...")
             req_prompt, objective = self.parser.parse_request(user_input, voice_mode)
+            
+            # Apply identity override if provided
+            if identity_override:
+                req_prompt.metadata["identity"] = identity_override
             
             if voice_mode:
                 req_prompt = self.parser.adapt_for_voice(req_prompt)

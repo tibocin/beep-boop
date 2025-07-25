@@ -120,16 +120,9 @@ class UnifiedRetriever(BaseRetriever):
     
     def _context_scope_to_filter(self, scope: ContextScope) -> Dict[str, Any]:
         """Convert context scope to backend filter"""
-        if scope == ContextScope.ALL:
-            return {}
-        elif scope == ContextScope.PERSONAL:
-            return {"category": ["personal", "personality", "values", "interests"]}
-        elif scope == ContextScope.PROFESSIONAL:
-            return {"category": ["work", "skills", "projects", "experience"]}
-        elif scope == ContextScope.CREATIVE:
-            return {"category": ["creative", "projects", "art", "writing"]}
-        else:  # GENERAL
-            return {}
+        # For now, return empty filter to avoid ChromaDB filtering issues
+        # The LLM reasoning will handle relevance filtering instead
+        return {}
     
     def _enhance_with_reasoning(self, query: str, raw_results: List[Dict[str, Any]], 
                                context_scope: ContextScope) -> List[RAGContext]:

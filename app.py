@@ -65,6 +65,7 @@ def main():
     print("\n🚀 Simplified Agentic Companion ready!")
     print("💬 Type your message (or 'quit' to exit, 'voice:' prefix for voice mode):")
     print("📝 Use 'resume:' prefix for resume generation requests")
+    print("🤖 Use 'tibocin:' or 'stephen:' to switch identities")
     print("=" * 60)
     
     while True:
@@ -81,6 +82,7 @@ def main():
             # Check for special prefixes
             voice_mode = False
             resume_mode = False
+            identity_override = None
             
             if user_input.startswith("voice:"):
                 voice_mode = True
@@ -90,12 +92,20 @@ def main():
                 resume_mode = True
                 user_input = user_input[7:].strip()
                 print("📝 Resume generation mode")
+            elif user_input.startswith("tibocin:"):
+                identity_override = "Tibocin"
+                user_input = user_input[8:].strip()
+                print("🤖 Tibocin mode enabled")
+            elif user_input.startswith("stephen:"):
+                identity_override = "Stephen"
+                user_input = user_input[8:].strip()
+                print("👤 Stephen mode enabled")
             
             # Process the message
             if resume_mode:
                 response = orchestrator.process_resume_request(user_input, voice_mode)
             else:
-                response = orchestrator.process_message(user_input, voice_mode)
+                response = orchestrator.process_message(user_input, voice_mode, identity_override)
             
             # Display response
             print(f"\n🤖 Assistant: {response['content']}")

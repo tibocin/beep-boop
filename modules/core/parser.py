@@ -98,6 +98,17 @@ Your task is to parse the user's request and understand:
 2. REQUEST TYPE: What kind of request is this?
    - conversation: General chat, questions, discussions
    - resume_generation: Creating/updating resumes, CV work
+   - explanation: Explaining concepts, teaching, clarifying
+   - voice_interaction: Voice-specific interactions
+   - analysis: Analyzing data, situations, or problems
+   - creative: Creative writing, brainstorming, artistic tasks
+
+3. IDENTITY: Which identity should respond?
+   - Stephen: Default identity for personal, professional, and general conversations
+   - Tibocin: Use for creative, technical, or AI/agent-focused discussions
+   
+   Choose Tibocin if the user mentions AI, agents, creative work, or technical deep-dives.
+   Default to Stephen for most other interactions.
    - explanation: Wanting to understand concepts, processes
    - voice_interaction: Spoken conversation (if voice_mode=True)
    - analysis: Deep analysis of topics, situations
@@ -161,6 +172,11 @@ For voice mode, be especially attentive to conversational patterns and speech nu
                         "enum": ["low", "normal", "high"],
                         "description": "How urgent or time-sensitive this request is"
                     },
+                    "identity": {
+                        "type": "string",
+                        "enum": ["Stephen", "Tibocin"],
+                        "description": "Which identity should respond: Stephen (default) or Tibocin (creative/technical agent)"
+                    },
                     "response_objective": {
                         "type": "object",
                         "properties": {
@@ -211,7 +227,11 @@ For voice mode, be especially attentive to conversational patterns and speech nu
             emotional_tone=parsed_data.get("emotional_tone"),
             urgency_level=parsed_data.get("urgency_level", "normal"),
             voice_mode=voice_mode,
-            metadata={"parsing_method": "llm", "model": self.model}
+            metadata={
+                "parsing_method": "llm", 
+                "model": self.model,
+                "identity": parsed_data.get("identity", "Stephen")
+            }
         )
         
         # Create ResponseObjective
