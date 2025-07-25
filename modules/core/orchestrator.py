@@ -105,6 +105,21 @@ class ConversationOrchestrator:
                 context_scope=req_prompt.context_scope,
                 top_k=5
             )
+
+            # NEW: Filter RAG contexts to enforce topic focus
+            if req_prompt.key_topics:
+                filtered_contexts = [
+                    ctx for ctx in contexts
+                    if any(tag in req_prompt.key_topics for tag in ctx.topic_tags)
+                ]
+                if filtered_contexts:
+                    contexts = filtered_contexts
+
+            # NEW: Add topic cohesion to evaluation criteria
+            if req_prompt.key_topics:
+                objective.success_criteria.append(
+                    f"Focuses only on the topic(s): {', '.join(req_prompt.key_topics)} without blending unrelated areas"
+                )
             
             # Step 3: Add conversation context if memory is enabled
             conversation_context = None
@@ -172,21 +187,23 @@ class ConversationOrchestrator:
                 }
             }
             
-            # Add evaluation info if available
-            if evaluation:
+            if evaluation_used and evaluation:
                 final_response["metadata"]["evaluation"] = {
                     "overall_score": evaluation.overall_score,
-                    "meets_objective": evaluation.meets_objective,
+                    "reasoning": evaluation.reasoning,
                     "strengths": evaluation.strengths,
-                    "improvements": evaluation.improvements
+                    "improvements": evaluation.improvements,
+                    "meets_objective": evaluation.meets_objective,
+                    "voice_mode_appropriate": evaluation.voice_mode_appropriate,
+                    "retry_recommended": evaluation.retry_recommended,
+                    "retry_guidance": evaluation.retry_guidance
                 }
             
-            print(f"✅ Response generated (confidence: {response.confidence:.2f})")
             return final_response
             
         except Exception as e:
-            print(f"❌ Error in orchestrator: {e}")
-            return self._create_error_response(str(e), voice_mode)
+            print(f"❌ Error in message processing: {e}")
+            return self._create_error_response(str(e), voice_mode, req_prompt.request_type.value)
     
     def process_resume_request(self, user_input: str, voice_mode: bool = False) -> Dict[str, Any]:
         """

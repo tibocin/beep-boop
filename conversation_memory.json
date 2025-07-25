@@ -3,11 +3,12 @@
   "long_term_memory": {},
   "session_metadata": {
     "request_types": {
-      "conversation": 9,
+      "conversation": 14,
       "explanation": 1
     },
-    "total_turns": 1,
-    "last_interaction": "2025-07-24T15:54:40.472819"
+    "total_turns": 3,
+    "last_interaction": "2025-07-24T21:04:55.328954",
+    "voice_interactions": 1
   },
-  "last_updated": "2025-07-24T15:54:40.472856"
+  "last_updated": "2025-07-24T21:04:55.329055"
 }
