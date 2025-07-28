@@ -17,6 +17,7 @@ from typing import Dict, Any
 from .interfaces import (
     BaseParser, ReqPrompt, ResponseObjective, RequestType, ContextScope
 )
+from .semantic_analyzer import SemanticAnalyzer, SemanticContext, IntentAnalysis
 
 class LLMParser(BaseParser):
     """
@@ -30,10 +31,11 @@ class LLMParser(BaseParser):
         """Initialize the LLM parser"""
         self.model = model
         self.client = openai.OpenAI()
+        self.semantic_analyzer = SemanticAnalyzer(model=model)
     
     def parse_request(self, text: str, voice_mode: bool = False) -> tuple[ReqPrompt, ResponseObjective]:
         """
-        Parse user request using LLM reasoning for intent understanding
+        Parse user request using semantic analysis and LLM reasoning
         
         Args:
             text: User's natural language request
@@ -42,14 +44,22 @@ class LLMParser(BaseParser):
         Returns:
             Tuple of (structured prompt, response objective)
         """
-        system_prompt = self._get_parsing_system_prompt(voice_mode)
-        
         try:
+            # Step 1: Semantic analysis for robust context understanding
+            semantic_context = self.semantic_analyzer.analyze_context(text)
+            intent_analysis = self.semantic_analyzer.analyze_intent(text)
+            
+            # Step 2: Use semantic analysis to enhance LLM parsing
+            enhanced_prompt = self._enhance_with_semantic_analysis(text, semantic_context, intent_analysis)
+            
+            # Step 3: LLM parsing with semantic context
+            system_prompt = self._get_parsing_system_prompt(voice_mode)
+            
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text}
+                    {"role": "user", "content": enhanced_prompt}
                 ],
                 functions=[self._get_parse_function()],
                 function_call={"name": "parse_user_request"}
@@ -58,14 +68,18 @@ class LLMParser(BaseParser):
             function_call = response.choices[0].message.function_call
             if function_call and function_call.name == "parse_user_request":
                 parsed_data = json.loads(function_call.arguments)
-                return self._create_structured_objects(text, parsed_data, voice_mode)
+                
+                # Enhance parsed data with semantic analysis
+                enhanced_data = self._enhance_parsed_data(parsed_data, semantic_context, intent_analysis)
+                
+                return self._create_structured_objects(text, enhanced_data, voice_mode)
             else:
-                # Fallback to simple parsing
-                return self._fallback_parse(text, voice_mode)
+                # Fallback to semantic analysis only
+                return self._fallback_with_semantic_analysis(text, voice_mode, semantic_context, intent_analysis)
                 
         except Exception as e:
-            print(f"Warning: LLM parsing failed ({e}), using fallback")
-            return self._fallback_parse(text, voice_mode)
+            print(f"Warning: Enhanced parsing failed ({e}), using semantic fallback")
+            return self._fallback_with_semantic_analysis(text, voice_mode)
     
     def adapt_for_voice(self, req_prompt: ReqPrompt) -> ReqPrompt:
         """Adapt request for voice-friendly processing"""
@@ -78,6 +92,118 @@ class LLMParser(BaseParser):
             req_prompt.emotional_tone = "conversational"
             
         return req_prompt
+    
+    def _enhance_with_semantic_analysis(self, text: str, semantic_context: SemanticContext, 
+                                       intent_analysis: IntentAnalysis) -> str:
+        """Enhance the user query with semantic analysis context"""
+        enhanced = f"""
+ORIGINAL QUERY: {text}
+
+SEMANTIC ANALYSIS:
+- Primary Context: {semantic_context.primary_context.value}
+- Key Themes: {', '.join(semantic_context.key_themes)}
+- Emotional Tone: {semantic_context.emotional_tone}
+- Complexity Level: {semantic_context.complexity_level}
+- Response Style: {semantic_context.response_style}
+
+INTENT ANALYSIS:
+- Primary Intent: {intent_analysis.primary_intent}
+- Context Scope: {intent_analysis.context_scope}
+- Audience Type: {intent_analysis.audience_type}
+- Depth Preference: {intent_analysis.depth_preference}
+- Confidence: {intent_analysis.confidence}
+
+Please parse this query considering the semantic context and intent analysis above.
+"""
+        return enhanced
+    
+    def _enhance_parsed_data(self, parsed_data: Dict[str, Any], semantic_context: SemanticContext,
+                            intent_analysis: IntentAnalysis) -> Dict[str, Any]:
+        """Enhance parsed data with semantic analysis insights"""
+        enhanced = parsed_data.copy()
+        
+        # Use semantic analysis to improve context scope detection
+        if semantic_context.primary_context.value in ["professional", "technical"]:
+            enhanced["context_scope"] = "professional"
+        elif semantic_context.primary_context.value in ["personal", "spiritual"]:
+            enhanced["context_scope"] = "personal"
+        elif semantic_context.primary_context.value in ["creative", "entertainment"]:
+            enhanced["context_scope"] = "creative"
+        
+        # Enhance key topics with semantic themes
+        if semantic_context.key_themes:
+            enhanced["key_topics"] = list(set(enhanced.get("key_topics", []) + semantic_context.key_themes))
+        
+        # Use semantic analysis for emotional tone
+        if semantic_context.emotional_tone:
+            enhanced["emotional_tone"] = semantic_context.emotional_tone
+        
+        return enhanced
+    
+    def _fallback_with_semantic_analysis(self, text: str, voice_mode: bool, 
+                                        semantic_context: SemanticContext = None,
+                                        intent_analysis: IntentAnalysis = None) -> tuple[ReqPrompt, ResponseObjective]:
+        """Fallback parsing using semantic analysis when LLM fails"""
+        
+        # Get semantic analysis if not provided
+        if semantic_context is None:
+            semantic_context = self.semantic_analyzer.analyze_context(text)
+        if intent_analysis is None:
+            intent_analysis = self.semantic_analyzer.analyze_intent(text)
+        
+        # Create enhanced fallback using semantic analysis
+        text_lower = text.lower()
+        
+        # Determine request type based on semantic context
+        if semantic_context.primary_context.value == "professional":
+            request_type = RequestType.CONVERSATION
+            context_scope = ContextScope.PROFESSIONAL
+        elif "resume" in text_lower or "cv" in text_lower:
+            request_type = RequestType.RESUME_GENERATION
+            context_scope = ContextScope.PROFESSIONAL
+        elif "explain" in text_lower or "how" in text_lower:
+            request_type = RequestType.EXPLANATION
+            context_scope = ContextScope.GENERAL
+        elif voice_mode:
+            request_type = RequestType.VOICE_INTERACTION
+            context_scope = ContextScope.GENERAL
+        else:
+            request_type = RequestType.CONVERSATION
+            context_scope = ContextScope.GENERAL
+        
+        # Create ReqPrompt with semantic insights
+        req_prompt = ReqPrompt(
+            original_text=text,
+            intent=intent_analysis.primary_intent,
+            request_type=request_type,
+            context_scope=context_scope,
+            key_topics=semantic_context.key_themes,
+            emotional_tone=semantic_context.emotional_tone,
+            urgency_level=intent_analysis.urgency_level,
+            voice_mode=voice_mode,
+            metadata={
+                "parsing_method": "semantic_fallback",
+                "semantic_confidence": semantic_context.confidence,
+                "intent_confidence": intent_analysis.confidence
+            }
+        )
+        
+        # Create ResponseObjective with semantic insights
+        response_objective = ResponseObjective(
+            primary_goal=intent_analysis.primary_intent,
+            success_criteria=[
+                f"Address the {semantic_context.primary_context.value} context appropriately",
+                f"Use {semantic_context.response_style} response style",
+                f"Match {semantic_context.emotional_tone} emotional tone",
+                f"Provide {intent_analysis.depth_preference} level of detail"
+            ],
+            audience=intent_analysis.audience_type,
+            style_preference=semantic_context.response_style,
+            length_guidance=intent_analysis.depth_preference,
+            voice_considerations="Optimize for voice output" if voice_mode else None
+        )
+        
+        return req_prompt, response_objective
     
     def _get_parsing_system_prompt(self, voice_mode: bool) -> str:
         """Get system prompt for LLM parsing"""
@@ -116,10 +242,17 @@ Your task is to parse the user's request and understand:
 
 3. CONTEXT SCOPE: What domain of knowledge is relevant?
    - personal: Personal traits, personality, private life
-   - professional: Work experience, skills, career
+   - professional: Work experience, skills, career, projects, technical expertise
    - creative: Artistic projects, creative endeavors
    - general: Broad knowledge, general conversation
    - all: Multiple domains needed
+   
+   PROFESSIONAL CONTEXT INDICATORS:
+   - Work, job, career, employment, experience
+   - Technical skills, programming, development
+   - Projects, achievements, responsibilities
+   - Employer, client, business, company
+   - Resume, CV, portfolio, background
 
 4. KEY TOPICS: What are the main topics/themes?
 
@@ -253,9 +386,14 @@ For voice mode, be especially attentive to conversational patterns and speech nu
         # Simple heuristics for basic understanding
         text_lower = text.lower().strip()
         
-        # Detect request type
+        # Detect request type and context
+        professional_keywords = ["work", "experience", "job", "career", "project", "technical", "skill", "employer", "client", "business", "company", "resume", "cv", "curriculum vitae"]
+        
         if any(word in text_lower for word in ["resume", "cv", "curriculum vitae"]):
             request_type = RequestType.RESUME_GENERATION
+            context_scope = ContextScope.PROFESSIONAL
+        elif any(word in text_lower for word in professional_keywords):
+            request_type = RequestType.CONVERSATION
             context_scope = ContextScope.PROFESSIONAL
         elif any(word in text_lower for word in ["explain", "how does", "what is", "why"]):
             request_type = RequestType.EXPLANATION  

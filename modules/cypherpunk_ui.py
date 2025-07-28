@@ -743,7 +743,6 @@ class CypherpunkInterface:
     
     def launch(self, share: bool = True, debug: bool = True):
         """Launch the cypherpunk interface."""
-        print("⚡ Launching Cypherpunk Companion...")
         print("🔧 Neural interface initializing...")
         print("🎯 Debug mode available")
         print("\nThe interface will open in your browser.")

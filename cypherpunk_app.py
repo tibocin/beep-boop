@@ -40,11 +40,27 @@ def main():
             enable_memory=True
         )
         
-        # Initialize knowledge base
+        # Initialize knowledge base with all available YAML files
         print("📚 Loading knowledge matrix...")
-        kb_initialized = orchestrator.initialize_knowledge_base()
+        
+        # Discover all YAML files in the data directory
+        yaml_files = []
+        data_dir = "data"
+        if os.path.exists(data_dir):
+            for root, dirs, files in os.walk(data_dir):
+                for file in files:
+                    if file.endswith('.yaml') or file.endswith('.yml'):
+                        yaml_files.append(os.path.join(root, file))
+        
+        print(f"📄 Found {len(yaml_files)} YAML files:")
+        for yaml_file in yaml_files:
+            print(f"   - {yaml_file}")
+        
+        kb_initialized = orchestrator.initialize_knowledge_base(yaml_files)
         if not kb_initialized:
             print("⚠️ Knowledge base initialization had issues, but continuing...")
+        else:
+            print("✅ Knowledge base loaded successfully!")
         
         # Create and launch cypherpunk interface
         print("🎯 Creating neural interface...")

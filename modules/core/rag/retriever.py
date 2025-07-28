@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 import openai
 import json
 from ..interfaces import BaseRetriever, RAGContext, ContextScope
+from ..semantic_analyzer import SemanticAnalyzer
 from .drivers.simple import SimpleDriver
 from .drivers.chroma import ChromaDriver
 
@@ -32,6 +33,7 @@ class UnifiedRetriever(BaseRetriever):
         self.config = config
         self.backend = None
         self.llm_client = openai.OpenAI()
+        self.semantic_analyzer = SemanticAnalyzer()
         
         self._initialize_backend()
     
@@ -76,7 +78,7 @@ class UnifiedRetriever(BaseRetriever):
     
     def retrieve(self, query: str, context_scope: ContextScope, top_k: int = 5) -> List[RAGContext]:
         """
-        Retrieve relevant context with reasoning
+        Retrieve relevant context with semantic analysis and reasoning
         
         Args:
             query: Search query
@@ -86,11 +88,32 @@ class UnifiedRetriever(BaseRetriever):
         Returns:
             List of relevant contexts with reasoning
         """
-        # Get raw results from backend
-        raw_results = self._get_raw_results(query, context_scope, top_k * 2)  # Get more for filtering
+        # Step 1: Semantic analysis for robust context understanding
+        semantic_context = self.semantic_analyzer.analyze_context(query)
+        intent_analysis = self.semantic_analyzer.analyze_intent(query)
         
-        # Use LLM to enhance relevance reasoning
-        enhanced_contexts = self._enhance_with_reasoning(query, raw_results, context_scope)
+        # Step 2: Enhanced retrieval based on semantic analysis
+        if context_scope == ContextScope.PROFESSIONAL or semantic_context.primary_context.value in ["professional", "technical"]:
+            # Get more comprehensive results for professional contexts
+            raw_results = self._get_raw_results(query, context_scope, top_k * 3)
+            
+            # Use semantic themes to get related context
+            if semantic_context.key_themes:
+                for theme in semantic_context.key_themes[:3]:  # Top 3 themes
+                    theme_results = self._get_raw_results(theme, context_scope, top_k)
+                    raw_results.extend(theme_results)
+        else:
+            # Standard retrieval for other contexts
+            raw_results = self._get_raw_results(query, context_scope, top_k * 2)
+            
+            # Add context based on semantic themes
+            if semantic_context.key_themes:
+                for theme in semantic_context.key_themes[:2]:  # Top 2 themes
+                    theme_results = self._get_raw_results(theme, context_scope, top_k // 2)
+                    raw_results.extend(theme_results)
+        
+        # Step 3: Use LLM to enhance relevance reasoning with semantic context
+        enhanced_contexts = self._enhance_with_semantic_reasoning(query, raw_results, context_scope, semantic_context, intent_analysis)
         
         # Return top_k results
         return enhanced_contexts[:top_k]
@@ -124,29 +147,47 @@ class UnifiedRetriever(BaseRetriever):
         # The LLM reasoning will handle relevance filtering instead
         return {}
     
-    def _enhance_with_reasoning(self, query: str, raw_results: List[Dict[str, Any]], 
-                               context_scope: ContextScope) -> List[RAGContext]:
-        """Use LLM to enhance results with relevance reasoning"""
+    def _enhance_with_semantic_reasoning(self, query: str, raw_results: List[Dict[str, Any]], 
+                                        context_scope: ContextScope, semantic_context, intent_analysis) -> List[RAGContext]:
+        """Use LLM to enhance results with semantic reasoning"""
         if not raw_results:
             return []
             
         try:
-            # Prepare context for LLM evaluation
+            # Prepare context for LLM evaluation with semantic analysis
             results_text = "\n\n".join([
                 f"Result {i+1}:\nContent: {r.get('content', r.get('document', str(r)))}\nScore: {r.get('score', 0.0)}"
                 for i, r in enumerate(raw_results[:10])  # Limit for LLM context
             ])
+            
+            # Add semantic context to the evaluation
+            semantic_info = f"""
+SEMANTIC ANALYSIS:
+- Primary Context: {semantic_context.primary_context.value}
+- Key Themes: {', '.join(semantic_context.key_themes)}
+- Emotional Tone: {semantic_context.emotional_tone}
+- Complexity Level: {semantic_context.complexity_level}
+
+INTENT ANALYSIS:
+- Primary Intent: {intent_analysis.primary_intent}
+- Context Scope: {intent_analysis.context_scope}
+- Audience Type: {intent_analysis.audience_type}
+- Depth Preference: {intent_analysis.depth_preference}
+"""
             
             system_prompt = f"""You are evaluating search results for relevance and providing reasoning.
 
 Query: "{query}"
 Context Scope: {context_scope.value}
 
+{semantic_info}
+
 For each result, determine:
 1. How relevant it is to the query (0.0 to 1.0)
 2. WHY it's relevant (reasoning)
 3. What type of context it provides
 4. Key topic tags
+5. How well it matches the semantic context and intent
 
 Return your evaluation as JSON."""
 

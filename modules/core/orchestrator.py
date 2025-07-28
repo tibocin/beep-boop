@@ -13,7 +13,7 @@ Key Features:
 """
 
 from typing import Dict, Any, Optional, Tuple
-from .interfaces import RequestType
+from .interfaces import RequestType, ContextScope
 from .parser import LLMParser
 from .rag.retriever import UnifiedRetriever
 from .synthesizer import LLMSynthesizer
@@ -100,10 +100,17 @@ class ConversationOrchestrator:
             
             # Step 2: Retrieve relevant context
             print(f"🔍 Retrieving context for: {req_prompt.context_scope.value}")
+            
+            # Use more context for professional queries
+            if req_prompt.context_scope == ContextScope.PROFESSIONAL:
+                top_k = 8  # More context for professional responses
+            else:
+                top_k = 5
+                
             contexts = self.retriever.retrieve(
                 query=req_prompt.intent,
                 context_scope=req_prompt.context_scope,
-                top_k=5
+                top_k=top_k
             )
 
             # NEW: Filter RAG contexts to enforce topic focus
