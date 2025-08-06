@@ -41,7 +41,7 @@ class DigiCoreBackend(RAGBackend):
         self.api_url = kwargs.get('api_url', os.getenv('DIGI_CORE_API_URL', 'http://localhost:8000'))
         self.api_key = kwargs.get('api_key', os.getenv('DIGI_CORE_API_KEY'))
         self.timeout = kwargs.get('timeout', 10)
-        self.min_confidence = kwargs.get('min_confidence', 0.3)
+        self.min_confidence = kwargs.get('min_confidence', 0.2)
         self.health_status = False
         self.stats = {
             'total_queries': 0,
@@ -161,7 +161,11 @@ class DigiCoreBackend(RAGBackend):
                 # Convert Digi-Core response to standard format
                 context_list = self._convert_digi_core_response(digi_core_response)
                 
-                print(f"✅ Digi-Core query successful (confidence: {digi_core_response.get('confidence', 0):.2f})")
+                # Get actual confidence from metadata
+                metadata = digi_core_response.get('metadata', {})
+                actual_confidence = metadata.get('confidence_score', digi_core_response.get('confidence', 0))
+                
+                print(f"✅ Digi-Core query successful (confidence: {actual_confidence:.2f})")
                 return context_list
                 
             else:
@@ -184,9 +188,30 @@ class DigiCoreBackend(RAGBackend):
         Returns:
             List of context dictionaries in standard format
         """
-        confidence = digi_core_response.get('confidence', 0)
-        answer = digi_core_response.get('answer', '')
-        sources = digi_core_response.get('sources', [])
+        # Extract confidence from metadata if available
+        metadata = digi_core_response.get('metadata', {})
+        confidence = metadata.get('confidence_score', 0)
+        
+        # Fallback to direct confidence field
+        if confidence == 0:
+            confidence = digi_core_response.get('confidence', 0)
+        
+        # Extract answer from results if available
+        results = digi_core_response.get('results', [])
+        answer = ""
+        sources = []
+        
+        if results:
+            # Get the first result's content
+            first_result = results[0]
+            answer = first_result.get('content', '')
+            source = first_result.get('source', '')
+            if source:
+                sources = [source]
+        
+        # Fallback to direct answer field
+        if not answer:
+            answer = digi_core_response.get('answer', '')
         
         # Only return context if confidence meets threshold
         if confidence < self.min_confidence:

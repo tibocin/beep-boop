@@ -74,7 +74,7 @@ def process_data(api_key: str):
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             },
-            timeout=30
+            timeout=120  # Increased timeout for data processing
         )
         
         if response.status_code == 200:

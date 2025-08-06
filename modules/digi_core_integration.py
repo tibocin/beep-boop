@@ -36,7 +36,7 @@ class DigiCoreIntegration:
         """
         self.api_key = api_key or os.getenv('DIGI_CORE_API_KEY')
         self.api_url = api_url or os.getenv('DIGI_CORE_API_URL', 'http://localhost:8000')
-        self.min_confidence = float(os.getenv('DIGI_CORE_MIN_CONFIDENCE', '0.3'))
+        self.min_confidence = float(os.getenv('DIGI_CORE_MIN_CONFIDENCE', '0.2'))
         self.enabled = os.getenv('DIGI_CORE_ENABLED', 'true').lower() == 'true'
         
         # Initialize backend
