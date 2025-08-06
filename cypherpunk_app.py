@@ -3,11 +3,12 @@
 cypherpunk_app.py - Cypherpunk-themed conversation interface
 
 This is a specialized entry point for the cypherpunk-themed interface
-with simple conversation and debug mode capabilities.
+with simple conversation and debug mode capabilities using async OpenAI SDK.
 """
 
 import os
 import sys
+import asyncio
 from dotenv import load_dotenv
 import logging
 
@@ -21,19 +22,19 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def main():
+async def main():
     """Main application entry point with cypherpunk interface."""
-    print("⚡ Starting Cypherpunk Companion...")
-    print("🔧 Initializing neural interface...")
+    print("⚡ Starting beep-boop...")
+    print("🔧 Initializing async OpenAI SDK interface...")
     
     try:
         # Import core components
-        from modules.core import ConversationOrchestrator
+        from modules.core import AsyncConversationOrchestrator
         from modules.cypherpunk_ui import CypherpunkInterface
         
-        # Initialize the orchestrator
-        print("🔄 Loading conversation orchestrator...")
-        orchestrator = ConversationOrchestrator(
+        # Initialize the async orchestrator
+        print("🔄 Loading async conversation orchestrator...")
+        orchestrator = AsyncConversationOrchestrator(
             model="gpt-4o-mini",
             rag_backend="auto",
             enable_evaluation=True,
@@ -66,13 +67,13 @@ def main():
         print("🎯 Creating neural interface...")
         interface = CypherpunkInterface(orchestrator)
         
-        print("🚀 Launching Cypherpunk Companion...")
+        print("🚀 Launching beep-boop...")
         interface.launch(share=True, debug=True)
         
     except ImportError as e:
         print(f"❌ Import error: {e}")
         print("🔧 Please ensure all dependencies are installed:")
-        print("   pip install gradio openai python-dotenv")
+        print("   pip install -r requirements.txt")
         return 1
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -80,4 +81,4 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    main() 
+    asyncio.run(main()) 
