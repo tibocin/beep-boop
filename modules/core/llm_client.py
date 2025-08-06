@@ -420,10 +420,16 @@ class UnifiedLLMClient:
         Returns:
             Dict containing response text, usage stats, and metadata
         """
-        if force_openai or not self.enable_fallback:
-            # Use OpenAI directly
+        if force_openai:
+            # Force OpenAI
             return await self._openai_chat_completion(
                 messages, temperature, max_tokens, system_prompt, stream
+            )
+        
+        if not self.enable_fallback:
+            # Ollama only mode
+            return await self._ollama_chat_completion(
+                messages, temperature, max_tokens, stream
             )
         
         # Try Ollama first
@@ -469,10 +475,18 @@ class UnifiedLLMClient:
         Yields:
             Response text chunks as they arrive
         """
-        if force_openai or not self.enable_fallback:
-            # Use OpenAI streaming directly
+        if force_openai:
+            # Force OpenAI streaming
             async for chunk in self._openai_chat_completion_stream(
                 messages, temperature, max_tokens, system_prompt
+            ):
+                yield chunk
+            return
+        
+        if not self.enable_fallback:
+            # Ollama only mode
+            async for chunk in self._ollama_chat_completion_stream(
+                messages, temperature, max_tokens
             ):
                 yield chunk
             return
@@ -624,12 +638,13 @@ class UnifiedLLMClient:
         except Exception as e:
             logger.warning(f"Failed to list Ollama models: {str(e)}")
         
-        # Get OpenAI models
-        try:
-            openai_models = await self.openai_client.models.list()
-            models.extend([f"openai:{model.id}" for model in openai_models.data])
-        except Exception as e:
-            logger.warning(f"Failed to list OpenAI models: {str(e)}")
+        # Get OpenAI models (only if fallback is enabled)
+        if self.enable_fallback and hasattr(self, 'openai_client'):
+            try:
+                openai_models = await self.openai_client.models.list()
+                models.extend([f"openai:{model.id}" for model in openai_models.data])
+            except Exception as e:
+                logger.warning(f"Failed to list OpenAI models: {str(e)}")
         
         return models
 
