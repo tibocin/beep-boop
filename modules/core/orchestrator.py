@@ -114,7 +114,7 @@ class AsyncConversationOrchestrator:
                     "content": ctx.content,
                     "source": ctx.source,
                     "score": ctx.relevance_score,
-                    "reasoning": ctx.reasoning
+                    "reasoning": ctx.relevance_reasoning  # Fixed: use relevance_reasoning
                 })
             
             retrieved_context = context_list
@@ -222,7 +222,7 @@ class AsyncConversationOrchestrator:
                     "content": ctx.content,
                     "source": ctx.source,
                     "score": ctx.relevance_score,
-                    "reasoning": ctx.reasoning
+                    "reasoning": ctx.relevance_reasoning  # Fixed: use relevance_reasoning
                 })
             
             retrieved_context = context_list
