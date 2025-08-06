@@ -16,6 +16,7 @@ from enum import Enum
 
 class BackendType(Enum):
     """Available RAG backend types."""
+    DIGI_CORE = "digi-core"  # Primary source of truth
     SIMPLE = "simple"
     CHROMA = "chroma"
     HUGGINGFACE = "huggingface"
@@ -80,7 +81,10 @@ class RAGAdapter:
         print(f"🔄 Initializing {backend_type.value} backend...")
         
         try:
-            if backend_type == BackendType.SIMPLE:
+            if backend_type == BackendType.DIGI_CORE:
+                from .rag_digi_core import DigiCoreBackend
+                self.backend = DigiCoreBackend(**self.config)
+            elif backend_type == BackendType.SIMPLE:
                 from .rag_simple import SimpleEmbeddingRAG
                 self.backend = SimpleEmbeddingRAG(**self.config)
             elif backend_type == BackendType.CHROMA:
@@ -112,6 +116,13 @@ class RAGAdapter:
     
     def _detect_best_backend(self) -> BackendType:
         """Detect the best backend for the current environment."""
+        
+        # Check if Digi-Core is available and enabled
+        if os.getenv("DIGI_CORE_ENABLED", "true").lower() == "true":
+            api_key = os.getenv("DIGI_CORE_API_KEY")
+            if api_key:
+                print("🧠 Digi-Core detected - using as primary RAG backend")
+                return BackendType.DIGI_CORE
         
         # Check if running on Hugging Face Spaces
         if os.getenv("SPACE_ID") or os.getenv("HF_SPACE_ID"):

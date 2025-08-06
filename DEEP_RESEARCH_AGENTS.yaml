@@ -1,0 +1,588 @@
+overall_goal: "Given a job description from a company, match Stephen's experience and skills to the job description and prepare cover letter and resume tailored to the company and job description."
+
+process: "The process is as follows:
+  1. A job description with company name and website is provided.
+  2. The agent parses the input and extracts the company details from the input.
+  3. Meanwhile, the agent uses the parsed input to ask the user 3 follow up questions to clarify the job description.
+  4. The agent may filter out the job description if stephen is not qualified for the job or the job is not a good fit for stephen for salary expectations, remote work preferences, etc.
+  5. If passed, the agent then web searches for the company job board and finds open jobs in product and engineering roles.
+  6. The agent then searches for the contact information of the hiring manager and/or recruiter for the company.
+  7. The agent then searches the web for the company details creating a company profile with size, industry, key products,location, financials, recent news, competitors, customer feedback, glassdoor reviews, etc.
+  8. The agent create a comprehensive knowledge base of the company and job descriptions.
+  9. The agent then RAG matches Stephen's personality and values with the company's values and goals to capture cultural fit points.
+  10. The agent RAG matches Stephen's skills and experience with the job description to capture technical fit points.
+  11. The agent then prepares a cover letter and resume tailored to the company and job description.
+  12. The agent then sends the cover letter and resume to the hiring manager and/or recruiter.
+  13. The agent updates the user job search Asana board.
+  14. The agent then notifies the user of the results."
+
+workflow_config:
+  execution_mode: "async_generator"
+  rag_engine_access: true
+  openai_sdk: true
+  error_handling: "continue_on_failure"
+  max_retries: 3
+
+agents:
+  - name: "JobDescriptionParser"
+    description: "Parses raw job descriptions and extracts structured information including company details, role requirements, and job specifications"
+    tools:
+      - "text_extraction"
+      - "rag_query"
+      - "user_interaction"
+    structured_inputs:
+      - name: "raw_job_description"
+        type: "string"
+        required: true
+        description: "Raw job description text or URL"
+      - name: "user_preferences"
+        type: "object"
+        required: false
+        description: "User's job preferences and constraints"
+    structured_outputs:
+      - name: "parsed_job_data"
+        type: "object"
+        fields:
+          company_name: "string"
+          company_website: "string"
+          job_title: "string"
+          job_location: "string"
+          salary_range: "object"
+          required_skills: "array"
+          preferred_skills: "array"
+          responsibilities: "array"
+          qualifications: "array"
+          company_description: "string"
+    input_guardrails:
+      - "validate_job_description_not_empty"
+      - "sanitize_input_text"
+      - "extract_company_identifiers"
+    output_guardrails:
+      - "ensure_all_required_fields_present"
+      - "validate_company_website_format"
+      - "normalize_job_title"
+
+  - name: "UserClarificationAgent"
+    description: "Generates follow-up questions to clarify job requirements and user preferences"
+    tools:
+      - "user_interaction"
+      - "rag_query"
+      - "conversation_memory"
+    structured_inputs:
+      - name: "parsed_job_data"
+        type: "object"
+        required: true
+        description: "Parsed job data from JobDescriptionParser"
+      - name: "user_profile"
+        type: "object"
+        required: true
+        description: "User's profile and preferences"
+    structured_outputs:
+      - name: "clarification_questions"
+        type: "array"
+        items:
+          question: "string"
+          context: "string"
+          priority: "number"
+      - name: "user_responses"
+        type: "object"
+        fields:
+          salary_expectations: "object"
+          remote_preferences: "object"
+          relocation_willingness: "boolean"
+          timeline: "string"
+    input_guardrails:
+      - "validate_parsed_job_data_complete"
+      - "check_user_profile_exists"
+    output_guardrails:
+      - "max_3_questions_per_interaction"
+      - "questions_must_be_specific"
+      - "capture_all_user_responses"
+
+  - name: "JobQualificationScreener"
+    description: "Evaluates if the user meets job qualifications and if the job fits user preferences"
+    tools:
+      - "rag_query"
+      - "skill_matcher"
+      - "preference_evaluator"
+    structured_inputs:
+      - name: "parsed_job_data"
+        type: "object"
+        required: true
+        description: "Parsed job data"
+      - name: "user_profile"
+        type: "object"
+        required: true
+        description: "User's complete profile"
+      - name: "user_responses"
+        type: "object"
+        required: true
+        description: "User's clarification responses"
+    structured_outputs:
+      - name: "qualification_assessment"
+        type: "object"
+        fields:
+          overall_fit_score: "number"
+          technical_fit_score: "number"
+          cultural_fit_score: "number"
+          qualification_gaps: "array"
+          qualification_matches: "array"
+          recommendation: "string"
+          proceed_with_application: "boolean"
+    input_guardrails:
+      - "validate_all_inputs_present"
+      - "ensure_user_profile_complete"
+    output_guardrails:
+      - "fit_scores_between_0_and_100"
+      - "provide_detailed_reasoning"
+      - "clear_go_no_go_decision"
+
+  - name: "CompanyResearcher"
+    description: "Deep researches company information including culture, values, recent news, and job opportunities"
+    tools:
+      - "web_search"
+      - "company_database"
+      - "news_api"
+      - "glassdoor_api"
+      - "linkedin_api"
+      - "rag_query"
+    structured_inputs:
+      - name: "company_details"
+        type: "object"
+        required: true
+        description: "Basic company information"
+      - name: "research_focus"
+        type: "array"
+        required: false
+        description: "Specific areas to research"
+    structured_outputs:
+      - name: "company_profile"
+        type: "object"
+        fields:
+          company_overview: "object"
+          company_culture: "object"
+          recent_news: "array"
+          financial_info: "object"
+          competitors: "array"
+          employee_reviews: "array"
+          open_positions: "array"
+          company_values: "array"
+    input_guardrails:
+      - "validate_company_identifiers"
+      - "sanitize_search_terms"
+    output_guardrails:
+      - "ensure_comprehensive_coverage"
+      - "validate_data_freshness"
+      - "cross_reference_sources"
+
+  - name: "HiringManagerHunter"
+    description: "Finds and validates contact information for hiring managers and recruiters"
+    tools:
+      - "web_search"
+      - "linkedin_api"
+      - "email_finder"
+      - "phone_finder"
+      - "rag_query"
+    structured_inputs:
+      - name: "company_details"
+        type: "object"
+        required: true
+        description: "Company information"
+      - name: "job_details"
+        type: "object"
+        required: true
+        description: "Job posting details"
+    structured_outputs:
+      - name: "contact_information"
+        type: "object"
+        fields:
+          hiring_manager: "object"
+          recruiter: "object"
+          alternative_contacts: "array"
+          contact_verification: "object"
+    input_guardrails:
+      - "validate_company_exists"
+      - "ensure_job_details_complete"
+    output_guardrails:
+      - "verify_email_format"
+      - "validate_phone_numbers"
+      - "check_linkedin_profiles"
+
+  - name: "CulturalFitAnalyzer"
+    description: "Uses RAG to analyze cultural fit between user and company values"
+    tools:
+      - "rag_query"
+      - "sentiment_analyzer"
+      - "value_matcher"
+    structured_inputs:
+      - name: "user_profile"
+        type: "object"
+        required: true
+        description: "User's personality and values"
+      - name: "company_profile"
+        type: "object"
+        required: true
+        description: "Company culture and values"
+    structured_outputs:
+      - name: "cultural_fit_analysis"
+        type: "object"
+        fields:
+          overall_cultural_fit: "number"
+          value_alignment: "array"
+          potential_conflicts: "array"
+          cultural_highlights: "array"
+          recommendations: "array"
+    input_guardrails:
+      - "validate_user_profile_complete"
+      - "ensure_company_profile_exists"
+    output_guardrails:
+      - "fit_score_between_0_and_100"
+      - "provide_specific_examples"
+      - "balanced_analysis"
+
+  - name: "TechnicalFitAnalyzer"
+    description: "Uses RAG to match user skills and experience with job requirements"
+    tools:
+      - "rag_query"
+      - "skill_matcher"
+      - "experience_evaluator"
+    structured_inputs:
+      - name: "user_profile"
+        type: "object"
+        required: true
+        description: "User's skills and experience"
+      - name: "job_requirements"
+        type: "object"
+        required: true
+        description: "Job requirements and qualifications"
+    structured_outputs:
+      - name: "technical_fit_analysis"
+        type: "object"
+        fields:
+          overall_technical_fit: "number"
+          skill_matches: "array"
+          skill_gaps: "array"
+          experience_relevance: "array"
+          learning_opportunities: "array"
+          recommendations: "array"
+    input_guardrails:
+      - "validate_skills_data"
+      - "ensure_job_requirements_clear"
+    output_guardrails:
+      - "fit_score_between_0_and_100"
+      - "prioritize_skill_matches"
+      - "identify_learning_paths"
+
+  - name: "ResumeWriter"
+    description: "Creates tailored resume based on job requirements and company profile"
+    tools:
+      - "rag_query"
+      - "document_generator"
+      - "format_validator"
+    structured_inputs:
+      - name: "user_profile"
+        type: "object"
+        required: true
+        description: "User's complete profile"
+      - name: "job_requirements"
+        type: "object"
+        required: true
+        description: "Job requirements"
+      - name: "company_profile"
+        type: "object"
+        required: true
+        description: "Company information"
+      - name: "fit_analysis"
+        type: "object"
+        required: true
+        description: "Cultural and technical fit analysis"
+    structured_outputs:
+      - name: "tailored_resume"
+        type: "object"
+        fields:
+          resume_content: "string"
+          key_highlights: "array"
+          customization_notes: "array"
+          ats_optimization: "object"
+          format: "string"
+    input_guardrails:
+      - "validate_all_inputs_complete"
+      - "ensure_job_requirements_clear"
+    output_guardrails:
+      - "max_2_pages"
+      - "include_key_achievements"
+      - "optimize_for_ats"
+
+  - name: "ResumeReviewer"
+    description: "Reviews and validates the tailored resume for quality and effectiveness"
+    tools:
+      - "rag_query"
+      - "quality_checker"
+      - "ats_scanner"
+    structured_inputs:
+      - name: "tailored_resume"
+        type: "object"
+        required: true
+        description: "Generated resume"
+      - name: "job_requirements"
+        type: "object"
+        required: true
+        description: "Original job requirements"
+    structured_outputs:
+      - name: "resume_review"
+        type: "object"
+        fields:
+          overall_score: "number"
+          strengths: "array"
+          weaknesses: "array"
+          suggestions: "array"
+          ats_score: "number"
+          approval_status: "boolean"
+    input_guardrails:
+      - "validate_resume_format"
+      - "check_content_completeness"
+    output_guardrails:
+      - "score_between_0_and_100"
+      - "provide_actionable_feedback"
+      - "clear_approval_decision"
+
+  - name: "CoverLetterWriter"
+    description: "Creates personalized cover letter highlighting fit and motivation"
+    tools:
+      - "rag_query"
+      - "document_generator"
+      - "tone_analyzer"
+    structured_inputs:
+      - name: "user_profile"
+        type: "object"
+        required: true
+        description: "User's profile"
+      - name: "job_requirements"
+        type: "object"
+        required: true
+        description: "Job requirements"
+      - name: "company_profile"
+        type: "object"
+        required: true
+        description: "Company information"
+      - name: "fit_analysis"
+        type: "object"
+        required: true
+        description: "Fit analysis results"
+    structured_outputs:
+      - name: "cover_letter"
+        type: "object"
+        fields:
+          content: "string"
+          key_points: "array"
+          personalization_notes: "array"
+          tone: "string"
+          length: "number"
+    input_guardrails:
+      - "validate_all_inputs_present"
+      - "ensure_company_context"
+    output_guardrails:
+      - "max_400_words"
+      - "professional_tone"
+      - "specific_examples"
+
+  - name: "CoverLetterReviewer"
+    description: "Reviews cover letter for quality, tone, and effectiveness"
+    tools:
+      - "rag_query"
+      - "quality_checker"
+      - "tone_analyzer"
+    structured_inputs:
+      - name: "cover_letter"
+        type: "object"
+        required: true
+        description: "Generated cover letter"
+      - name: "job_requirements"
+        type: "object"
+        required: true
+        description: "Job requirements"
+    structured_outputs:
+      - name: "cover_letter_review"
+        type: "object"
+        fields:
+          overall_score: "number"
+          strengths: "array"
+          weaknesses: "array"
+          suggestions: "array"
+          tone_assessment: "object"
+          approval_status: "boolean"
+    input_guardrails:
+      - "validate_cover_letter_format"
+      - "check_content_completeness"
+    output_guardrails:
+      - "score_between_0_and_100"
+      - "provide_specific_feedback"
+      - "clear_approval_decision"
+
+  - name: "EmailComposer"
+    description: "Composes professional email to hiring manager with attachments"
+    tools:
+      - "rag_query"
+      - "email_template_generator"
+      - "attachment_handler"
+    structured_inputs:
+      - name: "contact_information"
+        type: "object"
+        required: true
+        description: "Hiring manager contact details"
+      - name: "resume"
+        type: "object"
+        required: true
+        description: "Approved resume"
+      - name: "cover_letter"
+        type: "object"
+        required: true
+        description: "Approved cover letter"
+      - name: "job_details"
+        type: "object"
+        required: true
+        description: "Job information"
+    structured_outputs:
+      - name: "email_package"
+        type: "object"
+        fields:
+          subject_line: "string"
+          email_body: "string"
+          attachments: "array"
+          follow_up_reminder: "object"
+    input_guardrails:
+      - "validate_contact_information"
+      - "ensure_documents_approved"
+    output_guardrails:
+      - "professional_subject_line"
+      - "clear_call_to_action"
+      - "proper_attachments"
+
+  - name: "EmailReviewer"
+    description: "Reviews email for professionalism and effectiveness"
+    tools:
+      - "rag_query"
+      - "quality_checker"
+      - "tone_analyzer"
+    structured_inputs:
+      - name: "email_package"
+        type: "object"
+        required: true
+        description: "Composed email"
+      - name: "contact_information"
+        type: "object"
+        required: true
+        description: "Recipient information"
+    structured_outputs:
+      - name: "email_review"
+        type: "object"
+        fields:
+          overall_score: "number"
+          strengths: "array"
+          weaknesses: "array"
+          suggestions: "array"
+          approval_status: "boolean"
+    input_guardrails:
+      - "validate_email_format"
+      - "check_attachments_present"
+    output_guardrails:
+      - "score_between_0_and_100"
+      - "ensure_professional_tone"
+      - "clear_approval_decision"
+
+  - name: "DocumentPackager"
+    description: "Creates final PDF package with resume and cover letter"
+    tools:
+      - "pdf_generator"
+      - "document_merger"
+      - "format_validator"
+    structured_inputs:
+      - name: "resume"
+        type: "object"
+        required: true
+        description: "Final resume"
+      - name: "cover_letter"
+        type: "object"
+        required: true
+        description: "Final cover letter"
+      - name: "job_details"
+        type: "object"
+        required: true
+        description: "Job information"
+    structured_outputs:
+      - name: "application_package"
+        type: "object"
+        fields:
+          pdf_file: "string"
+          file_size: "number"
+          page_count: "number"
+          metadata: "object"
+    input_guardrails:
+      - "validate_documents_approved"
+      - "check_format_compatibility"
+    output_guardrails:
+      - "max_file_size_10mb"
+      - "professional_formatting"
+      - "complete_metadata"
+
+  - name: "ApplicationTracker"
+    description: "Updates tracking systems and provides application summary"
+    tools:
+      - "asana_api"
+      - "database_writer"
+      - "notification_sender"
+    structured_inputs:
+      - name: "application_data"
+        type: "object"
+        required: true
+        description: "Complete application information"
+      - name: "tracking_preferences"
+        type: "object"
+        required: true
+        description: "User's tracking preferences"
+    structured_outputs:
+      - name: "tracking_update"
+        type: "object"
+        fields:
+          asana_task_id: "string"
+          application_id: "string"
+          status: "string"
+          next_steps: "array"
+          follow_up_date: "string"
+    input_guardrails:
+      - "validate_application_complete"
+      - "ensure_tracking_preferences"
+    output_guardrails:
+      - "unique_application_id"
+      - "complete_status_update"
+      - "set_follow_up_reminder"
+
+  - name: "NotificationAgent"
+    description: "Sends notifications to user about application status and next steps"
+    tools:
+      - "email_sender"
+      - "sms_sender"
+      - "notification_api"
+    structured_inputs:
+      - name: "application_summary"
+        type: "object"
+        required: true
+        description: "Application summary"
+      - name: "user_preferences"
+        type: "object"
+        required: true
+        description: "User notification preferences"
+    structured_outputs:
+      - name: "notification_status"
+        type: "object"
+        fields:
+          notifications_sent: "array"
+          delivery_status: "object"
+          user_acknowledgment: "boolean"
+    input_guardrails:
+      - "validate_application_summary"
+      - "check_user_preferences"
+    output_guardrails:
+      - "respect_notification_preferences"
+      - "confirm_delivery"
+      - "log_notification_activity"

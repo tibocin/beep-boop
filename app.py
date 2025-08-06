@@ -30,12 +30,24 @@ def main():
         # Import core components
         from modules.core import ConversationOrchestrator
         from modules.cypherpunk_ui import CypherpunkInterface
+        from modules.digi_core_integration import check_digi_core_health
+        
+        # Check Digi-Core health
+        print("🧠 Checking Digi-Core integration...")
+        digi_core_health = check_digi_core_health()
+        if digi_core_health.get('status') == 'healthy':
+            print("✅ Digi-Core integration ready - using as primary RAG backend")
+            rag_backend = "digi-core"
+        else:
+            print(f"⚠️ Digi-Core not available: {digi_core_health.get('error', 'Unknown error')}")
+            print("🔄 Falling back to auto-detected RAG backend")
+            rag_backend = "auto"
         
         # Initialize the orchestrator
         print("🔄 Loading conversation orchestrator...")
         orchestrator = ConversationOrchestrator(
             model="gpt-4o-mini",
-            rag_backend="auto",
+            rag_backend=rag_backend,
             enable_evaluation=True,
             enable_memory=True
         )
