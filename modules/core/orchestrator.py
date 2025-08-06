@@ -1,31 +1,32 @@
 """
-modules.core.orchestrator - Main pipeline orchestrator for simplified architecture
+modules.core.orchestrator - Async main pipeline orchestrator using OpenAI SDK
 
 This module orchestrates the complete flow: parse → retrieve → generate → evaluate → respond,
-integrating all core components for LLM-driven conversational AI.
+integrating all core components for LLM-driven conversational AI with async support.
 
 Key Features:
-- Unified pipeline management
+- Async pipeline management with OpenAI SDK
+- Streaming response generation
 - Voice mode support throughout
 - Resume generation and explanation workflows
 - Context-aware processing with memory integration
 - Adaptive retry logic with evaluation feedback
 """
 
-from typing import Dict, Any, Optional, Tuple
-from .interfaces import RequestType, ContextScope
-from .parser import LLMParser
+import asyncio
+from typing import Dict, Any, Optional, Tuple, AsyncGenerator
+from .parser import AsyncLLMParser, ParsedRequest
 from .rag.retriever import UnifiedRetriever
-from .synthesizer import LLMSynthesizer
+from .synthesizer import AsyncLLMSynthesizer
 from .evaluator import LLMEvaluator, RetryOrchestrator
 from .context_manager import LLMContextManager
 
-class ConversationOrchestrator:
+class AsyncConversationOrchestrator:
     """
-    Main orchestrator for the simplified conversational AI pipeline
+    Async main orchestrator for the simplified conversational AI pipeline
     
     Manages the complete flow from user input to final response,
-    emphasizing LLM reasoning throughout the process.
+    emphasizing LLM reasoning throughout the process with streaming support.
     """
     
     def __init__(self, 
@@ -34,7 +35,7 @@ class ConversationOrchestrator:
                  enable_evaluation: bool = True,
                  enable_memory: bool = True):
         """
-        Initialize the conversation orchestrator
+        Initialize the async conversation orchestrator
         
         Args:
             model: LLM model to use for all components
@@ -47,16 +48,16 @@ class ConversationOrchestrator:
         self.enable_memory = enable_memory
         
         # Initialize core components
-        print("🔄 Initializing conversation orchestrator...")
+        print("🔄 Initializing async conversation orchestrator...")
         
-        self.parser = LLMParser(model=model)
-        print("✅ Parser initialized")
+        self.parser = AsyncLLMParser(model=model)
+        print("✅ Async parser initialized")
         
         self.retriever = UnifiedRetriever(backend_type=rag_backend)
         print("✅ Retriever initialized")
         
-        self.synthesizer = LLMSynthesizer(model=model)
-        print("✅ Synthesizer initialized")
+        self.synthesizer = AsyncLLMSynthesizer(model=model)
+        print("✅ Async synthesizer initialized")
         
         if enable_evaluation:
             self.evaluator = LLMEvaluator(model=model)
@@ -72,11 +73,11 @@ class ConversationOrchestrator:
         else:
             self.context_manager = None
         
-        print("🚀 Conversation orchestrator ready!")
+        print("🚀 Async conversation orchestrator ready!")
     
-    def process_message(self, user_input: str, voice_mode: bool = False, identity_override: str = None) -> Dict[str, Any]:
+    async def process_message(self, user_input: str, voice_mode: bool = False, identity_override: str = None) -> Dict[str, Any]:
         """
-        Process a user message through the complete pipeline
+        Process a user message through the complete pipeline (async)
         
         Args:
             user_input: User's input message
@@ -89,244 +90,302 @@ class ConversationOrchestrator:
         try:
             # Step 1: Parse user request
             print(f"🔤 Parsing request: {user_input[:50]}...")
-            req_prompt, objective = self.parser.parse_request(user_input, voice_mode)
+            parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
             
             # Apply identity override if provided
             if identity_override:
-                req_prompt.metadata["identity"] = identity_override
+                parsed_request.metadata["identity"] = identity_override
             
             if voice_mode:
-                req_prompt = self.parser.adapt_for_voice(req_prompt)
+                parsed_request = self.parser.adapt_for_voice(parsed_request)
             
             # Step 2: Retrieve relevant context
-            print(f"🔍 Retrieving context for: {req_prompt.context_scope.value}")
-            
-            # Use more context for professional queries
-            if req_prompt.context_scope == ContextScope.PROFESSIONAL:
-                top_k = 8  # More context for professional responses
-            else:
-                top_k = 5
-                
-            contexts = self.retriever.retrieve(
-                query=req_prompt.intent,
-                context_scope=req_prompt.context_scope,
-                top_k=top_k
+            print(f"🔍 Retrieving context for: {objective}")
+            retrieved_context = self.retriever.retrieve(
+                query=user_input,
+                context_scope=self._get_context_scope(parsed_request.intent),
+                top_k=5
             )
-
-            # NEW: Filter RAG contexts to enforce topic focus
-            if req_prompt.key_topics:
-                filtered_contexts = [
-                    ctx for ctx in contexts
-                    if any(tag in req_prompt.key_topics for tag in ctx.topic_tags)
-                ]
-                if filtered_contexts:
-                    contexts = filtered_contexts
-
-            # NEW: Add topic cohesion to evaluation criteria
-            if req_prompt.key_topics:
-                objective.success_criteria.append(
-                    f"Focuses only on the topic(s): {', '.join(req_prompt.key_topics)} without blending unrelated areas"
+            
+            # Convert RAGContext objects to dictionaries for compatibility
+            context_list = []
+            for ctx in retrieved_context:
+                context_list.append({
+                    "content": ctx.content,
+                    "source": ctx.source,
+                    "score": ctx.relevance_score,
+                    "reasoning": ctx.reasoning
+                })
+            
+            retrieved_context = context_list
+            
+            # Step 3: Get conversation history if memory is enabled
+            conversation_history = None
+            if self.enable_memory and self.context_manager:
+                conversation_history = self.context_manager.get_recent_history()
+            
+            # Step 4: Generate response
+            print("🧠 Generating response...")
+            response = await self.synthesizer.synthesize_response(
+                user_input=user_input,
+                retrieved_context=retrieved_context,
+                conversation_history=conversation_history,
+                parsed_request=parsed_request.__dict__,
+                voice_mode=voice_mode
+            )
+            
+            # Step 5: Evaluate response quality if enabled
+            if self.enable_evaluation and self.evaluator:
+                print("📊 Evaluating response quality...")
+                evaluation = self.evaluator.evaluate_response(
+                    user_input, 
+                    response["text"], 
+                    retrieved_context
                 )
-            
-            # Step 3: Add conversation context if memory is enabled
-            conversation_context = None
-            if self.context_manager:
-                conversation_context = self.context_manager.get_conversation_context()
-                # Add conversation context to objective if relevant
-                if conversation_context:
-                    objective.success_criteria.append("Consider conversation history appropriately")
-            
-            # Step 4: Generate response with evaluation/retry if enabled
-            if self.retry_orchestrator and self.enable_evaluation:
-                print("🧠 Generating response with evaluation...")
-                response, evaluation, attempts = self.retry_orchestrator.generate_with_retry(
-                    req_prompt, contexts, objective, max_attempts=3
-                )
-                evaluation_used = True
-            else:
-                print("🧠 Generating response...")
-                response = self.synthesizer.generate(req_prompt, contexts, objective)
-                evaluation = None
-                attempts = 1
-                evaluation_used = False
-            
-            # Step 5: Optimize for voice if needed
-            if voice_mode and not response.voice_friendly:
-                print("🎤 Optimizing for voice...")
-                response = self.synthesizer.optimize_for_voice(response)
+                
+                # Retry if quality is poor
+                if evaluation["quality_score"] < 0.7 and self.retry_orchestrator:
+                    print("🔄 Quality below threshold, retrying...")
+                    retry_response = await self.retry_orchestrator.retry_with_feedback(
+                        user_input, 
+                        response["text"], 
+                        evaluation["feedback"],
+                        retrieved_context,
+                        conversation_history,
+                        voice_mode
+                    )
+                    if retry_response:
+                        response = retry_response
+                        response["metadata"]["retry_attempt"] = True
             
             # Step 6: Update conversation memory if enabled
-            if self.context_manager:
-                print("💾 Updating conversation memory...")
-                metadata = {
-                    "request_type": req_prompt.request_type.value,
-                    "context_scope": req_prompt.context_scope.value,
-                    "voice_mode": voice_mode,
-                    "evaluation_used": evaluation_used,
-                    "attempts": attempts,
-                    "confidence": response.confidence
-                }
-                
-                self.context_manager.add_turn(user_input, response.content, metadata)
-                
-                # Extract insights periodically
-                if len(self.context_manager.conversation_turns) % 5 == 0:
-                    insights = self.context_manager.extract_insights()
-                    if insights:
-                        print(f"💡 Extracted insights: {list(insights.keys())}")
+            if self.enable_memory and self.context_manager:
+                self.context_manager.add_interaction(user_input, response["text"])
             
             # Step 7: Prepare final response
             final_response = {
-                "content": response.content,
+                "response": response["text"],
                 "metadata": {
-                    "request_type": req_prompt.request_type.value,
-                    "intent": req_prompt.intent,
-                    "context_scope": req_prompt.context_scope.value,
-                    "key_topics": req_prompt.key_topics,
+                    **response["metadata"],
+                    "parsed_intent": parsed_request.intent,
+                    "objective": objective,
+                    "context_count": len(retrieved_context),
                     "voice_mode": voice_mode,
-                    "voice_friendly": response.voice_friendly,
-                    "confidence": response.confidence,
-                    "reasoning": response.reasoning,
-                    "contexts_used": len(contexts),
-                    "evaluation_used": evaluation_used,
-                    "attempts": attempts,
-                    "generation_metadata": response.generation_metadata
-                }
+                    "model_used": self.model
+                },
+                "usage": response["usage"]
             }
             
-            if evaluation_used and evaluation:
-                final_response["metadata"]["evaluation"] = {
-                    "overall_score": evaluation.overall_score,
-                    "reasoning": evaluation.reasoning,
-                    "strengths": evaluation.strengths,
-                    "improvements": evaluation.improvements,
-                    "meets_objective": evaluation.meets_objective,
-                    "voice_mode_appropriate": evaluation.voice_mode_appropriate,
-                    "retry_recommended": evaluation.retry_recommended,
-                    "retry_guidance": evaluation.retry_guidance
-                }
-            
+            print("✅ Response generated successfully!")
             return final_response
             
         except Exception as e:
-            print(f"❌ Error in message processing: {e}")
-            return self._create_error_response(str(e), voice_mode, req_prompt.request_type.value)
+            print(f"❌ Error in message processing: {str(e)}")
+            return self._create_error_response(str(e), voice_mode, "conversation")
     
-    def process_resume_request(self, user_input: str, voice_mode: bool = False) -> Dict[str, Any]:
+    async def process_message_stream(self, user_input: str, voice_mode: bool = False, identity_override: str = None) -> AsyncGenerator[str, None]:
         """
-        Specialized processing for resume generation requests
+        Process a user message with streaming response (async generator)
         
         Args:
-            user_input: User's resume-related request
+            user_input: User's input message
+            voice_mode: Whether this is from voice interaction
+            identity_override: Override the detected identity
+            
+        Yields:
+            Response text chunks as they're generated
+        """
+        try:
+            # Step 1: Parse user request
+            print(f"🔤 Parsing request: {user_input[:50]}...")
+            parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
+            
+            # Apply identity override if provided
+            if identity_override:
+                parsed_request.metadata["identity"] = identity_override
+            
+            if voice_mode:
+                parsed_request = self.parser.adapt_for_voice(parsed_request)
+            
+            # Step 2: Retrieve relevant context
+            print(f"🔍 Retrieving context for: {objective}")
+            retrieved_context = self.retriever.retrieve(
+                query=user_input,
+                context_scope=self._get_context_scope(parsed_request.intent),
+                top_k=5
+            )
+            
+            # Convert RAGContext objects to dictionaries for compatibility
+            context_list = []
+            for ctx in retrieved_context:
+                context_list.append({
+                    "content": ctx.content,
+                    "source": ctx.source,
+                    "score": ctx.relevance_score,
+                    "reasoning": ctx.reasoning
+                })
+            
+            retrieved_context = context_list
+            
+            # Step 3: Get conversation history if memory is enabled
+            conversation_history = None
+            if self.enable_memory and self.context_manager:
+                conversation_history = self.context_manager.get_recent_history()
+            
+            # Step 4: Stream response generation
+            print("🧠 Streaming response...")
+            full_response = ""
+            async for chunk in self.synthesizer.synthesize_response_stream(
+                user_input=user_input,
+                retrieved_context=retrieved_context,
+                conversation_history=conversation_history,
+                parsed_request=parsed_request.__dict__,
+                voice_mode=voice_mode
+            ):
+                full_response += chunk
+                yield chunk
+            
+            # Step 5: Update conversation memory if enabled
+            if self.enable_memory and self.context_manager:
+                self.context_manager.add_interaction(user_input, full_response)
+            
+            print("✅ Streaming response completed!")
+            
+        except Exception as e:
+            print(f"❌ Error in streaming message processing: {str(e)}")
+            yield f"Error: {str(e)}"
+    
+    async def process_resume_request(self, user_input: str, voice_mode: bool = False) -> Dict[str, Any]:
+        """
+        Process resume generation request (async)
+        
+        Args:
+            user_input: User's resume request
             voice_mode: Whether this is from voice interaction
             
         Returns:
-            Resume-focused response
+            Dict containing generated resume content
         """
-        print("📝 Processing resume generation request...")
-        
-        # Force request type to resume generation
         try:
-            req_prompt, objective = self.parser.parse_request(user_input, voice_mode)
-            req_prompt.request_type = RequestType.RESUME_GENERATION
-            req_prompt.context_scope = req_prompt.context_scope  # Keep user's preferred scope
+            # Parse the resume request
+            parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
             
-            # Enhance objective for resume focus
-            objective.primary_goal = "Help with resume/CV creation and improvement"
-            objective.success_criteria.extend([
-                "Focus on professional experience and skills",
-                "Use professional language and formatting",
-                "Highlight achievements and impact",
-                "Tailor content to user's background"
-            ])
-            
-            # Get professional context
-            contexts = self.retriever.retrieve(
-                query=f"professional experience work skills {req_prompt.intent}",
-                context_scope=req_prompt.context_scope,
-                top_k=7  # More context for resume work
+            # Retrieve relevant user data from professional context
+            user_contexts = self.retriever.retrieve(
+                query="professional experience skills work background",
+                context_scope=self._get_context_scope("professional"),
+                top_k=10
             )
             
-            # Generate with resume focus
-            if self.retry_orchestrator:
-                response, evaluation, attempts = self.retry_orchestrator.generate_with_retry(
-                    req_prompt, contexts, objective, max_attempts=3
-                )
-            else:
-                response = self.synthesizer.generate(req_prompt, contexts, objective)
-                evaluation = None
-                attempts = 1
+            # Convert to user data format
+            user_data = {
+                "professional_context": [ctx.content for ctx in user_contexts],
+                "request": user_input,
+                "objective": objective
+            }
             
-            # Voice optimization if needed
-            if voice_mode and not response.voice_friendly:
-                response = self.synthesizer.optimize_for_voice(response)
-            
-            # Update memory with resume focus
-            if self.context_manager:
-                metadata = {
-                    "request_type": "resume_generation",
-                    "context_scope": req_prompt.context_scope.value,
-                    "voice_mode": voice_mode,
-                    "specialized_processing": True,
-                    "confidence": response.confidence
-                }
-                self.context_manager.add_turn(user_input, response.content, metadata)
+            # Generate resume content
+            response = await self.synthesizer.generate_resume_content(
+                request_details={"objective": objective, "parsed_request": parsed_request.__dict__},
+                user_data=user_data
+            )
             
             return {
-                "content": response.content,
+                "response": response["text"],
                 "metadata": {
+                    **response["metadata"],
                     "request_type": "resume_generation",
-                    "specialized_processing": True,
                     "voice_mode": voice_mode,
-                    "confidence": response.confidence,
-                    "contexts_used": len(contexts),
-                    "attempts": attempts
-                }
+                    "model_used": self.model
+                },
+                "usage": response["usage"]
             }
             
         except Exception as e:
-            print(f"❌ Error in resume processing: {e}")
+            print(f"❌ Error in resume generation: {str(e)}")
             return self._create_error_response(str(e), voice_mode, "resume_generation")
     
+    async def process_resume_request_stream(self, user_input: str, voice_mode: bool = False) -> AsyncGenerator[str, None]:
+        """
+        Process resume generation request with streaming (async generator)
+        
+        Args:
+            user_input: User's resume request
+            voice_mode: Whether this is from voice interaction
+            
+        Yields:
+            Resume content chunks as they're generated
+        """
+        try:
+            # Parse the resume request
+            parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
+            
+            # Retrieve relevant user data
+            user_data = self.retriever.retrieve_user_data()
+            
+            # Stream resume content generation
+            async for chunk in self.synthesizer.generate_resume_content_stream(
+                request_details={"objective": objective, "parsed_request": parsed_request.__dict__},
+                user_data=user_data
+            ):
+                yield chunk
+                
+        except Exception as e:
+            print(f"❌ Error in streaming resume generation: {str(e)}")
+            yield f"Error generating resume content: {str(e)}"
+    
     def get_conversation_summary(self) -> Optional[str]:
-        """Get current conversation summary"""
-        if self.context_manager:
-            return self.context_manager.conversation_summary
+        """Get summary of current conversation if memory is enabled"""
+        if self.enable_memory and self.context_manager:
+            return self.context_manager.get_conversation_summary()
         return None
     
     def get_memory_insights(self) -> Dict[str, Any]:
-        """Get current long-term memory insights"""
-        if self.context_manager:
-            return self.context_manager.get_long_term_memory()
-        return {}
+        """Get insights from conversation memory"""
+        if self.enable_memory and self.context_manager:
+            return self.context_manager.get_memory_insights()
+        return {"enabled": False}
     
     def initialize_knowledge_base(self, yaml_files: Optional[list] = None) -> bool:
         """Initialize the knowledge base with YAML files"""
         try:
             return self.retriever.initialize_from_yaml(yaml_files)
         except Exception as e:
-            print(f"⚠️ Knowledge base initialization failed: {e}")
+            print(f"❌ Knowledge base initialization failed: {str(e)}")
             return False
+    
+    def _get_context_scope(self, intent: str):
+        """Convert intent to context scope"""
+        from .interfaces import ContextScope
+        
+        if "professional" in intent.lower() or "work" in intent.lower() or "resume" in intent.lower():
+            return ContextScope.PROFESSIONAL
+        elif "personal" in intent.lower():
+            return ContextScope.PERSONAL
+        elif "creative" in intent.lower():
+            return ContextScope.CREATIVE
+        else:
+            return ContextScope.GENERAL
     
     def _create_error_response(self, error_msg: str, voice_mode: bool = False, 
                               request_type: str = "conversation") -> Dict[str, Any]:
         """Create error response when processing fails"""
-        
-        if request_type == "resume_generation":
-            content = "I'd be happy to help with your resume. Could you tell me more about your background and what type of position you're targeting?"
-        else:
-            content = "I'm here to help! Could you tell me a bit more about what you're looking for?"
+        error_text = f"I apologize, but I encountered an error: {error_msg}. Please try again."
         
         if voice_mode:
-            content = "I'm here to help you. What would you like to talk about?"
+            error_text = "I'm sorry, I'm having technical difficulties. Please try again."
         
         return {
-            "content": content,
+            "response": error_text,
             "metadata": {
-                "request_type": request_type,
-                "voice_mode": voice_mode,
                 "error": True,
                 "error_message": error_msg,
-                "confidence": 0.3
-            }
+                "request_type": request_type,
+                "voice_mode": voice_mode,
+                "model_used": self.model
+            },
+            "usage": {"total_tokens": 0, "prompt_tokens": 0, "completion_tokens": 0}
         }
+
+# Backward compatibility alias
+ConversationOrchestrator = AsyncConversationOrchestrator
