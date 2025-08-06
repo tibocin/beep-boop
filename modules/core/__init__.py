@@ -27,7 +27,9 @@ from .interfaces import (
     CandidateResponse,
     EvaluationScore
 )
-from .orchestrator import ConversationOrchestrator
+from .orchestrator import AsyncConversationOrchestrator
+from .llm_client import UnifiedLLMClient
+from .model_config import ModelConfig, TaskType, Environment, get_model_config
 
 __version__ = "0.1.0"
 __all__ = [
@@ -41,5 +43,10 @@ __all__ = [
     "RAGContext",
     "CandidateResponse",
     "EvaluationScore",
-    "ConversationOrchestrator"
+    "AsyncConversationOrchestrator",
+    "UnifiedLLMClient",
+    "ModelConfig",
+    "TaskType",
+    "Environment",
+    "get_model_config"
 ]

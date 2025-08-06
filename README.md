@@ -56,10 +56,14 @@ export OPENAI_API_KEY="your-api-key-here"
 
 ## 🧪 Testing
 
-Run the comprehensive async test suite to verify streaming functionality:
+Run the comprehensive async test suite to verify functionality:
 
 ```bash
+# Test OpenAI integration
 python test_openai_refactor.py
+
+# Test Ollama integration (requires Ollama server)
+python test_ollama_integration.py
 ```
 
 ## 🚀 Usage
@@ -84,7 +88,7 @@ The app is configured for Gradio Spaces deployment with the cypherpunk interface
 
 ### Core Components
 
-- **AsyncOpenAI Client** (`modules/core/openai_client.py`): Async OpenAI SDK wrapper with streaming
+- **UnifiedLLMClient** (`modules/core/llm_client.py`): Ollama primary with OpenAI fallback
 - **AsyncLLMParser** (`modules/core/parser.py`): Async request parsing with streaming insights
 - **AsyncLLMSynthesizer** (`modules/core/synthesizer.py`): Async response generation with streaming
 - **AsyncConversationOrchestrator** (`modules/core/orchestrator.py`): Async pipeline coordination
@@ -120,15 +124,40 @@ The system tracks:
 
 ### Model Selection
 
-Default model is `gpt-4o-mini`. Change in the orchestrator initialization:
+The system uses **Ollama as primary** with **OpenAI as fallback** for cost optimization and reliability.
+
+#### Ollama Setup (Primary)
+
+```bash
+# Install Ollama
+brew install ollama  # macOS
+# or
+curl -fsSL https://ollama.ai/install.sh | sh  # Linux
+
+# Pull a model
+ollama pull llama3.1:8b
+
+# Start Ollama server
+ollama serve
+```
+
+#### Configuration
 
 ```python
+# Initialize with Ollama primary and OpenAI fallback
 orchestrator = AsyncConversationOrchestrator(
-    model="gpt-4o-mini",  # Change model here
+    model="gpt-4o-mini",  # OpenAI fallback model
+    ollama_model="llama3.1:8b",  # Ollama primary model
     rag_backend="auto",
     enable_evaluation=True,
     enable_memory=True
 )
+
+# Force OpenAI only (no fallback)
+client = UnifiedLLMClient(enable_fallback=False)
+
+# Force OpenAI for specific requests
+response = await client.chat_completion(messages, force_openai=True)
 ```
 
 ### RAG Backends

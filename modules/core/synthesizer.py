@@ -16,7 +16,7 @@ Key Features:
 
 import logging
 from typing import Dict, Any, Optional, List, AsyncGenerator
-from .openai_client import AsyncOpenAIClient
+from .llm_client import UnifiedLLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +28,20 @@ class AsyncLLMSynthesizer:
     retrieved context, and conversation history with streaming support.
     """
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4o-mini", ollama_model: str = "llama3.1:8b"):
         """
         Initialize the async LLM synthesizer
         
         Args:
-            model: OpenAI model to use for response generation
+            model: OpenAI model to use for response generation (fallback)
+            ollama_model: Ollama model to use for response generation (primary)
         """
-        self.client = AsyncOpenAIClient(model=model)
+        self.client = UnifiedLLMClient(
+            ollama_model=ollama_model,
+            openai_model=model
+        )
         self.model = model
+        self.ollama_model = ollama_model
         
         # Base system prompt for response generation
         self.base_system_prompt = """You are a helpful AI assistant with access to comprehensive knowledge about Stephen Saunders and his work. 

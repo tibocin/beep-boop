@@ -15,7 +15,7 @@ import logging
 import json
 from typing import Dict, Any, Optional, Tuple, AsyncGenerator
 from dataclasses import dataclass
-from .openai_client import AsyncOpenAIClient
+from .llm_client import UnifiedLLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -36,15 +36,20 @@ class AsyncLLMParser:
     for downstream processing in the conversation pipeline.
     """
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4o-mini", ollama_model: str = "llama3.1:8b"):
         """
         Initialize the async LLM parser
         
         Args:
-            model: OpenAI model to use for parsing
+            model: OpenAI model to use for parsing (fallback)
+            ollama_model: Ollama model to use for parsing (primary)
         """
-        self.client = AsyncOpenAIClient(model=model)
+        self.client = UnifiedLLMClient(
+            ollama_model=ollama_model,
+            openai_model=model
+        )
         self.model = model
+        self.ollama_model = ollama_model
         
         # System prompt for parsing
         self.parsing_prompt = """You are an intelligent request parser. Analyze the user's input and extract:

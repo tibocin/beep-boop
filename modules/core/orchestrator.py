@@ -50,13 +50,13 @@ class AsyncConversationOrchestrator:
         # Initialize core components
         print("🔄 Initializing async conversation orchestrator...")
         
-        self.parser = AsyncLLMParser(model=model)
+        self.parser = AsyncLLMParser(model=model, ollama_model="llama3.1:8b")
         print("✅ Async parser initialized")
         
         self.retriever = UnifiedRetriever(backend_type=rag_backend)
         print("✅ Retriever initialized")
         
-        self.synthesizer = AsyncLLMSynthesizer(model=model)
+        self.synthesizer = AsyncLLMSynthesizer(model=model, ollama_model="llama3.1:8b")
         print("✅ Async synthesizer initialized")
         
         if enable_evaluation:
