@@ -171,43 +171,25 @@ Analyze the query and determine:
 
 Focus on understanding the deeper intent, not just surface-level requests."""
 
-            response = self.client.chat.completions.create(
-                model=self.model,
+            response = await self.client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Analyze this query: '{query}'{context_info}"}
                 ],
-                functions=[{
-                    "name": "analyze_intent",
-                    "description": "Analyze the intent and requirements of a query",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "primary_intent": {"type": "string"},
-                            "secondary_intents": {
-                                "type": "array",
-                                "items": {"type": "string"}
-                            },
-                            "context_scope": {"type": "string"},
-                            "audience_type": {"type": "string"},
-                            "urgency_level": {"type": "string"},
-                            "depth_preference": {"type": "string"},
-                            "confidence": {
-                                "type": "number",
-                                "minimum": 0.0,
-                                "maximum": 1.0
-                            },
-                            "reasoning": {"type": "string"}
-                        },
-                        "required": ["primary_intent", "context_scope", "confidence", "reasoning"]
-                    }
-                }],
-                function_call={"name": "analyze_intent"}
+                model=self.model,
+                temperature=0.3
             )
             
-            result = response.choices[0].message.function_call.arguments
-            import json
-            data = json.loads(result)
+            # Extract response text
+            result_text = self._extract_response_text(response)
+            
+            # Try to parse as JSON, fallback to basic analysis
+            try:
+                import json
+                data = json.loads(result_text)
+            except json.JSONDecodeError:
+                # Fallback to basic intent analysis
+                return self._fallback_intent_analysis(query)
             
             return IntentAnalysis(
                 primary_intent=data["primary_intent"],
@@ -224,7 +206,7 @@ Focus on understanding the deeper intent, not just surface-level requests."""
             print(f"⚠️ Error in intent analysis: {e}")
             return self._fallback_intent_analysis(query)
     
-    def calculate_semantic_similarity(self, query: str, contexts: List[str]) -> List[Tuple[str, float]]:
+    async def calculate_semantic_similarity(self, query: str, contexts: List[str]) -> List[Tuple[str, float]]:
         """
         Calculate semantic similarity between query and contexts
         
@@ -236,16 +218,10 @@ Focus on understanding the deeper intent, not just surface-level requests."""
             List of (context, similarity_score) tuples
         """
         try:
-            # Use OpenAI embeddings for semantic similarity
-            query_embedding = self.client.embeddings.create(
-                model="text-embedding-3-small",
-                input=query
-            ).data[0].embedding
+            # Use UnifiedLLMClient embeddings for semantic similarity
+            query_embedding = await self.client.get_embedding(query, model="text-embedding-3-small")
             
-            context_embeddings = self.client.embeddings.create(
-                model="text-embedding-3-small",
-                input=contexts
-            ).data
+            context_embeddings = await self.client.get_embeddings_batch(contexts, model="text-embedding-3-small")
             
             similarities = []
             for i, context_embedding in enumerate(context_embeddings):
@@ -265,6 +241,33 @@ Focus on understanding the deeper intent, not just surface-level requests."""
         vec1 = np.array(vec1)
         vec2 = np.array(vec2)
         return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    
+    def _extract_response_text(self, response: Dict[str, Any]) -> str:
+        """
+        Extract text content from LLM response
+        
+        Handles both UnifiedLLMClient dict format and OpenAI object format
+        """
+        # Check if it's a unified client response (dict with 'text' key)
+        if isinstance(response, dict) and 'text' in response:
+            return response['text']
+        
+        # Check if it's OpenAI response object with choices
+        if hasattr(response, 'choices') and len(response.choices) > 0:
+            return response.choices[0].message.content
+        
+        # Fallback: try to access as dict with choices
+        if isinstance(response, dict) and 'choices' in response:
+            choices = response['choices']
+            if choices and len(choices) > 0:
+                return choices[0].get('message', {}).get('content', '')
+        
+        # Last resort: try to get any text-like content
+        if isinstance(response, str):
+            return response
+        
+        print(f"⚠️ Could not extract text from response: {type(response)}")
+        return ""
     
     def _fallback_context_analysis(self, query: str) -> SemanticContext:
         """Fallback context analysis when LLM fails"""

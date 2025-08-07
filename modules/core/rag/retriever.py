@@ -131,7 +131,7 @@ class UnifiedRetriever(BaseRetriever):
                     raw_results.extend(theme_results)
         
         # Step 3: Use LLM to enhance relevance reasoning with semantic context
-        enhanced_contexts = self._enhance_with_semantic_reasoning(query, raw_results, context_scope, semantic_context, intent_analysis)
+                    enhanced_contexts = await self._enhance_with_semantic_reasoning(query, raw_results, context_scope, semantic_context, intent_analysis)
         
         # Return top_k results
         return enhanced_contexts[:top_k]
@@ -165,7 +165,34 @@ class UnifiedRetriever(BaseRetriever):
         # The LLM reasoning will handle relevance filtering instead
         return {}
     
-    def _enhance_with_semantic_reasoning(self, query: str, raw_results: List[Dict[str, Any]], 
+    def _extract_response_text(self, response: Dict[str, Any]) -> str:
+        """
+        Extract text content from LLM response
+        
+        Handles both UnifiedLLMClient dict format and OpenAI object format
+        """
+        # Check if it's a unified client response (dict with 'text' key)
+        if isinstance(response, dict) and 'text' in response:
+            return response['text']
+        
+        # Check if it's OpenAI response object with choices
+        if hasattr(response, 'choices') and len(response.choices) > 0:
+            return response.choices[0].message.content
+        
+        # Fallback: try to access as dict with choices
+        if isinstance(response, dict) and 'choices' in response:
+            choices = response['choices']
+            if choices and len(choices) > 0:
+                return choices[0].get('message', {}).get('content', '')
+        
+        # Last resort: try to get any text-like content
+        if isinstance(response, str):
+            return response
+        
+        print(f"⚠️ Could not extract text from response: {type(response)}")
+        return ""
+    
+    async def _enhance_with_semantic_reasoning(self, query: str, raw_results: List[Dict[str, Any]], 
                                         context_scope: ContextScope, semantic_context, intent_analysis) -> List[RAGContext]:
         """Use LLM to enhance results with semantic reasoning"""
         if not raw_results:
@@ -209,43 +236,26 @@ For each result, determine:
 
 Return your evaluation as JSON."""
 
-            response = self.llm_client.chat.completions.create(
-                model="gpt-4o-mini",
+            response = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Evaluate these results:\n{results_text}"}
                 ],
-                functions=[{
-                    "name": "evaluate_results",
-                    "description": "Evaluate search results with reasoning",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "evaluations": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "result_index": {"type": "integer"},
-                                        "relevance_score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-                                        "relevance_reasoning": {"type": "string"},
-                                        "context_type": {"type": "string"},
-                                        "topic_tags": {"type": "array", "items": {"type": "string"}}
-                                    },
-                                    "required": ["result_index", "relevance_score", "relevance_reasoning", "context_type"]
-                                }
-                            }
-                        },
-                        "required": ["evaluations"]
-                    }
-                }],
-                function_call={"name": "evaluate_results"}
+                model="gpt-4o-mini",
+                temperature=0.3
             )
             
-            if response.choices[0].message.function_call:
-                evaluations = json.loads(response.choices[0].message.function_call.arguments)
-                return self._create_rag_contexts(raw_results, evaluations["evaluations"])
-            else:
+            # Extract response text
+            result_text = self._extract_response_text(response)
+            
+            # Try to parse as JSON, fallback to basic contexts
+            try:
+                evaluations = json.loads(result_text)
+                if "evaluations" in evaluations:
+                    return self._create_rag_contexts(raw_results, evaluations["evaluations"])
+                else:
+                    return self._create_basic_contexts(raw_results)
+            except json.JSONDecodeError:
                 # Fallback without LLM reasoning
                 return self._create_basic_contexts(raw_results)
                 
