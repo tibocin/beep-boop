@@ -14,6 +14,7 @@ Key Features:
 """
 
 import asyncio
+import os
 from typing import Dict, Any, Optional, Tuple, AsyncGenerator
 from .parser import AsyncLLMParser, ParsedRequest
 from .rag.retriever import UnifiedRetriever
@@ -50,13 +51,13 @@ class AsyncConversationOrchestrator:
         # Initialize core components
         print("🔄 Initializing async conversation orchestrator...")
         
-        self.parser = AsyncLLMParser(model=model, ollama_model="llama3.1:8b")
+        self.parser = AsyncLLMParser(model=model, ollama_model="codellama:7b")
         print("✅ Async parser initialized")
         
         self.retriever = UnifiedRetriever(backend_type=rag_backend)
         print("✅ Retriever initialized")
         
-        self.synthesizer = AsyncLLMSynthesizer(model=model, ollama_model="llama3.1:8b")
+        self.synthesizer = AsyncLLMSynthesizer(model=model, ollama_model="codellama:7b")
         print("✅ Async synthesizer initialized")
         
         if enable_evaluation:
@@ -101,7 +102,7 @@ class AsyncConversationOrchestrator:
             
             # Step 2: Retrieve relevant context
             print(f"🔍 Retrieving context for: {objective}")
-            retrieved_context = self.retriever.retrieve(
+            retrieved_context = await self.retriever.retrieve(
                 query=user_input,
                 context_scope=self._get_context_scope(parsed_request.intent),
                 top_k=5
@@ -122,7 +123,7 @@ class AsyncConversationOrchestrator:
             # Step 3: Get conversation history if memory is enabled
             conversation_history = None
             if self.enable_memory and self.context_manager:
-                conversation_history = self.context_manager.get_recent_history()
+                conversation_history = self.context_manager.get_conversation_context()
             
             # Step 4: Generate response
             print("🧠 Generating response...")
@@ -137,19 +138,30 @@ class AsyncConversationOrchestrator:
             # Step 5: Evaluate response quality if enabled
             if self.enable_evaluation and self.evaluator:
                 print("📊 Evaluating response quality...")
-                evaluation = self.evaluator.evaluate_response(
-                    user_input, 
-                    response["text"], 
-                    retrieved_context
+                
+                # Create CandidateResponse object for evaluation
+                from .interfaces import CandidateResponse
+                candidate_response = CandidateResponse(
+                    content=response["text"],
+                    confidence=response.get("metadata", {}).get("confidence", 0.8),
+                    reasoning=response.get("metadata", {}).get("reasoning", "Generated response"),
+                    voice_friendly=voice_mode
+                )
+                
+                # Evaluate using the correct interface
+                evaluation = await self.evaluator.evaluate(
+                    response=candidate_response,
+                    objective=objective,
+                    original_request=user_input
                 )
                 
                 # Retry if quality is poor
-                if evaluation["quality_score"] < 0.7 and self.retry_orchestrator:
+                if evaluation.overall_score < 0.7 and self.retry_orchestrator:
                     print("🔄 Quality below threshold, retrying...")
                     retry_response = await self.retry_orchestrator.retry_with_feedback(
                         user_input, 
                         response["text"], 
-                        evaluation["feedback"],
+                        evaluation.reasoning,  # Use reasoning instead of feedback
                         retrieved_context,
                         conversation_history,
                         voice_mode
@@ -160,7 +172,7 @@ class AsyncConversationOrchestrator:
             
             # Step 6: Update conversation memory if enabled
             if self.enable_memory and self.context_manager:
-                self.context_manager.add_interaction(user_input, response["text"])
+                self.context_manager.add_turn(user_input, response["text"], response.get("metadata", {}))
             
             # Step 7: Prepare final response
             final_response = {
@@ -209,7 +221,7 @@ class AsyncConversationOrchestrator:
             
             # Step 2: Retrieve relevant context
             print(f"🔍 Retrieving context for: {objective}")
-            retrieved_context = self.retriever.retrieve(
+            retrieved_context = await self.retriever.retrieve(
                 query=user_input,
                 context_scope=self._get_context_scope(parsed_request.intent),
                 top_k=5
@@ -230,7 +242,7 @@ class AsyncConversationOrchestrator:
             # Step 3: Get conversation history if memory is enabled
             conversation_history = None
             if self.enable_memory and self.context_manager:
-                conversation_history = self.context_manager.get_recent_history()
+                conversation_history = self.context_manager.get_conversation_context()
             
             # Step 4: Stream response generation
             print("🧠 Streaming response...")
@@ -247,7 +259,7 @@ class AsyncConversationOrchestrator:
             
             # Step 5: Update conversation memory if enabled
             if self.enable_memory and self.context_manager:
-                self.context_manager.add_interaction(user_input, full_response)
+                self.context_manager.add_turn(user_input, full_response, {})
             
             print("✅ Streaming response completed!")
             
@@ -271,7 +283,7 @@ class AsyncConversationOrchestrator:
             parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
             
             # Retrieve relevant user data from professional context
-            user_contexts = self.retriever.retrieve(
+            user_contexts = await self.retriever.retrieve(
                 query="professional experience skills work background",
                 context_scope=self._get_context_scope("professional"),
                 top_k=10
@@ -321,7 +333,7 @@ class AsyncConversationOrchestrator:
             parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
             
             # Retrieve relevant user data
-            user_data = self.retriever.retrieve_user_data()
+            user_data = await self.retriever.retrieve_user_data()
             
             # Stream resume content generation
             async for chunk in self.synthesizer.generate_resume_content_stream(
@@ -347,9 +359,19 @@ class AsyncConversationOrchestrator:
         return {"enabled": False}
     
     def initialize_knowledge_base(self, yaml_files: Optional[list] = None) -> bool:
-        """Initialize the knowledge base with YAML files"""
+        """Initialize the knowledge base with Digi-Core (primary) or YAML files (fallback)"""
         try:
-            return self.retriever.initialize_from_yaml(yaml_files)
+            # Check if Digi-Core is available and enabled
+            digi_core_enabled = os.getenv('DIGI_CORE_ENABLED', 'true').lower() == 'true'
+            digi_core_api_key = os.getenv('DIGI_CORE_API_KEY')
+            
+            if digi_core_enabled and digi_core_api_key:
+                print("🧠 Using Digi-Core as primary knowledge source...")
+                # Digi-Core is automatically initialized by the RAG adapter
+                return True
+            else:
+                print("📚 Using local YAML files as knowledge source...")
+                return self.retriever.initialize_from_yaml(yaml_files)
         except Exception as e:
             print(f"❌ Knowledge base initialization failed: {str(e)}")
             return False
