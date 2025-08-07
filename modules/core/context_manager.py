@@ -10,13 +10,15 @@ Key Features:
 - Long-term memory persistence
 - Context-aware memory retrieval
 - Voice mode conversation tracking
+- Async LLM integration with UnifiedLLMClient
 """
 
 import json
 import os
+import asyncio
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-import openai
+from .llm_client import UnifiedLLMClient
 from .interfaces import BaseContextManager
 
 class LLMContextManager(BaseContextManager):
@@ -25,13 +27,16 @@ class LLMContextManager(BaseContextManager):
     
     Manages conversation history using sliding windows with LLM-based
     summarization for efficient long-term memory.
+    
+    Now uses async UnifiedLLMClient for all LLM operations.
     """
     
     def __init__(self, 
                  sliding_window_size: int = 6,
                  summarize_threshold: int = 10,
                  memory_file: str = "./conversation_memory.json",
-                 model: str = "gpt-4o-mini"):
+                 model: str = "gpt-4o-mini",
+                 llm_client: Optional[UnifiedLLMClient] = None):
         """
         Initialize the context manager
         
@@ -40,12 +45,18 @@ class LLMContextManager(BaseContextManager):
             summarize_threshold: Number of turns before triggering summarization
             memory_file: File to persist long-term memory
             model: LLM model for summarization
+            llm_client: Optional UnifiedLLMClient instance (auto-created if None)
         """
         self.sliding_window_size = sliding_window_size
         self.summarize_threshold = summarize_threshold
         self.memory_file = memory_file
         self.model = model
-        self.client = openai.OpenAI()
+        
+        # Initialize UnifiedLLMClient if not provided
+        if llm_client is None:
+            self.client = UnifiedLLMClient(openai_model=model)
+        else:
+            self.client = llm_client
         
         # In-memory conversation state
         self.conversation_turns = []
@@ -99,13 +110,11 @@ class LLMContextManager(BaseContextManager):
         
         # Check if summarization is needed
         if len(self.conversation_turns) >= self.summarize_threshold:
-            self._trigger_summarization()
-        
-        # Persist memory
-        self._save_memory()
+            # Trigger async summarization (fire and forget)
+            asyncio.create_task(self._trigger_summarization())
     
-    def summarize_history(self, keep_recent: int = 6) -> str:
-        """Create intelligent summary of older conversation history"""
+    async def summarize_history(self, keep_recent: int = 6) -> str:
+        """Create intelligent summary of older conversation history (async)"""
         
         if len(self.conversation_turns) <= keep_recent:
             return "No history to summarize yet."
@@ -120,15 +129,16 @@ class LLMContextManager(BaseContextManager):
             # Build summarization prompt
             summary_prompt = self._build_summarization_prompt(turns_to_summarize)
             
-            # Get LLM summary
-            response = self.client.chat.completions.create(
-                model=self.model,
+            # Get LLM summary using UnifiedLLMClient
+            response = await self.client.chat_completion(
                 messages=[{"role": "user", "content": summary_prompt}],
+                model=self.model,
                 max_tokens=500,
                 temperature=0.3
             )
             
-            new_summary = response.choices[0].message.content.strip()
+            # Extract text from response (handles both unified and OpenAI formats)
+            new_summary = self._extract_response_text(response).strip()
             
             # Update conversation summary
             if self.conversation_summary:
@@ -144,13 +154,13 @@ NEW SUMMARY:
 
 Create a comprehensive summary that captures the key themes, insights, and progression of the conversation.
 """
-                merge_response = self.client.chat.completions.create(
-                    model=self.model,
+                merge_response = await self.client.chat_completion(
                     messages=[{"role": "user", "content": merge_prompt}],
+                    model=self.model,
                     max_tokens=600,
                     temperature=0.3
                 )
-                self.conversation_summary = merge_response.choices[0].message.content.strip()
+                self.conversation_summary = self._extract_response_text(merge_response).strip()
             else:
                 self.conversation_summary = new_summary
             
@@ -172,8 +182,8 @@ Create a comprehensive summary that captures the key themes, insights, and progr
         self.long_term_memory[key] = value
         self._save_memory()
     
-    def extract_insights(self) -> Dict[str, Any]:
-        """Extract insights from recent conversation for long-term memory"""
+    async def extract_insights(self) -> Dict[str, Any]:
+        """Extract insights from recent conversation for long-term memory (async)"""
         
         if len(self.conversation_turns) < 3:
             return {}
@@ -197,14 +207,14 @@ Extract insights in these categories:
 Return as JSON with these keys. Only include insights that are clearly evident.
 """
             
-            response = self.client.chat.completions.create(
-                model=self.model,
+            response = await self.client.chat_completion(
                 messages=[{"role": "user", "content": insight_prompt}],
+                model=self.model,
                 max_tokens=400,
                 temperature=0.3
             )
             
-            insights_text = response.choices[0].message.content.strip()
+            insights_text = self._extract_response_text(response).strip()
             
             # Try to parse as JSON
             try:
@@ -229,6 +239,33 @@ Return as JSON with these keys. Only include insights that are clearly evident.
         except Exception as e:
             print(f"⚠️ Insight extraction failed ({e})")
             return {}
+    
+    def _extract_response_text(self, response: Dict[str, Any]) -> str:
+        """
+        Extract text content from LLM response
+        
+        Handles both UnifiedLLMClient dict format and OpenAI object format
+        """
+        # Check if it's a unified client response (dict with 'text' key)
+        if isinstance(response, dict) and 'text' in response:
+            return response['text']
+        
+        # Check if it's OpenAI response object with choices
+        if hasattr(response, 'choices') and len(response.choices) > 0:
+            return response.choices[0].message.content
+        
+        # Fallback: try to access as dict with choices
+        if isinstance(response, dict) and 'choices' in response:
+            choices = response['choices']
+            if choices and len(choices) > 0:
+                return choices[0].get('message', {}).get('content', '')
+        
+        # Last resort: try to get any text-like content
+        if isinstance(response, str):
+            return response
+        
+        print(f"⚠️ Could not extract text from response: {type(response)}")
+        return ""
     
     def _load_memory(self):
         """Load persistent memory from file"""
@@ -284,10 +321,10 @@ Return as JSON with these keys. Only include insights that are clearly evident.
         self.session_metadata["total_turns"] = len(self.conversation_turns)
         self.session_metadata["last_interaction"] = turn["timestamp"]
     
-    def _trigger_summarization(self):
-        """Trigger automatic summarization when threshold is reached"""
+    async def _trigger_summarization(self):
+        """Trigger automatic summarization when threshold is reached (async)"""
         print(f"🔄 Triggering summarization (threshold: {self.summarize_threshold} turns)")
-        summary = self.summarize_history(self.sliding_window_size)
+        summary = await self.summarize_history(self.sliding_window_size)
         if summary:
             print(f"📝 Updated conversation summary: {summary[:100]}...")
     
@@ -298,57 +335,60 @@ Return as JSON with these keys. Only include insights that are clearly evident.
         for turn in turns:
             user_input = turn["user_input"]
             assistant_response = turn["assistant_response"]
-            conversation_text += f"\nUser: {user_input}\nAssistant: {assistant_response}\n"
+            conversation_text += f"User: {user_input}\nAssistant: {assistant_response}\n\n"
         
         return f"""
 Summarize this conversation, focusing on:
-1. Key topics discussed
-2. User goals and interests that emerged
-3. Important context about the user's situation
-4. Progression of the conversation
-5. Any insights about the user's preferences or communication style
+- Key topics discussed
+- Important decisions or insights
+- User preferences or goals mentioned
+- Overall conversation flow and context
 
-Conversation to summarize:
+Conversation:
 {conversation_text}
 
-Create a concise but comprehensive summary that will help provide context for future conversations.
+Provide a concise but comprehensive summary that captures the essential elements.
 """
     
     def _format_conversation_for_insights(self) -> str:
         """Format recent conversation for insight extraction"""
         
-        formatted = ""
-        recent_turns = self.conversation_turns[-5:]  # Last 5 turns for insights
+        recent_turns = self.conversation_turns[-5:]  # Last 5 turns
         
+        conversation_text = ""
         for turn in recent_turns:
-            formatted += f"User: {turn['user_input']}\n"
-            formatted += f"Assistant: {turn['assistant_response']}\n\n"
+            user_input = turn["user_input"]
+            assistant_response = turn["assistant_response"]
+            conversation_text += f"User: {user_input}\nAssistant: {assistant_response}\n\n"
         
-        return formatted
+        return conversation_text
     
     def get_context_for_request(self, request_type: str) -> Dict[str, Any]:
-        """Get contextual information relevant to a specific request type"""
+        """Get relevant context for a specific request type"""
         
         context = {
-            "conversation_context": self.get_conversation_context(),
-            "relevant_memory": {},
-            "session_info": self.session_metadata.copy()
+            "conversation_history": self.get_conversation_context(),
+            "long_term_memory": self.get_long_term_memory(),
+            "session_metadata": self.session_metadata.copy()
         }
         
-        # Add request-type specific memory
+        # Add request-specific context
         if request_type == "resume_generation":
-            context["relevant_memory"] = {
-                "goals": self.long_term_memory.get("GOALS", {}),
-                "experience": self.long_term_memory.get("CONTEXT", {}),
-                "preferences": self.long_term_memory.get("PREFERENCES", {})
-            }
-        elif request_type == "explanation":
-            context["relevant_memory"] = {
-                "communication_style": self.long_term_memory.get("COMMUNICATION_STYLE", {}),
-                "topics_of_interest": self.long_term_memory.get("TOPICS_OF_INTEREST", {})
-            }
-        else:
-            # General conversation - include all relevant memory
-            context["relevant_memory"] = self.long_term_memory.copy()
+            context["professional_context"] = self.long_term_memory.get("professional", {})
+        elif request_type == "voice_interaction":
+            context["voice_preferences"] = self.long_term_memory.get("communication_style", {})
         
         return context
+    
+    def get_conversation_summary(self) -> Optional[str]:
+        """Get the current conversation summary"""
+        return self.conversation_summary if self.conversation_summary else None
+    
+    def get_memory_insights(self) -> Dict[str, Any]:
+        """Get insights from long-term memory"""
+        return {
+            "enabled": True,
+            "long_term_memory": self.get_long_term_memory(),
+            "session_metadata": self.session_metadata.copy(),
+            "conversation_summary": self.conversation_summary
+        }
