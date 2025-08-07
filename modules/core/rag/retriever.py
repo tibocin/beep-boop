@@ -32,7 +32,12 @@ class UnifiedRetriever(BaseRetriever):
         self.backend_type = backend_type
         self.config = config
         self.backend = None
-        self.llm_client = openai.OpenAI()
+        # Use unified LLM client instead of direct OpenAI
+        from ..llm_client import UnifiedLLMClient
+        self.llm_client = UnifiedLLMClient(
+            ollama_model="llama3.1:8b",
+            enable_fallback=False  # Force Ollama only
+        )
         self.semantic_analyzer = SemanticAnalyzer()
         
         self._initialize_backend()
@@ -45,7 +50,10 @@ class UnifiedRetriever(BaseRetriever):
             backend_type = self.backend_type
             
         try:
-            if backend_type == "chroma":
+            if backend_type == "digi-core":
+                from .drivers.digi_core import DigiCoreDriver
+                self.backend = DigiCoreDriver(**self.config)
+            elif backend_type == "chroma":
                 self.backend = ChromaDriver(**self.config)
             elif backend_type == "simple":
                 self.backend = SimpleDriver(**self.config)
@@ -68,6 +76,16 @@ class UnifiedRetriever(BaseRetriever):
     
     def _detect_best_backend(self) -> str:
         """Detect the best available backend for current environment"""
+        # Check if Digi-Core is available and enabled
+        import os
+        digi_core_enabled = os.getenv('DIGI_CORE_ENABLED', 'true').lower() == 'true'
+        digi_core_api_key = os.getenv('DIGI_CORE_API_KEY')
+        
+        if digi_core_enabled and digi_core_api_key:
+            print("🧠 Digi-Core detected - using as primary RAG backend")
+            return "digi-core"
+        
+        # Fallback to ChromaDB if available
         try:
             import chromadb
             return "chroma"
@@ -76,7 +94,7 @@ class UnifiedRetriever(BaseRetriever):
             
         return "simple"
     
-    def retrieve(self, query: str, context_scope: ContextScope, top_k: int = 5) -> List[RAGContext]:
+    async def retrieve(self, query: str, context_scope: ContextScope, top_k: int = 5) -> List[RAGContext]:
         """
         Retrieve relevant context with semantic analysis and reasoning
         
@@ -89,8 +107,8 @@ class UnifiedRetriever(BaseRetriever):
             List of relevant contexts with reasoning
         """
         # Step 1: Semantic analysis for robust context understanding
-        semantic_context = self.semantic_analyzer.analyze_context(query)
-        intent_analysis = self.semantic_analyzer.analyze_intent(query)
+        semantic_context = await self.semantic_analyzer.analyze_context(query)
+        intent_analysis = await self.semantic_analyzer.analyze_intent(query)
         
         # Step 2: Enhanced retrieval based on semantic analysis
         if context_scope == ContextScope.PROFESSIONAL or semantic_context.primary_context.value in ["professional", "technical"]:
