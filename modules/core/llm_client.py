@@ -43,8 +43,9 @@ class UnifiedLLMClient:
                  openai_api_key: Optional[str] = None,
                  openai_model: str = "gpt-4o-mini",
                  enable_fallback: bool = True,
-                 fallback_timeout: float = 10.0,
-                 environment: Environment = Environment.DEVELOPMENT):
+                 fallback_timeout: float = 300.0,
+                 environment: Environment = Environment.DEVELOPMENT,
+                 force_openai_only: bool = False):
         """
         Initialize unified LLM client
         
@@ -77,8 +78,10 @@ class UnifiedLLMClient:
         if enable_fallback:
             self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
             if not self.openai_api_key:
-                logger.warning("OpenAI API key not found. Fallback will be disabled.")
+                logger.error("OpenAI API key not found. Fallback will be disabled.")
                 self.enable_fallback = False
+                if force_openai_only:
+                    raise ValueError("OpenAI API key is required when force_openai_only=True")
             else:
                 self.openai_client = AsyncOpenAI(api_key=self.openai_api_key)
         
@@ -136,17 +139,25 @@ class UnifiedLLMClient:
                                      messages: List[Dict[str, str]], 
                                      temperature: float = 0.7,
                                      max_tokens: Optional[int] = None,
+                                     system_prompt: Optional[str] = None,
                                      stream: bool = False) -> Dict[str, Any]:
         """Generate chat completion using Ollama API"""
         start_time = time.time()
         
+        # Prepare messages with system prompt if provided
+        ollama_messages = messages.copy()
+        if system_prompt:
+            ollama_messages.insert(0, {"role": "system", "content": system_prompt})
+        
         # Prepare request payload
         payload = {
             "model": self.ollama_model,
-            "messages": messages,
+            "messages": ollama_messages,
             "stream": stream,
             "options": {
-                "temperature": temperature
+                "temperature": temperature,
+                "num_ctx": 4096,  # Limit context window to reduce memory usage
+                "num_thread": 4   # Limit threads to reduce CPU usage
             }
         }
         
@@ -154,11 +165,11 @@ class UnifiedLLMClient:
             payload["options"]["num_predict"] = max_tokens
         
         try:
-            async with aiohttp.ClientSession() as session:
+            timeout = aiohttp.ClientTimeout(total=self.fallback_timeout, connect=30)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.post(
                     f"{self.ollama_url}/api/chat",
-                    json=payload,
-                    timeout=self.fallback_timeout
+                    json=payload
                 ) as response:
                     if response.status != 200:
                         raise Exception(f"Ollama API error: {response.status}")
@@ -172,6 +183,13 @@ class UnifiedLLMClient:
             self.usage_stats["ollama_errors"] += 1
             self.usage_stats["errors"] += 1
             logger.error(f"Ollama chat completion failed: {str(e)}")
+            logger.error(f"Ollama URL: {self.ollama_url}")
+            logger.error(f"Ollama model: {self.ollama_model}")
+            logger.error(f"Payload: {payload}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            if hasattr(e, '__traceback__'):
+                import traceback
+                logger.error(f"Traceback: {traceback.format_exc()}")
             raise
     
     async def _handle_ollama_regular(self, response: aiohttp.ClientResponse, start_time: float) -> Dict[str, Any]:
@@ -249,14 +267,22 @@ class UnifiedLLMClient:
     async def _ollama_chat_completion_stream(self, 
                                            messages: List[Dict[str, str]], 
                                            temperature: float = 0.7,
-                                           max_tokens: Optional[int] = None) -> AsyncGenerator[str, None]:
+                                           max_tokens: Optional[int] = None,
+                                           system_prompt: Optional[str] = None) -> AsyncGenerator[str, None]:
         """Stream chat completion using Ollama API"""
+        # Prepare messages with system prompt if provided
+        ollama_messages = messages.copy()
+        if system_prompt:
+            ollama_messages.insert(0, {"role": "system", "content": system_prompt})
+        
         payload = {
             "model": self.ollama_model,
-            "messages": messages,
+            "messages": ollama_messages,
             "stream": True,
             "options": {
-                "temperature": temperature
+                "temperature": temperature,
+                "num_ctx": 4096,  # Limit context window to reduce memory usage
+                "num_thread": 4   # Limit threads to reduce CPU usage
             }
         }
         
@@ -273,13 +299,29 @@ class UnifiedLLMClient:
                     if response.status != 200:
                         raise Exception(f"Ollama API error: {response.status}")
                     
+                    chunk_count = 0
                     async for line in response.content:
                         if line:
                             try:
                                 data = json.loads(line.decode().strip())
                                 if "message" in data and data["message"].get("content"):
-                                    yield data["message"]["content"]
+                                    chunk = data["message"]["content"]
+                                    chunk_count += 1
+                                    
+                                    # Add small delay every 10 chunks to reduce CPU usage
+                                    if chunk_count % 10 == 0:
+                                        await asyncio.sleep(0.001)  # 1ms delay
+                                    
+                                    yield chunk
+                                    
+                                    # Check for done flag
+                                    if data.get("done", False):
+                                        break
+                                        
                             except json.JSONDecodeError:
+                                continue
+                            except Exception as e:
+                                logger.warning(f"Error processing chunk: {e}")
                                 continue
                                 
         except Exception as e:
@@ -444,7 +486,7 @@ class UnifiedLLMClient:
             
             # Try Ollama
             return await self._ollama_chat_completion(
-                messages, temperature, max_tokens, stream
+                messages, temperature, max_tokens, system_prompt, stream
             )
             
         except Exception as e:
@@ -486,7 +528,7 @@ class UnifiedLLMClient:
         if not self.enable_fallback:
             # Ollama only mode
             async for chunk in self._ollama_chat_completion_stream(
-                messages, temperature, max_tokens
+                messages, temperature, max_tokens, system_prompt
             ):
                 yield chunk
             return
@@ -505,7 +547,7 @@ class UnifiedLLMClient:
             
             # Try Ollama streaming
             async for chunk in self._ollama_chat_completion_stream(
-                messages, temperature, max_tokens
+                messages, temperature, max_tokens, system_prompt
             ):
                 yield chunk
                 
