@@ -663,7 +663,7 @@ class CypherpunkInterface:
                     
                     
             # Event handlers
-            def respond(message, history, debug_logs):
+            async def respond(message, history, debug_logs):
                 """Handle user message and return response with debug info."""
                 if not message.strip():
                     return "", history, debug_logs
@@ -673,22 +673,38 @@ class CypherpunkInterface:
                 new_logs = f"{debug_logs}\n[{timestamp}] 🧠 USER: {message}"
                 
                 try:
-                    # Process message with orchestrator
-                    new_logs += f"\n[{timestamp}] ⚡ PROCESSING: Parsing request..."
+                    # Process message with orchestrator using streaming
+                    new_logs += f"\n[{timestamp}] ⚡ PROCESSING: Streaming response..."
                     
-                    response = self.orchestrator.process_message(message, voice_mode=False)
-                    
-                    new_logs += f"\n[{timestamp}] ✅ RESPONSE: Generated successfully"
-                    
-                    # Format metadata as pretty JSON for console
-                    import json
-                    metadata = response['metadata']
-                    pretty_metadata = json.dumps(metadata, indent=2, sort_keys=True)
-                    new_logs += f"\n[{timestamp}] 📊 METADATA:\n{pretty_metadata}"
-                    
-                    # Add response to history (using new message format)
+                    # Add user message to history
                     history.append({"role": "user", "content": message})
-                    history.append({"role": "assistant", "content": response['content']})
+                    
+                    # Start streaming response
+                    full_response = ""
+                    chunk_count = 0
+                    
+                    async for chunk in self.orchestrator.process_message_stream(message, voice_mode=False):
+                        chunk_count += 1
+                        full_response += chunk
+                        
+                        # Update the assistant message in history with current chunk
+                        if len(history) > 0 and history[-1].get("role") == "assistant":
+                            history[-1]["content"] = full_response
+                        else:
+                            history.append({"role": "assistant", "content": full_response})
+                        
+                        # Update debug logs periodically
+                        if chunk_count % 10 == 0:
+                            new_logs += f"\n[{timestamp}] 📊 STREAMING: {chunk_count} chunks received..."
+                        
+                        # Yield intermediate results to update UI
+                        yield "", history, new_logs
+                    
+                    # Final debug update
+                    new_logs += f"\n[{timestamp}] ✅ RESPONSE: Generated {chunk_count} chunks successfully"
+                    
+                    # Format metadata for console (simplified for streaming)
+                    new_logs += f"\n[{timestamp}] 📊 METADATA: Streamed {chunk_count} chunks"
                     
                     # Update debug logs
                     new_logs += f"\n[{timestamp}] 🎯 STATUS: Ready for next input"
@@ -696,7 +712,6 @@ class CypherpunkInterface:
                 except Exception as e:
                     error_msg = f"❌ ERROR: {str(e)}"
                     new_logs += f"\n[{timestamp}] {error_msg}"
-                    history.append({"role": "user", "content": message})
                     history.append({"role": "assistant", "content": f"System error: {str(e)}"})
                 
                 return "", history, new_logs
@@ -716,17 +731,19 @@ class CypherpunkInterface:
                 # Return visibility state for the debug panel
                 return gr.update(visible=self.debug_mode), status
             
-            # Connect events
+            # Connect events with streaming
             submit_btn.click(
                 respond,
                 inputs=[msg, chatbot, debug_logs],
-                outputs=[msg, chatbot, debug_logs]
+                outputs=[msg, chatbot, debug_logs],
+                show_progress=True
             )
             
             msg.submit(
                 respond,
                 inputs=[msg, chatbot, debug_logs],
-                outputs=[msg, chatbot, debug_logs]
+                outputs=[msg, chatbot, debug_logs],
+                show_progress=True
             )
             
             clear_btn.click(
