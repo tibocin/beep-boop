@@ -25,6 +25,9 @@ class ContextType(Enum):
     SOCIAL = "social"
     ACADEMIC = "academic"
     ENTERTAINMENT = "entertainment"
+    CAREER = "career"
+    CAREER_DEVELOPMENT = "career development"
+    RELATIONAL = "relational"
     MIXED = "mixed"
 
 @dataclass
@@ -112,21 +115,66 @@ Analyze the query and determine:
 
 Focus on understanding the deeper meaning and context, not just surface-level keywords."""
 
+            system_prompt = """You are an expert at analyzing the semantic context of user queries.
+
+Analyze the query and return a JSON response with these fields:
+- primary_context: The main domain/context (professional, personal, technical, creative, spiritual, social, academic, entertainment, career, relational, mixed)
+- secondary_contexts: List of other relevant contexts from the same options
+- confidence: How confident you are (0.0 to 1.0)
+- reasoning: Why you made these determinations
+- key_themes: List of main topics and themes
+- emotional_tone: The emotional tone (conversational, professional, enthusiastic, contemplative, etc.)
+- complexity_level: How complex the response should be (simple, moderate, detailed, comprehensive)
+- response_style: How to approach the response (direct, storytelling, analytical, supportive, etc.)
+
+Return ONLY valid JSON, no other text."""
+
             response = await self.client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Analyze this query: '{query}'{context_info}"}
                 ],
                 temperature=0.3,
-                max_tokens=500
+                max_tokens=300
             )
             
-            # Parse the response text instead of using function calls
-            response_text = response['text']
+            response_text = self._extract_response_text(response)
+            print(f"🔍 LLM Response: {response_text[:100]}...")
             
-            # Simple parsing of the response (fallback approach)
-            # For now, return a basic analysis
-            return self._fallback_context_analysis(query)
+            # Try to parse as JSON
+            try:
+                data = json.loads(response_text)
+                print(f"✅ JSON parsed successfully: {list(data.keys())}")
+                
+                # Safely convert context types with fallback
+                def safe_context_type(context_str: str) -> ContextType:
+                    try:
+                        return ContextType(context_str)
+                    except ValueError:
+                        # Try to find a close match
+                        context_lower = context_str.lower()
+                        for ctx_type in ContextType:
+                            if ctx_type.value.lower() in context_lower or context_lower in ctx_type.value.lower():
+                                print(f"🔄 Mapped '{context_str}' to '{ctx_type.value}'")
+                                return ctx_type
+                        print(f"⚠️ Unknown context type '{context_str}', using MIXED")
+                        return ContextType.MIXED
+                
+                return SemanticContext(
+                    primary_context=safe_context_type(data.get("primary_context", "mixed")),
+                    secondary_contexts=[safe_context_type(ctx) for ctx in data.get("secondary_contexts", [])],
+                    confidence=float(data.get("confidence", 0.5)),
+                    reasoning=data.get("reasoning", ""),
+                    key_themes=data.get("key_themes", []),
+                    emotional_tone=data.get("emotional_tone", "conversational"),
+                    complexity_level=data.get("complexity_level", "moderate"),
+                    response_style=data.get("response_style", "direct")
+                )
+                
+            except json.JSONDecodeError as e:
+                print(f"⚠️ JSON parsing failed: {e}")
+                print(f"   Raw response: {response_text}")
+                return self._fallback_context_analysis(query)
             
         except Exception as e:
             print(f"⚠️ Error in semantic context analysis: {e}")
@@ -171,37 +219,52 @@ Analyze the query and determine:
 
 Focus on understanding the deeper intent, not just surface-level requests."""
 
+            system_prompt = """You are an expert at understanding user intent from natural language.
+
+Analyze the query and return a JSON response with these fields:
+- primary_intent: What the user actually wants (in natural language)
+- secondary_intents: List of other aspects they're asking for
+- context_scope: What domain of knowledge is relevant (personal, professional, creative, general, all)
+- audience_type: Who they might be (employer, client, friend, family, etc.)
+- urgency_level: How urgent this is (low, normal, high)
+- depth_preference: How detailed they want the response (brief, moderate, comprehensive)
+- confidence: How confident you are in this analysis (0.0 to 1.0)
+- reasoning: Why you made these determinations
+
+Return ONLY valid JSON, no other text."""
+
             response = await self.client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Analyze this query: '{query}'{context_info}"}
                 ],
-                model=self.model,
                 temperature=0.3,
-                max_tokens=200  # Limit response length for faster processing
+                max_tokens=200
             )
             
-            # Extract response text
-            result_text = self._extract_response_text(response)
+            response_text = self._extract_response_text(response)
+            print(f"🎯 LLM Response: {response_text[:100]}...")
             
-            # Try to parse as JSON, fallback to basic analysis
+            # Try to parse as JSON
             try:
-                import json
-                data = json.loads(result_text)
-            except json.JSONDecodeError:
-                # Fallback to basic intent analysis
+                data = json.loads(response_text)
+                print(f"✅ JSON parsed successfully: {list(data.keys())}")
+                
+                return IntentAnalysis(
+                    primary_intent=data.get("primary_intent", ""),
+                    secondary_intents=data.get("secondary_intents", []),
+                    context_scope=data.get("context_scope", "general"),
+                    audience_type=data.get("audience_type", "general"),
+                    urgency_level=data.get("urgency_level", "normal"),
+                    depth_preference=data.get("depth_preference", "moderate"),
+                    confidence=float(data.get("confidence", 0.5)),
+                    reasoning=data.get("reasoning", "")
+                )
+                
+            except json.JSONDecodeError as e:
+                print(f"⚠️ JSON parsing failed: {e}")
+                print(f"   Raw response: {response_text}")
                 return self._fallback_intent_analysis(query)
-            
-            return IntentAnalysis(
-                primary_intent=data["primary_intent"],
-                secondary_intents=data.get("secondary_intents", []),
-                context_scope=data["context_scope"],
-                audience_type=data.get("audience_type", "general"),
-                urgency_level=data.get("urgency_level", "normal"),
-                depth_preference=data.get("depth_preference", "moderate"),
-                confidence=data["confidence"],
-                reasoning=data["reasoning"]
-            )
             
         except Exception as e:
             print(f"⚠️ Error in intent analysis: {e}")

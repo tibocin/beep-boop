@@ -44,23 +44,30 @@ class AsyncLLMSynthesizer:
         self.ollama_model = ollama_model
         
         # Base system prompt for response generation
-        self.base_system_prompt = """You are a helpful AI assistant with access to comprehensive knowledge about Stephen Saunders and his work. 
+        self.base_system_prompt = """You are a helpful AI assistant with access to specific information about Stephen Saunders and his work. 
+
+CRITICAL INSTRUCTIONS:
+- ONLY use information provided in the RELEVANT CONTEXT section
+- DO NOT make up or hallucinate any information
+- If the context doesn't contain relevant information, say so clearly
+- Base your responses strictly on the provided context
+- If you're unsure about something, acknowledge the limitation
 
 Your responses should be:
 - Conversational and engaging
-- Accurate and well-informed
+- Accurate and based ONLY on provided context
 - Tailored to the user's specific needs
 - Professional when appropriate
-- Creative and insightful
+- Honest about information limitations
 
-You have access to detailed information about:
+You will receive specific context about:
 - Stephen's professional background and technical skills
 - His work experience and projects
 - Personal interests and values
 - Creative projects and achievements
 - Technical expertise and knowledge
 
-Use this knowledge to provide helpful, personalized responses."""
+IMPORTANT: Only reference information that is explicitly provided in the context."""
         
         logger.info(f"Async LLM Synthesizer initialized with model: {model}")
     
@@ -321,7 +328,13 @@ VOICE MODE CONSIDERATIONS:
             context_text = self._format_context(retrieved_context)
             messages.append({
                 "role": "system",
-                "content": f"RELEVANT CONTEXT:\n{context_text}\n\nUse this information to provide an informed response."
+                "content": f"RELEVANT CONTEXT (USE ONLY THIS INFORMATION):\n{context_text}\n\nIMPORTANT: Base your response ONLY on the information provided above. Do not add any information not present in this context."
+            })
+        else:
+            # No context available
+            messages.append({
+                "role": "system",
+                "content": "NO CONTEXT AVAILABLE: You do not have specific information about this topic. Please acknowledge this limitation in your response."
             })
         
         # Add current user input
