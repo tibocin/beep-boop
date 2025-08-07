@@ -714,7 +714,8 @@ class CypherpunkInterface:
                     new_logs += f"\n[{timestamp}] {error_msg}"
                     history.append({"role": "assistant", "content": f"System error: {str(e)}"})
                 
-                return "", history, new_logs
+                # Final yield instead of return for async generator
+                yield "", history, new_logs
             
             def clear_history():
                 """Clear the conversation history."""
