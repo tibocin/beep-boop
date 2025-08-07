@@ -712,6 +712,15 @@ class CypherpunkInterface:
                     
                     try:
                         async for chunk in self.orchestrator.process_message_stream(message, voice_mode=False):
+                            # Check if this is a status update
+                            if chunk.startswith("__STATUS__"):
+                                status_msg = chunk[10:]  # Remove "__STATUS__" prefix
+                                timestamp = datetime.now().strftime("%H:%M:%S")
+                                new_logs += f"\n[{timestamp}] {status_msg}"
+                                # Yield immediately for status updates
+                                yield "", history, new_logs
+                                continue
+                            
                             chunk_count += 1
                             full_response += chunk
                             
@@ -721,17 +730,20 @@ class CypherpunkInterface:
                             else:
                                 history.append({"role": "assistant", "content": full_response})
                             
-                            # Add any new status updates to debug logs
+                            # Add any new status updates to debug logs immediately
                             if status_updates:
                                 new_logs += "\n" + "\n".join(status_updates)
                                 status_updates.clear()
+                                # Yield immediately when we have status updates
+                                yield "", history, new_logs
                             
                             # Update debug logs more frequently
-                            if chunk_count % 3 == 0:
+                            if chunk_count % 2 == 0:
                                 new_logs += f"\n[{timestamp}] 📊 STREAMING: {chunk_count} chunks received..."
-                            
-                            # Yield intermediate results to update UI
-                            yield "", history, new_logs
+                                yield "", history, new_logs
+                            elif chunk_count % 1 == 0:  # Every chunk
+                                # Yield on every chunk for real-time updates
+                                yield "", history, new_logs
                     finally:
                         # Restore original print function
                         builtins.print = original_print

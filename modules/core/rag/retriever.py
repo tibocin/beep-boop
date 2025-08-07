@@ -106,11 +106,26 @@ class UnifiedRetriever(BaseRetriever):
         Returns:
             List of relevant contexts with reasoning
         """
-        # Step 1: Semantic analysis for robust context understanding
-        semantic_context = await self.semantic_analyzer.analyze_context(query)
-        intent_analysis = await self.semantic_analyzer.analyze_intent(query)
+        # Step 1: Semantic analysis for robust context understanding (with timeout)
+        import asyncio
+        print(f"🔍 Analyzing query: {query[:50]}...")
+        try:
+            semantic_context = await asyncio.wait_for(
+                self.semantic_analyzer.analyze_context(query), 
+                timeout=10.0  # 10 second timeout
+            )
+            intent_analysis = await asyncio.wait_for(
+                self.semantic_analyzer.analyze_intent(query), 
+                timeout=10.0  # 10 second timeout
+            )
+            print(f"✅ Semantic analysis complete: {semantic_context.primary_context.value} context")
+        except asyncio.TimeoutError:
+            print("⚠️ Semantic analysis timed out, using fallback analysis")
+            semantic_context = self.semantic_analyzer._fallback_context_analysis(query)
+            intent_analysis = self.semantic_analyzer._fallback_intent_analysis(query)
         
         # Step 2: Enhanced retrieval based on semantic analysis
+        print(f"🔍 Retrieving context from {self.backend_type} backend...")
         if context_scope == ContextScope.PROFESSIONAL or semantic_context.primary_context.value in ["professional", "technical"]:
             # Get more comprehensive results for professional contexts
             raw_results = self._get_raw_results(query, context_scope, top_k * 3)
@@ -130,8 +145,19 @@ class UnifiedRetriever(BaseRetriever):
                     theme_results = self._get_raw_results(theme, context_scope, top_k // 2)
                     raw_results.extend(theme_results)
         
-        # Step 3: Use LLM to enhance relevance reasoning with semantic context
-                    enhanced_contexts = await self._enhance_with_semantic_reasoning(query, raw_results, context_scope, semantic_context, intent_analysis)
+        print(f"✅ Retrieved {len(raw_results)} raw contexts")
+        
+        # Step 3: Use LLM to enhance relevance reasoning with semantic context (with timeout)
+        print("🧠 Enhancing contexts with semantic reasoning...")
+        try:
+            enhanced_contexts = await asyncio.wait_for(
+                self._enhance_with_semantic_reasoning(query, raw_results, context_scope, semantic_context, intent_analysis),
+                timeout=15.0  # 15 second timeout
+            )
+            print(f"✅ Enhanced {len(enhanced_contexts)} contexts with reasoning")
+        except asyncio.TimeoutError:
+            print("⚠️ LLM reasoning timed out, using basic contexts")
+            enhanced_contexts = self._create_basic_contexts(raw_results)
         
         # Return top_k results
         return enhanced_contexts[:top_k]

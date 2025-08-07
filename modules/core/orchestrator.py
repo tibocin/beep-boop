@@ -209,7 +209,10 @@ class AsyncConversationOrchestrator:
         """
         try:
             # Step 1: Parse user request
-            print(f"🔤 Parsing request: {user_input[:50]}...")
+            status_msg = f"🔤 Parsing request: {user_input[:50]}..."
+            print(status_msg)
+            yield f"__STATUS__{status_msg}"
+            
             parsed_request, objective = await self.parser.parse_request(user_input, voice_mode)
             
             # Apply identity override if provided
@@ -220,7 +223,10 @@ class AsyncConversationOrchestrator:
                 parsed_request = self.parser.adapt_for_voice(parsed_request)
             
             # Step 2: Retrieve relevant context
-            print(f"🔍 Retrieving context for: {objective}")
+            status_msg = f"🔍 Retrieving context for: {objective}"
+            print(status_msg)
+            yield f"__STATUS__{status_msg}"
+            
             retrieved_context = await self.retriever.retrieve(
                 query=user_input,
                 context_scope=self._get_context_scope(parsed_request.intent),
@@ -245,7 +251,10 @@ class AsyncConversationOrchestrator:
                 conversation_history = self.context_manager.get_conversation_context()
             
             # Step 4: Stream response generation
-            print("🧠 Streaming response...")
+            status_msg = "🧠 Streaming response..."
+            print(status_msg)
+            yield f"__STATUS__{status_msg}"
+            
             full_response = ""
             async for chunk in self.synthesizer.synthesize_response_stream(
                 user_input=user_input,
@@ -261,10 +270,14 @@ class AsyncConversationOrchestrator:
             if self.enable_memory and self.context_manager:
                 self.context_manager.add_turn(user_input, full_response, {})
             
-            print("✅ Streaming response completed!")
+            status_msg = "✅ Streaming response completed!"
+            print(status_msg)
+            yield f"__STATUS__{status_msg}"
             
         except Exception as e:
-            print(f"❌ Error in streaming message processing: {str(e)}")
+            error_msg = f"❌ Error in streaming message processing: {str(e)}"
+            print(error_msg)
+            yield f"__STATUS__{error_msg}"
             yield f"Error: {str(e)}"
     
     async def process_resume_request(self, user_input: str, voice_mode: bool = False) -> Dict[str, Any]:
