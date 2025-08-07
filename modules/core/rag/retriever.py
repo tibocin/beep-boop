@@ -38,7 +38,7 @@ class UnifiedRetriever(BaseRetriever):
             ollama_model="llama3.1:8b",
             enable_fallback=False  # Force Ollama only
         )
-        self.semantic_analyzer = SemanticAnalyzer()
+        self.semantic_analyzer = SemanticAnalyzer(model="llama3.1:8b")
         
         self._initialize_backend()
     
