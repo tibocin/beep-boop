@@ -242,7 +242,8 @@ Return your evaluation as JSON."""
                     {"role": "user", "content": f"Evaluate these results:\n{results_text}"}
                 ],
                 model="gpt-4o-mini",
-                temperature=0.3
+                temperature=0.3,
+                max_tokens=300  # Limit response length for faster processing
             )
             
             # Extract response text

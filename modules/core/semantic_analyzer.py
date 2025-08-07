@@ -177,7 +177,8 @@ Focus on understanding the deeper intent, not just surface-level requests."""
                     {"role": "user", "content": f"Analyze this query: '{query}'{context_info}"}
                 ],
                 model=self.model,
-                temperature=0.3
+                temperature=0.3,
+                max_tokens=200  # Limit response length for faster processing
             )
             
             # Extract response text

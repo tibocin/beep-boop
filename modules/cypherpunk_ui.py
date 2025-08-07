@@ -684,22 +684,57 @@ class CypherpunkInterface:
                     full_response = ""
                     chunk_count = 0
                     
-                    async for chunk in self.orchestrator.process_message_stream(message, voice_mode=False):
-                        chunk_count += 1
-                        full_response += chunk
-                        
-                        # Update the assistant message in history with current chunk
-                        if len(history) > 0 and history[-1].get("role") == "assistant":
-                            history[-1]["content"] = full_response
-                        else:
-                            history.append({"role": "assistant", "content": full_response})
-                        
-                        # Update debug logs periodically
-                        if chunk_count % 10 == 0:
-                            new_logs += f"\n[{timestamp}] 📊 STREAMING: {chunk_count} chunks received..."
-                        
-                        # Yield intermediate results to update UI
-                        yield "", history, new_logs
+                    # Capture console output during processing
+                    import io
+                    import sys
+                    from contextlib import redirect_stdout
+                    
+                    # Create a string buffer to capture output
+                    output_buffer = io.StringIO()
+                    
+                    # Create a status callback to capture console output
+                    status_updates = []
+                    
+                    def status_callback(status_msg):
+                        nonlocal status_updates
+                        timestamp = datetime.now().strftime("%H:%M:%S")
+                        status_updates.append(f"[{timestamp}] {status_msg}")
+                    
+                    # Override print temporarily to capture status
+                    import builtins
+                    original_print = builtins.print
+                    
+                    def capture_print(*args, **kwargs):
+                        status_callback(" ".join(str(arg) for arg in args))
+                        original_print(*args, **kwargs)
+                    
+                    builtins.print = capture_print
+                    
+                    try:
+                        async for chunk in self.orchestrator.process_message_stream(message, voice_mode=False):
+                            chunk_count += 1
+                            full_response += chunk
+                            
+                            # Update the assistant message in history with current chunk
+                            if len(history) > 0 and history[-1].get("role") == "assistant":
+                                history[-1]["content"] = full_response
+                            else:
+                                history.append({"role": "assistant", "content": full_response})
+                            
+                            # Add any new status updates to debug logs
+                            if status_updates:
+                                new_logs += "\n" + "\n".join(status_updates)
+                                status_updates.clear()
+                            
+                            # Update debug logs more frequently
+                            if chunk_count % 3 == 0:
+                                new_logs += f"\n[{timestamp}] 📊 STREAMING: {chunk_count} chunks received..."
+                            
+                            # Yield intermediate results to update UI
+                            yield "", history, new_logs
+                    finally:
+                        # Restore original print function
+                        builtins.print = original_print
                     
                     # Final debug update
                     new_logs += f"\n[{timestamp}] ✅ RESPONSE: Generated {chunk_count} chunks successfully"
@@ -738,14 +773,16 @@ class CypherpunkInterface:
                 respond,
                 inputs=[msg, chatbot, debug_logs],
                 outputs=[msg, chatbot, debug_logs],
-                show_progress=True
+                show_progress=True,
+                api_name="submit"
             )
             
             msg.submit(
                 respond,
                 inputs=[msg, chatbot, debug_logs],
                 outputs=[msg, chatbot, debug_logs],
-                show_progress=True
+                show_progress=True,
+                api_name="submit_enter"
             )
             
             clear_btn.click(

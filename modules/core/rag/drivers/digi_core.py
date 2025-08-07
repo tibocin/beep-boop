@@ -134,12 +134,14 @@ class DigiCoreDriver:
             else:
                 self.stats['failed_queries'] += 1
                 print(f"❌ Digi-Core query failed: {response.status_code}")
-                return []
+                # Return fallback data when Digi-Core is unavailable
+                return self._get_fallback_data(query_text)
                 
         except Exception as e:
             self.stats['failed_queries'] += 1
             print(f"❌ Digi-Core query error: {str(e)}")
-            return []
+            # Return fallback data when Digi-Core is unavailable
+            return self._get_fallback_data(query_text)
     
     def _convert_digi_core_response(self, digi_core_response: Dict) -> List[Dict[str, Any]]:
         """
@@ -193,6 +195,49 @@ class DigiCoreDriver:
         }
         
         return [context]
+    
+    def _get_fallback_data(self, query_text: str) -> List[Dict[str, Any]]:
+        """
+        Provide fallback data when Digi-Core is unavailable
+        
+        Args:
+            query_text: User query
+            
+        Returns:
+            List of fallback context dictionaries
+        """
+        # Basic fallback data based on common queries
+        fallback_data = {
+            "about_me": {
+                "content": "I'm an AI assistant designed to help with various tasks. I can provide information, answer questions, and assist with creative and technical projects.",
+                "source": "fallback_knowledge",
+                "score": 0.8,
+                "metadata": {"confidence": 0.8, "source_type": "fallback"}
+            },
+            "technical_skills": {
+                "content": "I have knowledge about programming, software development, AI/ML, data analysis, and various technical domains. I can help with coding, debugging, and technical problem-solving.",
+                "source": "fallback_knowledge", 
+                "score": 0.7,
+                "metadata": {"confidence": 0.7, "source_type": "fallback"}
+            },
+            "projects": {
+                "content": "I can help you with various types of projects including software development, data analysis, creative writing, research, and more. I'm designed to be collaborative and supportive.",
+                "source": "fallback_knowledge",
+                "score": 0.6,
+                "metadata": {"confidence": 0.6, "source_type": "fallback"}
+            }
+        }
+        
+        # Simple keyword matching for fallback
+        query_lower = query_text.lower()
+        if "about" in query_lower or "you" in query_lower or "yourself" in query_lower:
+            return [fallback_data["about_me"]]
+        elif "skill" in query_lower or "technical" in query_lower or "programming" in query_lower:
+            return [fallback_data["technical_skills"]]
+        elif "project" in query_lower or "work" in query_lower:
+            return [fallback_data["projects"]]
+        else:
+            return [fallback_data["about_me"]]  # Default fallback
     
     def _update_avg_response_time(self, response_time: float):
         """Update average response time statistics"""
