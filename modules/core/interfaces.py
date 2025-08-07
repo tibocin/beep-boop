@@ -209,10 +209,10 @@ class BaseEvaluator(ABC):
     """
     
     @abstractmethod
-    def evaluate(self, response: CandidateResponse, objective: ResponseObjective,
+    async def evaluate(self, response: CandidateResponse, objective: ResponseObjective,
                 original_request: str) -> EvaluationScore:
         """
-        Evaluate response against objective using LLM reasoning
+        Evaluate response against objective using LLM reasoning (async)
         
         Args:
             response: Generated response to evaluate
@@ -230,11 +230,7 @@ class BaseEvaluator(ABC):
         pass
 
 class BaseContextManager(ABC):
-    """
-    Manages conversation history and long-term memory
-    
-    Supports sliding window with intelligent summarization.
-    """
+    """Base interface for conversation context management"""
     
     @abstractmethod
     def get_conversation_context(self, turns_back: int = 6) -> List[Dict[str, Any]]:
@@ -247,11 +243,21 @@ class BaseContextManager(ABC):
         pass
     
     @abstractmethod
-    def summarize_history(self, keep_recent: int = 6) -> str:
-        """Create intelligent summary of older conversation history"""
+    async def summarize_history(self, keep_recent: int = 6) -> str:
+        """Create intelligent summary of older conversation history (async)"""
         pass
     
     @abstractmethod
     def get_long_term_memory(self) -> Dict[str, Any]:
         """Retrieve persistent user preferences and insights"""
+        pass
+    
+    @abstractmethod
+    def update_long_term_memory(self, key: str, value: Any):
+        """Update long-term memory with new insights"""
+        pass
+    
+    @abstractmethod
+    async def extract_insights(self) -> Dict[str, Any]:
+        """Extract insights from recent conversation for long-term memory (async)"""
         pass
