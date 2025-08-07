@@ -11,9 +11,9 @@ Key Features:
 - Voice mode evaluation considerations
 """
 
-import openai
 import json
 from typing import Dict, Any
+from .llm_client import UnifiedLLMClient
 from .interfaces import (
     BaseEvaluator, CandidateResponse, ResponseObjective, EvaluationScore
 )
@@ -30,12 +30,12 @@ class LLMEvaluator(BaseEvaluator):
         """Initialize the LLM evaluator"""
         self.model = model
         self.max_retries = max_retries
-        self.client = openai.OpenAI()
+        self.client = UnifiedLLMClient(openai_model=model)
     
-    def evaluate(self, response: CandidateResponse, objective: ResponseObjective,
+    async def evaluate(self, response: CandidateResponse, objective: ResponseObjective,
                 original_request: str) -> EvaluationScore:
         """
-        Evaluate response against objective using LLM reasoning
+        Evaluate response against objective using LLM reasoning (async)
         
         Args:
             response: Generated response to evaluate
@@ -51,18 +51,21 @@ class LLMEvaluator(BaseEvaluator):
                 response, objective, original_request
             )
             
-            # Get LLM evaluation
-            eval_response = self.client.chat.completions.create(
-                model=self.model,
+            # Get LLM evaluation using UnifiedLLMClient
+            eval_response = await self.client.chat_completion(
                 messages=[{"role": "user", "content": evaluation_prompt}],
-                functions=[self._get_evaluation_function()],
-                function_call={"name": "evaluate_response"}
+                model=self.model,
+                temperature=0.3
             )
             
-            if eval_response.choices[0].message.function_call:
-                eval_data = json.loads(eval_response.choices[0].message.function_call.arguments)
+            # Extract response text
+            eval_text = self._extract_response_text(eval_response)
+            
+            # Try to parse as JSON for structured evaluation
+            try:
+                eval_data = json.loads(eval_text)
                 return self._create_evaluation_score(eval_data, response.voice_friendly)
-            else:
+            except json.JSONDecodeError:
                 # Fallback evaluation
                 return self._create_fallback_evaluation(response, objective)
                 
@@ -94,6 +97,33 @@ class LLMEvaluator(BaseEvaluator):
             return True
         
         return False
+    
+    def _extract_response_text(self, response: Dict[str, Any]) -> str:
+        """
+        Extract text content from LLM response
+        
+        Handles both UnifiedLLMClient dict format and OpenAI object format
+        """
+        # Check if it's a unified client response (dict with 'text' key)
+        if isinstance(response, dict) and 'text' in response:
+            return response['text']
+        
+        # Check if it's OpenAI response object with choices
+        if hasattr(response, 'choices') and len(response.choices) > 0:
+            return response.choices[0].message.content
+        
+        # Fallback: try to access as dict with choices
+        if isinstance(response, dict) and 'choices' in response:
+            choices = response['choices']
+            if choices and len(choices) > 0:
+                return choices[0].get('message', {}).get('content', '')
+        
+        # Last resort: try to get any text-like content
+        if isinstance(response, str):
+            return response
+        
+        print(f"⚠️ Could not extract text from response: {type(response)}")
+        return ""
     
     def _build_evaluation_prompt(self, response: CandidateResponse, 
                                 objective: ResponseObjective, original_request: str) -> str:
@@ -344,3 +374,50 @@ class RetryOrchestrator:
             ],
             voice_considerations=original_objective.voice_considerations
         )
+    
+    async def retry_with_feedback(self, user_input: str, original_response: str, 
+                                 feedback: str, retrieved_context: list, 
+                                 conversation_history: list, voice_mode: bool) -> dict:
+        """
+        Retry response generation with feedback from evaluation
+        
+        Args:
+            user_input: Original user input
+            original_response: Previous response that was evaluated
+            feedback: Evaluation feedback to improve upon
+            retrieved_context: Retrieved context for the request
+            conversation_history: Previous conversation history
+            voice_mode: Whether this is for voice interaction
+            
+        Returns:
+            Improved response dict or None if retry fails
+        """
+        try:
+            # Create enhanced prompt with feedback
+            enhanced_prompt = f"""
+Previous response to "{user_input}" was: {original_response}
+
+Feedback for improvement: {feedback}
+
+Please generate an improved response that addresses the feedback while maintaining the original intent.
+"""
+            
+            # Generate improved response
+            retry_response = await self.synthesizer.synthesize_response(
+                user_input=enhanced_prompt,
+                retrieved_context=retrieved_context,
+                conversation_history=conversation_history,
+                parsed_request={"intent": "improve_response", "voice_mode": voice_mode},
+                voice_mode=voice_mode
+            )
+            
+            # Add retry metadata
+            retry_response["metadata"]["retry_attempt"] = True
+            retry_response["metadata"]["original_response"] = original_response
+            retry_response["metadata"]["feedback_addressed"] = feedback
+            
+            return retry_response
+            
+        except Exception as e:
+            print(f"⚠️ Retry generation failed: {str(e)}")
+            return None
