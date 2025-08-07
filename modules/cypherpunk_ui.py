@@ -666,7 +666,8 @@ class CypherpunkInterface:
             async def respond(message, history, debug_logs):
                 """Handle user message and return response with debug info."""
                 if not message.strip():
-                    return "", history, debug_logs
+                    yield "", history, debug_logs
+                    return
                 
                 # Add user message to debug
                 timestamp = datetime.now().strftime("%H:%M:%S")
