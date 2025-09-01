@@ -1,0 +1,1 @@
+/home/tibo/r/digi-core/docs/INTEGRATIONS/BEEP_BOOP_INTEGRATION_GUIDE.md
