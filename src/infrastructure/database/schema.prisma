@@ -1,0 +1,367 @@
+// Beep-Boop v2.0 Database Schema
+// PostgreSQL schema for structured data storage
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER MANAGEMENT
+// =============================================================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String?  @unique
+  username  String?  @unique
+  name      String?
+  avatar    String?
+  
+  // User preferences and settings
+  preferences Json @default("{}")
+  
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relationships
+  conversations Conversation[]
+  messages      Message[]
+  memories      Memory[]
+  feedbacks     Feedback[]
+  sessions      Session[]
+  
+  @@map("users")
+}
+
+// =============================================================================
+// CONVERSATION MANAGEMENT  
+// =============================================================================
+
+model Conversation {
+  id     String            @id @default(uuid())
+  userId String            @map("user_id")
+  title  String
+  status ConversationStatus @default(ACTIVE)
+  
+  // Conversation metadata and context
+  metadata Json @default("{}")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relationships
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+  
+  // Indexes
+  @@index([userId])
+  @@index([createdAt])
+  @@index([status])
+  @@map("conversations")
+}
+
+enum ConversationStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+// =============================================================================
+// MESSAGE MANAGEMENT
+// =============================================================================
+
+model Message {
+  id             String             @id @default(uuid())
+  conversationId String             @map("conversation_id")
+  userId         String             @map("user_id")
+  role           MessageRole
+  content        String
+  contentType    MessageContentType @default(TEXT) @map("content_type")
+  
+  // Message metadata (prompts, knowledge sources, processing info)
+  metadata Json @default("{}")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relationships
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedbacks    Feedback[]
+  
+  // Indexes
+  @@index([conversationId])
+  @@index([userId])
+  @@index([role])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum MessageContentType {
+  TEXT
+  VOICE
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+// =============================================================================
+// MEMORY SYSTEM
+// =============================================================================
+
+model Memory {
+  id         String     @id @default(uuid())
+  userId     String     @map("user_id")
+  type       MemoryType
+  content    String
+  confidence Float      @default(0.5)
+  importance Float      @default(0.5)
+  
+  // Memory metadata (extraction context, topics, relationships)
+  metadata Json @default("{}")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([userId])
+  @@index([type])
+  @@index([confidence])
+  @@index([importance])
+  @@index([createdAt])
+  @@map("memories")
+}
+
+enum MemoryType {
+  PREFERENCE
+  FACT
+  SKILL
+  GOAL
+  HABIT
+  INSIGHT
+  RELATIONSHIP
+  INTEREST
+}
+
+// =============================================================================
+// FEEDBACK SYSTEM
+// =============================================================================
+
+model Feedback {
+  id        String       @id @default(uuid())
+  messageId String       @map("message_id")
+  userId    String       @map("user_id")
+  type      FeedbackType
+  comment   String?
+  score     Int          // -1 for down, +1 for up
+  
+  // Feedback metadata (context, reasoning, analysis)
+  metadata Json @default("{}")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Relationships
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Constraints
+  @@unique([messageId, userId]) // One feedback per user per message
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("feedbacks")
+}
+
+enum FeedbackType {
+  THUMBS_UP
+  THUMBS_DOWN
+}
+
+// =============================================================================
+// SESSION MANAGEMENT
+// =============================================================================
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  sessionId String   @unique @map("session_id")
+  
+  // Session data and context
+  data Json @default("{}")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  expiresAt DateTime @map("expires_at")
+  
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// =============================================================================
+// PROMPT SYSTEM
+// =============================================================================
+
+model Prompt {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String?
+  content     String
+  version     Int         @default(1)
+  status      PromptStatus @default(ACTIVE)
+  
+  // Prompt metadata (variables, usage stats, performance)
+  metadata Json @default("{}")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relationships
+  usages PromptUsage[]
+  
+  // Indexes
+  @@index([name])
+  @@index([status])
+  @@index([version])
+  @@map("prompts")
+}
+
+enum PromptStatus {
+  ACTIVE
+  DEPRECATED
+  TESTING
+}
+
+// =============================================================================
+// PROMPT USAGE TRACKING
+// =============================================================================
+
+model PromptUsage {
+  id                String   @id @default(uuid())
+  promptId          String   @map("prompt_id")
+  conversationId    String   @map("conversation_id")
+  messageId         String   @map("message_id")
+  
+  // Usage context and results
+  context          Json     @default("{}")
+  generatedContent String   @map("generated_content")
+  performance      Json     @default("{}")
+  
+  // User feedback on this prompt usage
+  userFeedback Json? @map("user_feedback")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Relationships
+  prompt Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([promptId])
+  @@index([conversationId])
+  @@index([messageId])
+  @@index([createdAt])
+  @@map("prompt_usages")
+}
+
+// =============================================================================
+// ANALYTICS AND METRICS
+// =============================================================================
+
+model ConversationMetrics {
+  id             String   @id @default(uuid())
+  conversationId String   @unique @map("conversation_id")
+  
+  // Performance metrics
+  totalMessages     Int      @default(0) @map("total_messages")
+  totalTokens       Int      @default(0) @map("total_tokens")
+  averageResponse   Float?   @map("average_response")
+  averageConfidence Float?   @map("average_confidence")
+  
+  // User engagement metrics
+  positiveFeedback Int @default(0) @map("positive_feedback")
+  negativeFeedback Int @default(0) @map("negative_feedback")
+  
+  // Timing metrics
+  firstMessageAt DateTime? @map("first_message_at")
+  lastMessageAt  DateTime? @map("last_message_at")
+  
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([conversationId])
+  @@map("conversation_metrics")
+}
+
+// =============================================================================
+// API INTEGRATION LOGS
+// =============================================================================
+
+model APILog {
+  id           String        @id @default(uuid())
+  service      String        // "digi-core", "pcs", "ollama", etc.
+  operation    String        // "query", "generate_prompt", etc.
+  method       String        // HTTP method
+  endpoint     String        // API endpoint
+  status       APILogStatus
+  
+  // Request and response data
+  requestData  Json?    @map("request_data")
+  responseData Json?    @map("response_data")
+  
+  // Performance metrics
+  responseTime Int      @map("response_time") // milliseconds
+  retryCount   Int      @default(0) @map("retry_count")
+  
+  // Error information
+  errorMessage String? @map("error_message")
+  errorCode    String? @map("error_code")
+  
+  // Context
+  userId         String? @map("user_id")
+  conversationId String? @map("conversation_id")
+  requestId      String? @map("request_id")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Indexes
+  @@index([service])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("api_logs")
+}
+
+enum APILogStatus {
+  SUCCESS
+  ERROR
+  TIMEOUT
+  RETRY
+}
