@@ -24,19 +24,19 @@ import { z } from 'zod';
 const configSchema = z.object({
   // Application Settings
   nodeEnv: z.enum(['development', 'staging', 'production']).default('development'),
-  port: z.coerce.number().int().positive().default(3000),
+  port: z.coerce.number().int().positive().default(3001),
   apiVersion: z.string().default('v1'),
   logLevel: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
-  
+
   // Security
-  corsOrigin: z.string().default('http://localhost:3000'),
+  corsOrigin: z.string().default('http://localhost:3001'),
   jwtSecret: z.string().min(32, 'JWT secret must be at least 32 characters'),
   sessionSecret: z.string().min(32, 'Session secret must be at least 32 characters'),
-  
+
   // Rate Limiting
   rateLimitRequests: z.coerce.number().int().positive().default(1000),
   rateLimitWindow: z.coerce.number().int().positive().default(900000), // 15 minutes
-  
+
   // Digi-Core Integration
   digiCore: z.object({
     baseUrl: z.string().url(),
@@ -45,7 +45,7 @@ const configSchema = z.object({
     timeout: z.coerce.number().int().positive().default(30000),
     maxRetries: z.coerce.number().int().positive().default(3)
   }),
-  
+
   // PCS Integration
   pcs: z.object({
     baseUrl: z.string().url(),
@@ -55,7 +55,7 @@ const configSchema = z.object({
     timeout: z.coerce.number().int().positive().default(15000),
     maxRetries: z.coerce.number().int().positive().default(3)
   }),
-  
+
   // LLM Providers
   ollama: z.object({
     baseUrl: z.string().url().default('http://localhost:11434'),
@@ -63,14 +63,14 @@ const configSchema = z.object({
     enabled: z.coerce.boolean().default(true),
     timeout: z.coerce.number().int().positive().default(60000)
   }),
-  
+
   openai: z.object({
     apiKey: z.string().optional(),
     model: z.string().default('gpt-4o-mini'),
     enabled: z.coerce.boolean().default(true),
     timeout: z.coerce.number().int().positive().default(30000)
   }),
-  
+
   // Voice Services
   voice: z.object({
     whisper: z.object({
@@ -89,13 +89,13 @@ const configSchema = z.object({
       voice: z.string().default('alloy')
     })
   }),
-  
+
   // Database Configuration
   database: z.object({
     postgres: z.object({
       host: z.string().default('localhost'),
       port: z.coerce.number().int().positive().default(5432),
-      database: z.string().default('beep_boop_v2'),
+      database: z.string().default('beep_boop'),
       username: z.string().default('beep_boop_user'),
       password: z.string().min(1, 'PostgreSQL password is required'),
       ssl: z.coerce.boolean().default(false)
@@ -123,7 +123,7 @@ const configSchema = z.object({
       ttl: z.coerce.number().int().positive().default(3600)
     })
   }),
-  
+
   // Feature Flags
   features: z.object({
     voice: z.coerce.boolean().default(true),
@@ -150,16 +150,16 @@ function parseEnvironment(): z.infer<typeof configSchema> {
     port: process.env.PORT,
     apiVersion: process.env.API_VERSION,
     logLevel: process.env.LOG_LEVEL,
-    
+
     // Security
     corsOrigin: process.env.CORS_ORIGIN,
     jwtSecret: process.env.JWT_SECRET,
     sessionSecret: process.env.SESSION_SECRET,
-    
+
     // Rate Limiting
     rateLimitRequests: process.env.RATE_LIMIT_REQUESTS,
     rateLimitWindow: process.env.RATE_LIMIT_WINDOW,
-    
+
     // Digi-Core Integration
     digiCore: {
       baseUrl: process.env.DIGI_CORE_BASE_URL,
@@ -168,7 +168,7 @@ function parseEnvironment(): z.infer<typeof configSchema> {
       timeout: process.env.DIGI_CORE_TIMEOUT,
       maxRetries: process.env.DIGI_CORE_MAX_RETRIES
     },
-    
+
     // PCS Integration
     pcs: {
       baseUrl: process.env.PCS_BASE_URL,
@@ -178,7 +178,7 @@ function parseEnvironment(): z.infer<typeof configSchema> {
       timeout: process.env.PCS_TIMEOUT,
       maxRetries: process.env.PCS_MAX_RETRIES
     },
-    
+
     // LLM Providers
     ollama: {
       baseUrl: process.env.OLLAMA_BASE_URL,
@@ -186,14 +186,14 @@ function parseEnvironment(): z.infer<typeof configSchema> {
       enabled: process.env.OLLAMA_ENABLED,
       timeout: process.env.OLLAMA_TIMEOUT
     },
-    
+
     openai: {
       apiKey: process.env.OPENAI_API_KEY,
       model: process.env.OPENAI_MODEL,
       enabled: process.env.OPENAI_ENABLED,
       timeout: process.env.OPENAI_TIMEOUT
     },
-    
+
     // Voice Services
     voice: {
       whisper: {
@@ -212,7 +212,7 @@ function parseEnvironment(): z.infer<typeof configSchema> {
         voice: process.env.OPENAI_TTS_VOICE
       }
     },
-    
+
     // Database Configuration
     database: {
       postgres: {
@@ -246,7 +246,7 @@ function parseEnvironment(): z.infer<typeof configSchema> {
         ttl: process.env.REDIS_TTL
       }
     },
-    
+
     // Feature Flags
     features: {
       voice: process.env.VOICE_ENABLED,

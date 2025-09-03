@@ -86,6 +86,7 @@ export class DatabaseConnection {
       
     } catch (error) {
       logger.error('❌ PostgreSQL connection failed:', error);
+      logger.error('❌ Full error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
       throw new Error(`PostgreSQL connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
