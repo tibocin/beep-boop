@@ -84,7 +84,7 @@ docker-build: ## Build Docker images
 health: ## Check service health
 	@echo "🔍 Checking service health..."
 	@echo "  Beep-Boop API..."
-	@curl -s http://localhost:3000/health > /dev/null && echo "    ✅ Beep-Boop API: healthy" || echo "    ❌ Beep-Boop API: unhealthy"
+	@curl -s http://localhost:3001/health > /dev/null && echo "    ✅ Beep-Boop API: healthy" || echo "    ❌ Beep-Boop API: unhealthy"
 	@echo "  Digi-Core..."
 	@curl -s http://localhost:2000/health > /dev/null && echo "    ✅ Digi-Core: healthy" || echo "    ❌ Digi-Core: unhealthy"
 	@echo "  PCS..."
