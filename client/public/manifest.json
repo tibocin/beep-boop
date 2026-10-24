@@ -1,0 +1,71 @@
+{
+  "name": "Beep-Boop v2.0 - Personal AI Assistant",
+  "short_name": "Beep-Boop",
+  "description": "Multi-modal conversational AI with dynamic prompts, knowledge integration, and voice capabilities",
+  "theme_color": "#1f2937",
+  "background_color": "#111827",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "categories": ["productivity", "utilities", "education"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "512x512", 
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Conversation",
+      "short_name": "New Chat",
+      "description": "Start a new conversation with Beep-Boop",
+      "url": "/new",
+      "icons": [
+        {
+          "src": "pwa-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Voice Chat",
+      "short_name": "Voice",
+      "description": "Start voice conversation",
+      "url": "/voice",
+      "icons": [
+        {
+          "src": "pwa-192x192.png", 
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Beep-Boop desktop interface"
+    },
+    {
+      "src": "screenshot-narrow.png",
+      "sizes": "480x854", 
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Beep-Boop mobile interface"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,182 @@
+# Beep-Boop v2.0 Development Environment
+# Docker Compose configuration for local development
+
+version: '3.8'
+
+services:
+  # Beep-Boop Application (Development Mode)
+  beep-boop:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debugger
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      # Database connections
+      POSTGRES_HOST: postgres
+      NEO4J_URI: bolt://neo4j:7687
+      QDRANT_URL: http://qdrant:6333
+      REDIS_HOST: redis
+      # External services (assuming they're running separately)
+      DIGI_CORE_BASE_URL: http://host.docker.internal:2000
+      PCS_BASE_URL: http://host.docker.internal:8000
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: beep-boop-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: beep_boop_v2
+      POSTGRES_USER: beep_boop_user
+      POSTGRES_PASSWORD: beep_boop_dev_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/infrastructure/database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beep_boop_user -d beep_boop_v2"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+  # Neo4j Graph Database  
+  neo4j:
+    image: neo4j:5-community
+    container_name: beep-boop-neo4j
+    ports:
+      - "7474:7474"  # Web interface
+      - "7687:7687"  # Bolt protocol
+    environment:
+      NEO4J_AUTH: neo4j/beep_boop_dev_password
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_apoc_export_file_enabled: true
+      NEO4J_apoc_import_file_enabled: true
+      NEO4J_dbms_memory_heap_initial__size: 512M
+      NEO4J_dbms_memory_heap_max__size: 1G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - ./src/infrastructure/graph/init:/var/lib/neo4j/import
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "beep_boop_dev_password", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:v1.7.3
+    container_name: beep-boop-qdrant
+    ports:
+      - "6333:6333"
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+  # Redis Cache & Sessions
+  redis:
+    image: redis:7-alpine
+    container_name: beep-boop-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass beep_boop_dev_password
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+  # Prometheus (Metrics)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: beep-boop-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+  # Grafana (Dashboards)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: beep-boop-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: beep_boop_dev_password
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - beep-boop-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  qdrant_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  beep-boop-network:
+    driver: bridge
+    name: beep-boop-dev
