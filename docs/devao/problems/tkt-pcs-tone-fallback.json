@@ -1,0 +1,27 @@
+{
+  "work_id": "tkt:pcs-tone-fallback",
+  "milestone_id": null,
+  "named_files": [
+    "modules/core/pcs_tone.py",
+    "tests/test_pcs_tone.py"
+  ],
+  "statement": "Resolve a beep-boop Tone from a PCS prompt-generation payload. Read tone from variables_resolved, then metadata, then context_used, then a top-level tone field. Known Tone values and the aliases matter-of-fact and shamanic-esoteric map to the enum. A missing key, unknown string, empty value, transport error, or non-200 response falls back to Tone.CONVERSATIONAL and does not include the PCS API key in the reason.",
+  "expected_io": [
+    {
+      "call": "tone_from_pcs_payload({'variables_resolved': {'tone': 'professional'}})",
+      "returns": "Tone.PROFESSIONAL"
+    },
+    {
+      "call": "tone_from_pcs_payload({'metadata': {'tone': 'matter-of-fact'}})",
+      "returns": "Tone.MATTER_OF_FACT"
+    },
+    {
+      "call": "resolve_tone(fetch_that_raises_TimeoutError)",
+      "returns": "tone=Tone.CONVERSATIONAL, source=fallback, reason starts with pcs_unavailable"
+    },
+    {
+      "call": "resolve_tone(fetch_http_503_body_containing_api_key)",
+      "returns": "source=fallback and the resolution reason does not contain the API key"
+    }
+  ]
+}
