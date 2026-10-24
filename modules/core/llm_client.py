@@ -83,6 +83,8 @@ class UnifiedLLMClient:
         self.enable_fallback = enable_fallback
         self.fallback_timeout = fallback_timeout
         
+        self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+
         # Cloud fallback: OpenAI unless the caller selects OpenRouter.
         if enable_fallback and cloud_provider == "openrouter":
             if self.openrouter_client is None:
@@ -93,14 +95,14 @@ class UnifiedLLMClient:
                 logger.error("OPENROUTER_API_KEY not found. Fallback will be disabled.")
                 self.enable_fallback = False
         elif enable_fallback:
-            self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
             if not self.openai_api_key:
                 logger.error("OpenAI API key not found. Fallback will be disabled.")
                 self.enable_fallback = False
                 if force_openai_only:
                     raise ValueError("OpenAI API key is required when force_openai_only=True")
-            else:
-                self.openai_client = AsyncOpenAI(api_key=self.openai_api_key)
+
+        if self.openai_api_key:
+            self.openai_client = AsyncOpenAI(api_key=self.openai_api_key)
         
         # Usage statistics
         self.usage_stats = {
@@ -482,8 +484,7 @@ class UnifiedLLMClient:
             Dict containing response text, usage stats, and metadata
         """
         if force_openai:
-            # Force OpenAI
-            return await self._openai_chat_completion(
+            return await self._cloud_chat_completion(
                 messages, temperature, max_tokens, system_prompt, stream
             )
         
@@ -537,8 +538,7 @@ class UnifiedLLMClient:
             Response text chunks as they arrive
         """
         if force_openai:
-            # Force OpenAI streaming
-            async for chunk in self._openai_chat_completion_stream(
+            async for chunk in self._cloud_chat_stream(
                 messages, temperature, max_tokens, system_prompt
             ):
                 yield chunk
