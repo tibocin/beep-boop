@@ -143,7 +143,7 @@ def pcs_tone_fetcher(
     *,
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
-    template_name: str = "beep-boop-tone",
+    template_name: Optional[str] = None,
     variables: Optional[Dict[str, Any]] = None,
     transport: Optional[Transport] = None,
     timeout: float = 5.0,
@@ -151,9 +151,12 @@ def pcs_tone_fetcher(
     """Build a fetch coroutine for POST /api/v1/prompts/generate.
 
     None for api_key reads PCS_API_KEY. An explicit empty string stays empty.
+    None for template_name reads PCS_TONE_TEMPLATE.
     """
     if api_key is None:
         api_key = os.environ.get("PCS_API_KEY", "")
+    if template_name is None:
+        template_name = os.environ.get("PCS_TONE_TEMPLATE", "beep-boop-tone")
     secret = api_key or ""
     root = (base_url or os.environ.get("PCS_BASE_URL") or "http://localhost:8000").rstrip("/")
     send = transport or _aiohttp_transport
