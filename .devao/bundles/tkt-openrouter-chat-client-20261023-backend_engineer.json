@@ -1,0 +1,35 @@
+{
+  "agent_os_contract_version": "1.1.0",
+  "envelope_id": "env-tkt-openrouter-chat-client-20261023-backend_engineer",
+  "session_id": "tkt-openrouter-chat-client-20261023",
+  "actor_role": "backend_engineer",
+  "model_class": "build",
+  "retrieval_mode": "impl",
+  "system": "You are backend_engineer in DEVAO. One-shot specialist: no hidden chat memory.\nmodel_class=build retrieval_mode=impl pack=None\nFollow AGENTS.md and the agent-os context contract. Pack stays inactive unless named.",
+  "task": "goal: Ship tkt:openrouter-chat-client: OpenRouter chat completions for beep-boop. work_id=tkt:openrouter-chat-client. milestone_id is unset in the spine catalog.\nacceptance: ping transport returns text pong and provider openrouter; missing key raises OpenRouterConfigError; HTTP 401 redacts the key; UnifiedLLMClient cloud_provider=openrouter uses the injected client when Ollama is down.\nhandoff: goal=implement OpenRouter client; decisions=tracer is one non-streaming completion; artifacts=modules/core/openrouter_chat.py; open_risks=llm_client.py was already over 200 lines; next_owner=qa_lead; model_class=build\nhandoff: goal=verify evidence before PR; decisions=tests map to expected_io; artifacts=docs/devao/sessions/tkt-openrouter-chat-client-20261023.md; open_risks=no spine catalog item and no GitHub issue; next_owner=verifier; model_class=fast",
+  "pins": [
+    {
+      "object_id": "pin-openrouter",
+      "kind": "task",
+      "path": "modules/core/openrouter_chat.py",
+      "summary": "Add OpenRouter chat completions. Default UnifiedLLMClient cloud provider stays openai. Key from env only."
+    }
+  ],
+  "exclusions": [
+    {
+      "object_id": "secrets",
+      "reason": "Do not read .env or commit API keys",
+      "policy_source": "docs/policies/secret-injection.md"
+    }
+  ],
+  "done_definition": [
+    "Acceptance listed with evidence pass/fail",
+    "Tests executed (command + outcome)",
+    "Chalkboard complete; blockers owned",
+    "ChangeIntent present for governed writes",
+    "No secrets in the diff"
+  ],
+  "token_budget": 2000,
+  "token_cost_estimate": 329,
+  "bundle_id": "tkt-openrouter-chat-client-20261023"
+}

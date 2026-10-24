@@ -1,0 +1,167 @@
+{
+  "agent_os_contract_version": "1.0.0",
+  "graph_id": "devao-default-council",
+  "description": "Actor-capable DEVAO council graph: peer handoff/escalate permissions; soft happy path in docs.",
+  "nodes": [
+    {
+      "node_id": "program_manager",
+      "role": "program_manager",
+      "class": "advisory",
+      "agent_def_path": ".cursor/agents/council/program-manager.md",
+      "pack": null
+    },
+    {
+      "node_id": "product_manager",
+      "role": "product_manager",
+      "class": "advisory",
+      "agent_def_path": ".cursor/agents/council/product-manager.md",
+      "pack": null
+    },
+    {
+      "node_id": "architecture_lead",
+      "role": "architecture_lead",
+      "class": "advisory",
+      "agent_def_path": ".cursor/agents/council/architecture-lead.md",
+      "pack": null
+    },
+    {
+      "node_id": "frontend_engineer",
+      "role": "frontend_engineer",
+      "class": "workflow",
+      "agent_def_path": ".cursor/agents/engineering/frontend-engineer.md",
+      "pack": null
+    },
+    {
+      "node_id": "backend_engineer",
+      "role": "backend_engineer",
+      "class": "workflow",
+      "agent_def_path": ".cursor/agents/engineering/backend-engineer.md",
+      "pack": null
+    },
+    {
+      "node_id": "data_platform_engineer",
+      "role": "data_platform_engineer",
+      "class": "workflow",
+      "agent_def_path": ".cursor/agents/engineering/data-platform-engineer.md",
+      "pack": null
+    },
+    {
+      "node_id": "infra_engineer",
+      "role": "infra_engineer",
+      "class": "workflow",
+      "agent_def_path": ".cursor/agents/engineering/infra-engineer.md",
+      "pack": null
+    },
+    {
+      "node_id": "devops_security_lead",
+      "role": "devops_security_lead",
+      "class": "governance",
+      "agent_def_path": ".cursor/agents/council/devops-security-lead.md",
+      "pack": null
+    },
+    {
+      "node_id": "qa_lead",
+      "role": "qa_lead",
+      "class": "governance",
+      "agent_def_path": ".cursor/agents/council/qa-lead.md",
+      "pack": null
+    },
+    {
+      "node_id": "verifier",
+      "role": "verifier",
+      "class": "governance",
+      "agent_def_path": ".cursor/agents/verifier.md",
+      "pack": null
+    }
+  ],
+  "edges": [
+    { "from": "program_manager", "to": "product_manager", "relation": "handoff" },
+    { "from": "program_manager", "to": "architecture_lead", "relation": "handoff" },
+    { "from": "program_manager", "to": "frontend_engineer", "relation": "handoff" },
+    { "from": "program_manager", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "program_manager", "to": "data_platform_engineer", "relation": "handoff" },
+    { "from": "program_manager", "to": "infra_engineer", "relation": "handoff" },
+    { "from": "program_manager", "to": "devops_security_lead", "relation": "handoff" },
+    { "from": "program_manager", "to": "qa_lead", "relation": "handoff" },
+    { "from": "program_manager", "to": "verifier", "relation": "handoff" },
+
+    { "from": "product_manager", "to": "architecture_lead", "relation": "parallel_ok" },
+    { "from": "product_manager", "to": "architecture_lead", "relation": "handoff" },
+    { "from": "product_manager", "to": "program_manager", "relation": "escalates" },
+    { "from": "product_manager", "to": "qa_lead", "relation": "handoff" },
+
+    { "from": "architecture_lead", "to": "frontend_engineer", "relation": "handoff" },
+    { "from": "architecture_lead", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "architecture_lead", "to": "data_platform_engineer", "relation": "handoff" },
+    { "from": "architecture_lead", "to": "infra_engineer", "relation": "handoff" },
+    { "from": "architecture_lead", "to": "devops_security_lead", "relation": "handoff" },
+    { "from": "architecture_lead", "to": "program_manager", "relation": "escalates" },
+    { "from": "architecture_lead", "to": "devops_security_lead", "relation": "escalates" },
+
+    { "from": "frontend_engineer", "to": "backend_engineer", "relation": "parallel_ok" },
+    { "from": "frontend_engineer", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "frontend_engineer", "to": "infra_engineer", "relation": "handoff" },
+    { "from": "frontend_engineer", "to": "devops_security_lead", "relation": "handoff" },
+    { "from": "frontend_engineer", "to": "qa_lead", "relation": "handoff" },
+    { "from": "frontend_engineer", "to": "architecture_lead", "relation": "handoff" },
+    { "from": "frontend_engineer", "to": "program_manager", "relation": "escalates" },
+    { "from": "frontend_engineer", "to": "devops_security_lead", "relation": "escalates" },
+
+    { "from": "backend_engineer", "to": "frontend_engineer", "relation": "handoff" },
+    { "from": "backend_engineer", "to": "data_platform_engineer", "relation": "depends" },
+    { "from": "backend_engineer", "to": "data_platform_engineer", "relation": "handoff" },
+    { "from": "backend_engineer", "to": "infra_engineer", "relation": "handoff" },
+    { "from": "backend_engineer", "to": "devops_security_lead", "relation": "handoff" },
+    { "from": "backend_engineer", "to": "qa_lead", "relation": "handoff" },
+    { "from": "backend_engineer", "to": "architecture_lead", "relation": "handoff" },
+    { "from": "backend_engineer", "to": "program_manager", "relation": "escalates" },
+    { "from": "backend_engineer", "to": "devops_security_lead", "relation": "escalates" },
+
+    { "from": "data_platform_engineer", "to": "backend_engineer", "relation": "depends" },
+    { "from": "data_platform_engineer", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "data_platform_engineer", "to": "infra_engineer", "relation": "handoff" },
+    { "from": "data_platform_engineer", "to": "devops_security_lead", "relation": "handoff" },
+    { "from": "data_platform_engineer", "to": "qa_lead", "relation": "handoff" },
+    { "from": "data_platform_engineer", "to": "architecture_lead", "relation": "handoff" },
+    { "from": "data_platform_engineer", "to": "program_manager", "relation": "escalates" },
+    { "from": "data_platform_engineer", "to": "devops_security_lead", "relation": "escalates" },
+
+    { "from": "infra_engineer", "to": "frontend_engineer", "relation": "parallel_ok" },
+    { "from": "infra_engineer", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "infra_engineer", "to": "devops_security_lead", "relation": "handoff" },
+    { "from": "infra_engineer", "to": "qa_lead", "relation": "handoff" },
+    { "from": "infra_engineer", "to": "architecture_lead", "relation": "handoff" },
+    { "from": "infra_engineer", "to": "program_manager", "relation": "escalates" },
+    { "from": "infra_engineer", "to": "devops_security_lead", "relation": "escalates" },
+
+    { "from": "devops_security_lead", "to": "qa_lead", "relation": "handoff" },
+    { "from": "devops_security_lead", "to": "infra_engineer", "relation": "handoff" },
+    { "from": "devops_security_lead", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "devops_security_lead", "to": "verifier", "relation": "reviews" },
+    { "from": "devops_security_lead", "to": "program_manager", "relation": "escalates" },
+
+    { "from": "qa_lead", "to": "verifier", "relation": "reviews" },
+    { "from": "qa_lead", "to": "verifier", "relation": "handoff" },
+    { "from": "qa_lead", "to": "frontend_engineer", "relation": "handoff" },
+    { "from": "qa_lead", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "qa_lead", "to": "program_manager", "relation": "escalates" },
+
+    { "from": "verifier", "to": "qa_lead", "relation": "handoff" },
+    { "from": "verifier", "to": "program_manager", "relation": "escalates" },
+    { "from": "verifier", "to": "devops_security_lead", "relation": "escalates" },
+    { "from": "verifier", "to": "backend_engineer", "relation": "handoff" },
+    { "from": "verifier", "to": "frontend_engineer", "relation": "handoff" }
+  ],
+  "concurrency_rules": [
+    {
+      "rule": "parallel_ok",
+      "nodes": ["frontend_engineer", "backend_engineer", "infra_engineer"],
+      "reason": "Safe when touching disjoint paths"
+    },
+    {
+      "rule": "serialize",
+      "nodes": ["data_platform_engineer", "backend_engineer"],
+      "reason": "Shared migrations / schema locks"
+    }
+  ]
+}
