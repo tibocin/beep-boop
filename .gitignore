@@ -68,9 +68,9 @@ huggingface/
 *.log
 logs/
 
-# Test files (temporary)
-test_*.py
-*_test.py
+# Scratch tests at the repo root stay untracked. Package tests under tests/ do not.
+/test_*.py
+/*_test.py
 
 # Jupyter
 .ipynb_checkpoints/
