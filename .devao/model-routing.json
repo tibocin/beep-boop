@@ -1,0 +1,43 @@
+{
+  "agent_os_contract_version": "1.1.0",
+  "routing_id": "devao-default-model-routing",
+  "classes": {
+    "think": {
+      "when": "Ambiguous, architecture, novel risk, strategy",
+      "slug": null
+    },
+    "build": {
+      "when": "Scoped impl against an RFC",
+      "slug": null
+    },
+    "fast": {
+      "when": "Well-specified, mechanical, readonly",
+      "slug": null
+    },
+    "ops": {
+      "when": "CI, secrets, env, deploy notes",
+      "slug": null
+    }
+  },
+  "by_role": {
+    "program_manager": "think",
+    "product_manager": "think",
+    "architecture_lead": "think",
+    "frontend_engineer": "build",
+    "backend_engineer": "build",
+    "data_platform_engineer": "build",
+    "infra_engineer": "ops",
+    "devops_security_lead": "ops",
+    "qa_lead": "fast",
+    "verifier": "fast"
+  },
+  "by_retrieval_mode": {
+    "impl": "build",
+    "review": "fast",
+    "debug": "think",
+    "ops": "ops",
+    "oracle": "think",
+    "strategy": "think",
+    "custom": "build"
+  }
+}

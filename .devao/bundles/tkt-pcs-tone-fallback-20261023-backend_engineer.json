@@ -1,0 +1,35 @@
+{
+  "agent_os_contract_version": "1.1.0",
+  "envelope_id": "env-tkt-pcs-tone-fallback-20261023-backend_engineer",
+  "session_id": "tkt-pcs-tone-fallback-20261023",
+  "actor_role": "backend_engineer",
+  "model_class": "build",
+  "retrieval_mode": "impl",
+  "system": "You are backend_engineer in DEVAO. One-shot specialist: no hidden chat memory.\nmodel_class=build retrieval_mode=impl pack=None\nFollow AGENTS.md and the agent-os context contract. Pack stays inactive unless named.",
+  "task": "goal: Ship tkt:pcs-tone-fallback: local Tone.CONVERSATIONAL when PCS has no known tone. work_id=tkt:pcs-tone-fallback. milestone_id is unset in the spine catalog.\nacceptance: professional from variables_resolved is Tone.PROFESSIONAL; matter-of-fact is Tone.MATTER_OF_FACT; TimeoutError and HTTP 503 fall back to conversational and the reason does not contain the API key.\nhandoff: goal=implement tone resolver; decisions=standalone module, no Digi pack activation; artifacts=modules/core/pcs_tone.py; open_risks=PCS generate body is template_name plus variables; next_owner=qa_lead; model_class=build\nhandoff: goal=verify before PR; decisions=tests match expected_io; artifacts=docs/devao/sessions/tkt-pcs-tone-fallback-20261023.md; open_risks=no spine catalog item and no GitHub issue; next_owner=verifier; model_class=fast",
+  "pins": [
+    {
+      "object_id": "pin-pcs-tone",
+      "kind": "task",
+      "path": "modules/core/pcs_tone.py",
+      "summary": "Fall back to Tone.CONVERSATIONAL when PCS tone is missing, unknown, or unreachable. Never put the API key in the reason."
+    }
+  ],
+  "exclusions": [
+    {
+      "object_id": "secrets",
+      "reason": "Do not read .env or commit API keys",
+      "policy_source": "docs/policies/secret-injection.md"
+    }
+  ],
+  "done_definition": [
+    "Acceptance listed with evidence pass/fail",
+    "Tests executed (command + outcome)",
+    "Chalkboard complete; blockers owned",
+    "ChangeIntent present for governed writes",
+    "No secrets in the diff"
+  ],
+  "token_budget": 2000,
+  "token_cost_estimate": 323,
+  "bundle_id": "tkt-pcs-tone-fallback-20261023"
+}
