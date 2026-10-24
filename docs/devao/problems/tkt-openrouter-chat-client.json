@@ -1,0 +1,28 @@
+{
+  "work_id": "tkt:openrouter-chat-client",
+  "milestone_id": null,
+  "named_files": [
+    "modules/core/openrouter_chat.py",
+    "modules/core/llm_client.py",
+    "tests/test_openrouter_chat.py"
+  ],
+  "statement": "Add an OpenRouter chat-completions client in beep-boop. It POSTs to the configured OpenRouter chat URL with the bearer key from the environment, returns the same text/usage/metadata shape the unified LLM client already uses, and redacts the key from errors. When UnifiedLLMClient cloud_provider is openrouter, Ollama failure uses that client. Default cloud_provider stays openai.",
+  "expected_io": [
+    {
+      "call": "OpenRouterChatClient(api_key='sk-test', transport=ok).chat_completion([{'role':'user','content':'ping'}])",
+      "returns": "text='pong', metadata.provider='openrouter'"
+    },
+    {
+      "call": "OpenRouterChatClient(api_key='', transport=unused).chat_completion([...])",
+      "returns": "OpenRouterConfigError; message does not contain the key"
+    },
+    {
+      "call": "OpenRouterChatClient(api_key='sk-test', transport=http_401).chat_completion([...])",
+      "returns": "OpenRouterHTTPError status_code=401; message does not contain sk-test"
+    },
+    {
+      "call": "UnifiedLLMClient(cloud_provider='openrouter', openrouter_client=fake, ollama_health=False).chat_completion([...])",
+      "returns": "text from the injected OpenRouter client"
+    }
+  ]
+}

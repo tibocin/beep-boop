@@ -1,0 +1,27 @@
+{
+  "agent_os_contract_version": "1.0.0",
+  "bundle_id": "tkt-openrouter-chat-client-20261023",
+  "retrieval_mode": "impl",
+  "metadata": {
+    "session_id": "tkt-openrouter-chat-client-20261023",
+    "timestamp_generated": "2026-10-24T05:38:51Z",
+    "token_budget": 2000,
+    "generation_reason": "one-shot backend brief for tkt:openrouter-chat-client",
+    "active_pack": null
+  },
+  "pins": [
+    {
+      "object_id": "pin-openrouter",
+      "kind": "task",
+      "path": "modules/core/openrouter_chat.py",
+      "summary": "Add OpenRouter chat completions. Default UnifiedLLMClient cloud provider stays openai. Key from env only."
+    }
+  ],
+  "exclusions": [
+    {
+      "object_id": "secrets",
+      "reason": "Do not read .env or commit API keys",
+      "policy_source": "docs/policies/secret-injection.md"
+    }
+  ]
+}

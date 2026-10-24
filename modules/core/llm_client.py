@@ -1,8 +1,9 @@
 """
-modules/core/llm_client.py - Unified LLM client with Ollama primary and OpenAI fallback
+modules/core/llm_client.py - Unified LLM client with Ollama primary and a cloud fallback
 
 This module provides a unified async interface for LLM interactions with Ollama as the primary
-model and OpenAI as fallback. It handles authentication, request formatting, response parsing,
+model and a cloud fallback (OpenAI by default, OpenRouter when cloud_provider='openrouter').
+It handles authentication, request formatting, response parsing,
 and error handling for all LLM interactions in the beep-boop system.
 
 Key Features:
@@ -45,7 +46,9 @@ class UnifiedLLMClient:
                  enable_fallback: bool = True,
                  fallback_timeout: float = 300.0,
                  environment: Environment = Environment.DEVELOPMENT,
-                 force_openai_only: bool = False):
+                 force_openai_only: bool = False,
+                 cloud_provider: str = "openai",
+                 openrouter_client: Optional[Any] = None):
         """
         Initialize unified LLM client
         
@@ -54,10 +57,16 @@ class UnifiedLLMClient:
             ollama_model: Primary Ollama model to use (auto-detected if None)
             openai_api_key: OpenAI API key (defaults to OPENAI_API_KEY env var)
             openai_model: Fallback OpenAI model
-            enable_fallback: Whether to enable OpenAI fallback
+            enable_fallback: Whether to enable cloud fallback
             fallback_timeout: Timeout for Ollama requests before falling back
             environment: Environment type for model selection
+            cloud_provider: 'openai' (default) or 'openrouter' for the cloud path
+            openrouter_client: Optional injected OpenRouterChatClient
         """
+        if cloud_provider not in {"openai", "openrouter"}:
+            raise ValueError("cloud_provider must be 'openai' or 'openrouter'")
+        self.cloud_provider = cloud_provider
+        self.openrouter_client = openrouter_client
         self.ollama_url = ollama_url.rstrip('/')
         self.environment = environment
         
@@ -74,26 +83,38 @@ class UnifiedLLMClient:
         self.enable_fallback = enable_fallback
         self.fallback_timeout = fallback_timeout
         
-        # Initialize OpenAI client for fallback
-        if enable_fallback:
-            self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+        self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+
+        # Cloud fallback: OpenAI unless the caller selects OpenRouter.
+        if enable_fallback and cloud_provider == "openrouter":
+            if self.openrouter_client is None:
+                from .openrouter_chat import OpenRouterChatClient
+
+                self.openrouter_client = OpenRouterChatClient()
+            if not getattr(self.openrouter_client, "api_key", ""):
+                logger.error("OPENROUTER_API_KEY not found. Fallback will be disabled.")
+                self.enable_fallback = False
+        elif enable_fallback:
             if not self.openai_api_key:
                 logger.error("OpenAI API key not found. Fallback will be disabled.")
                 self.enable_fallback = False
                 if force_openai_only:
                     raise ValueError("OpenAI API key is required when force_openai_only=True")
-            else:
-                self.openai_client = AsyncOpenAI(api_key=self.openai_api_key)
+
+        if self.openai_api_key:
+            self.openai_client = AsyncOpenAI(api_key=self.openai_api_key)
         
         # Usage statistics
         self.usage_stats = {
             "total_requests": 0,
             "ollama_requests": 0,
             "openai_requests": 0,
+            "openrouter_requests": 0,
             "fallback_requests": 0,
             "errors": 0,
             "ollama_errors": 0,
-            "openai_errors": 0
+            "openai_errors": 0,
+            "openrouter_errors": 0
         }
         
         logger.info(f"Unified LLM client initialized with Ollama model: {self.ollama_model}")
@@ -463,8 +484,7 @@ class UnifiedLLMClient:
             Dict containing response text, usage stats, and metadata
         """
         if force_openai:
-            # Force OpenAI
-            return await self._openai_chat_completion(
+            return await self._cloud_chat_completion(
                 messages, temperature, max_tokens, system_prompt, stream
             )
         
@@ -478,9 +498,9 @@ class UnifiedLLMClient:
         try:
             # Check Ollama health
             if not await self._check_ollama_health():
-                logger.warning("Ollama server not available, using OpenAI fallback")
+                logger.warning("Ollama server not available, using cloud fallback")
                 self.usage_stats["fallback_requests"] += 1
-                return await self._openai_chat_completion(
+                return await self._cloud_chat_completion(
                     messages, temperature, max_tokens, system_prompt, stream
                 )
             
@@ -490,9 +510,9 @@ class UnifiedLLMClient:
             )
             
         except Exception as e:
-            logger.warning(f"Ollama failed, falling back to OpenAI: {str(e)}")
+            logger.warning(f"Ollama failed, falling back to cloud provider: {str(e)}")
             self.usage_stats["fallback_requests"] += 1
-            return await self._openai_chat_completion(
+            return await self._cloud_chat_completion(
                 messages, temperature, max_tokens, system_prompt, stream
             )
     
@@ -518,8 +538,7 @@ class UnifiedLLMClient:
             Response text chunks as they arrive
         """
         if force_openai:
-            # Force OpenAI streaming
-            async for chunk in self._openai_chat_completion_stream(
+            async for chunk in self._cloud_chat_stream(
                 messages, temperature, max_tokens, system_prompt
             ):
                 yield chunk
@@ -537,9 +556,9 @@ class UnifiedLLMClient:
         try:
             # Check Ollama health
             if not await self._check_ollama_health():
-                logger.warning("Ollama server not available, using OpenAI fallback")
+                logger.warning("Ollama server not available, using cloud fallback")
                 self.usage_stats["fallback_requests"] += 1
-                async for chunk in self._openai_chat_completion_stream(
+                async for chunk in self._cloud_chat_stream(
                     messages, temperature, max_tokens, system_prompt
                 ):
                     yield chunk
@@ -552,9 +571,9 @@ class UnifiedLLMClient:
                 yield chunk
                 
         except Exception as e:
-            logger.warning(f"Ollama streaming failed, falling back to OpenAI: {str(e)}")
+            logger.warning(f"Ollama streaming failed, falling back to cloud provider: {str(e)}")
             self.usage_stats["fallback_requests"] += 1
-            async for chunk in self._openai_chat_completion_stream(
+            async for chunk in self._cloud_chat_stream(
                 messages, temperature, max_tokens, system_prompt
             ):
                 yield chunk
@@ -593,6 +612,59 @@ class UnifiedLLMClient:
             logger.error(f"OpenAI streaming failed: {str(e)}")
             raise
     
+    async def _cloud_chat_completion(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+        system_prompt: Optional[str] = None,
+        stream: bool = False,
+    ) -> Dict[str, Any]:
+        """Dispatch the cloud fallback. OpenRouter ignores token streaming and returns one dict."""
+        if self.cloud_provider != "openrouter":
+            return await self._openai_chat_completion(
+                messages, temperature, max_tokens, system_prompt, stream
+            )
+        if self.openrouter_client is None:
+            from .openrouter_chat import OpenRouterConfigError
+
+            raise OpenRouterConfigError("OPENROUTER_API_KEY is not set")
+        try:
+            result = await self.openrouter_client.chat_completion(
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                system_prompt=system_prompt,
+            )
+        except Exception:
+            self.usage_stats["openrouter_errors"] += 1
+            self.usage_stats["errors"] += 1
+            raise
+        self.usage_stats["openrouter_requests"] += 1
+        self.usage_stats["total_requests"] += 1
+        return result
+
+    async def _cloud_chat_stream(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+        system_prompt: Optional[str] = None,
+    ) -> AsyncGenerator[str, None]:
+        """Stream the cloud fallback. OpenRouter yields the full completion once."""
+        if self.cloud_provider != "openrouter":
+            async for chunk in self._openai_chat_completion_stream(
+                messages, temperature, max_tokens, system_prompt
+            ):
+                yield chunk
+            return
+        result = await self._cloud_chat_completion(
+            messages, temperature, max_tokens, system_prompt, stream=False
+        )
+        text = result.get("text") or ""
+        if text:
+            yield text
+
     async def get_embedding(self, text: str, model: str = "text-embedding-3-small") -> List[float]:
         """
         Generate embedding for text using OpenAI API (fallback only)
@@ -659,10 +731,12 @@ class UnifiedLLMClient:
             "total_requests": 0,
             "ollama_requests": 0,
             "openai_requests": 0,
+            "openrouter_requests": 0,
             "fallback_requests": 0,
             "errors": 0,
             "ollama_errors": 0,
-            "openai_errors": 0
+            "openai_errors": 0,
+            "openrouter_errors": 0
         }
     
     async def list_models(self) -> List[str]:
