@@ -54,6 +54,7 @@ Thumbs.db
 *.cpython-*
 
 # RAG Backend Data
+*.pkl
 embeddings.pkl
 chroma_db/
 *.db
@@ -68,9 +69,9 @@ huggingface/
 *.log
 logs/
 
-# Scratch tests at the repo root stay untracked. Package tests under tests/ do not.
-/test_*.py
-/*_test.py
+# Test files (temporary)
+test_*.py
+*_test.py
 
 # Jupyter
 .ipynb_checkpoints/
@@ -81,3 +82,40 @@ logs/
 *.temp
 temp/
 tmp/
+
+# Node.js
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.yarn/
+.yarn-integrity
+.pnp.*
+.env
+.env.backup.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TypeScript / frontend build output
+*.tsbuildinfo
+dist/
+build/
+coverage/
+.next/
+out/
+.turbo/
+.vite/
+*.js.map
+*.css.map
+
+# Generated Prisma client engines (when not under node_modules)
+**/generated/prisma/
+
+# IDE - TypeScript specific
+.eslintcache
+.stylelintcache
