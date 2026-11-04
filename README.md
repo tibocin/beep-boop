@@ -48,6 +48,37 @@ cp env.example .env
 # Edit .env and add your OpenAI API key
 ```
 
+### 🔒 Environment File Protection
+
+The `.env` file is automatically set to read-only permissions to prevent unintentional modifications by AI agents or automated processes. This protects your sensitive credentials and configuration.
+
+**Managing the protected .env file:**
+
+```bash
+# Check current protection status
+./scripts/manage-env.sh status
+
+# Temporarily unlock for editing
+./scripts/manage-env.sh unlock
+# ... make your changes ...
+# Re-protect after editing
+./scripts/manage-env.sh lock
+
+# Create backup before making changes
+./scripts/manage-env.sh backup
+
+# Reset from template (if needed)
+./scripts/manage-env.sh reset
+```
+
+**Available commands:**
+- `status` - Show current .env file status and permissions
+- `unlock` - Make .env file writable for editing
+- `lock` - Make .env file read-only (default protection)
+- `backup` - Create a backup of current .env file
+- `restore` - Restore .env from most recent backup
+- `reset` - Reset .env from env.example template
+
 4. Set your OpenAI API key:
 
 ```bash
