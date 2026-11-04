@@ -36,6 +36,8 @@ services:
       DIGI_CORE_API_KEY: ${DIGI_CORE_API_KEY}
       PCS_BASE_URL: ${PCS_BASE_URL:-http://digi-pcs:8000}
       PCS_API_KEY: ${PCS_API_KEY}
+      PCS_ALLOWED_HOSTS: ${PCS_ALLOWED_HOSTS:-digi-pcs,localhost,127.0.0.1}
+      PCS_HOST_VALIDATION: ${PCS_HOST_VALIDATION:-false}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       # Security
       JWT_SECRET: ${JWT_SECRET}
