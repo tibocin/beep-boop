@@ -1,0 +1,55 @@
+# Beep-Boop v2.0 Development Environment
+# Docker Compose configuration for local development
+# Uses existing Digi infrastructure for databases and monitoring
+# SECURITY: All sensitive values are loaded from environment variables (.env file)
+# Required environment variables: POSTGRES_PASSWORD, NEO4J_PASSWORD, REDIS_PASSWORD,
+# DIGI_CORE_API_KEY, PCS_API_KEY, JWT_SECRET, SESSION_SECRET
+
+services:
+  # Beep-Boop Application (Development Mode)
+  beep-boop:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+      - "9229:9229" # Node.js debugger
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      # Database connections - using existing Digi infrastructure
+      POSTGRES_HOST: ${POSTGRES_HOST:-digi-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-beep_boop}
+      POSTGRES_USER: ${POSTGRES_USER:-beep_boop_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+      NEO4J_URI: ${NEO4J_URI:-bolt://digi-neo4j:7687}
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      QDRANT_URL: ${QDRANT_URL:-http://digi-qdrant:6333}
+      REDIS_HOST: ${REDIS_HOST:-digi-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # External services
+      DIGI_CORE_BASE_URL: ${DIGI_CORE_BASE_URL:-http://digi-core-app:8000}
+      DIGI_CORE_API_KEY: ${DIGI_CORE_API_KEY}
+      PCS_BASE_URL: ${PCS_BASE_URL:-http://digi-pcs:8000}
+      PCS_API_KEY: ${PCS_API_KEY}
+      PCS_ALLOWED_HOSTS: ${PCS_ALLOWED_HOSTS:-digi-pcs,localhost,127.0.0.1}
+      PCS_HOST_VALIDATION: ${PCS_HOST_VALIDATION:-false}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    networks:
+      - digi-infrastructure_digi-net
+    restart: unless-stopped
+
+networks:
+  digi-infrastructure_digi-net:
+    external: true
