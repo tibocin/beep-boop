@@ -54,6 +54,7 @@ Thumbs.db
 *.cpython-*
 
 # RAG Backend Data
+*.pkl
 embeddings.pkl
 chroma_db/
 *.db
@@ -84,7 +85,7 @@ tmp/
 
 # Node.js
 node_modules/
-*/node_modules/
+**/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -100,24 +101,21 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# TypeScript
+# TypeScript / frontend build output
 *.tsbuildinfo
 dist/
 build/
 coverage/
 .next/
 out/
-
-# IDE - TypeScript specific
-*.tsbuildinfo
-.eslintcache
-.stylelintcache
-
-# Package files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Build artifacts
+.turbo/
+.vite/
 *.js.map
 *.css.map
+
+# Generated Prisma client engines (when not under node_modules)
+**/generated/prisma/
+
+# IDE - TypeScript specific
+.eslintcache
+.stylelintcache
